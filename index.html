@@ -209,7 +209,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-12-28 14:58:34 / 修改时间：15:28:41" itemprop="dateCreated datePublished" datetime="2021-12-28T14:58:34+08:00">2021-12-28</time>
+      <time title="创建时间：2021-12-28 14:58:34 / 修改时间：15:47:03" itemprop="dateCreated datePublished" datetime="2021-12-28T14:58:34+08:00">2021-12-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -232,7 +232,11 @@
     
     <div class="post-body" itemprop="articleBody">
           <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
-<h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式-ls-sys-firmware-efi-efivars"><a href="#验证启动模式-ls-sys-firmware-efi-efivars" class="headerlink" title="验证启动模式 ls /sys/firmware/efi/efivars"></a>验证启动模式 ls /sys/firmware/efi/efivars</h3><h3 id="联网-iwctl"><a href="#联网-iwctl" class="headerlink" title="联网 iwctl"></a>联网 iwctl</h3><h3 id="ping-c-3-archlinux-org"><a href="#ping-c-3-archlinux-org" class="headerlink" title="ping -c 3 archlinux.org"></a>ping -c 3 archlinux.org</h3><h3 id="timedatectl-set-ntp-true-更新系统时间"><a href="#timedatectl-set-ntp-true-更新系统时间" class="headerlink" title="timedatectl set-ntp true 更新系统时间"></a>timedatectl set-ntp true 更新系统时间</h3><h3 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h3><pre><code>1. fidsk /dev/sda
+<h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式"><a href="#验证启动模式" class="headerlink" title="验证启动模式"></a>验证启动模式</h3><p>ls /sys/firmware/efi/efivars</p>
+<h3 id="联网"><a href="#联网" class="headerlink" title="联网"></a>联网</h3><p>iwctl </p>
+<h3 id="检查是否联通"><a href="#检查是否联通" class="headerlink" title="检查是否联通"></a>检查是否联通</h3><p>ping -c 3 archlinux.org</p>
+<h3 id="更新系统时间"><a href="#更新系统时间" class="headerlink" title="更新系统时间"></a>更新系统时间</h3><p>timedatectl set-ntp true </p>
+<h3 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h3><pre><code>1. fidsk /dev/sda
 2. g新建gpt分区表
 3. n新建分区 ,类型序号开头都回车结尾定义空间大小，然后t改成efi
 4. p查看完成的分区表，w保存退出

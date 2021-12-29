@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>JUC</title>
+    <url>/blog.github.io/2021/12/28/JUC/</url>
+    <content><![CDATA[<p><img src="/blog.github.io/2021/12/28/JUC/1.png"></p>
+]]></content>
+      <categories>
+        <category>juc</category>
+      </categories>
+      <tags>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>archLinux 安装</title>
     <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
@@ -82,18 +94,6 @@
       </categories>
       <tags>
         <tag>archLinux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JUC</title>
-    <url>/blog.github.io/2021/12/28/JUC/</url>
-    <content><![CDATA[<p><img src="/blog.github.io/2021/12/28/JUC/1.png"></p>
-]]></content>
-      <categories>
-        <category>juc</category>
-      </categories>
-      <tags>
-        <tag>JUC</tag>
       </tags>
   </entry>
 </search>

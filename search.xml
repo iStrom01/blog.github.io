@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>JUC</title>
+    <url>/blog.github.io/2021/12/28/JUC/</url>
+    <content><![CDATA[<h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
+<li><p>栈帧图解</p>
+<p>  一个线程一个栈</p>
+<p>  <img src="/blog.github.io/2021/12/28/JUC/1.png"></p>
+</li>
+<li><p>六种线程状态</p>
+<p>  new runnable terminated blocked timed_waiting waiting </p>
+</li>
+<li><p>interrupt()</p>
+<p>  打断不是真打断，只是打个标记，打断sleep join wait会抛出异常且标记仍为false，打断正常执行中的线程还需被打断线程同意，标记为true</p>
+</li>
+<li><p>上下文切换</p>
+<p>  上下文切换会造成结果的不可预测（即使简单的++，–也由于jvm指令的存在也会出现该问题），即在临界区发生竞态，即出现线程安全问题，通过加锁解决，一个线程获得锁时即使cpu时间片用完从而想上下文切换到其他线程其他线程也不会获取锁而是继续被堵塞，直到先前线程完成</p>
+</li>
+<li><p>变量线程安全问题</p>
+<ul>
+<li><p>成员变量和静态变量</p>
+<p>  如果没有共享，则线程安全，如果共享了且只有读则线程安全，否则不安全</p>
+</li>
+<li><p>局部变量</p>
+<p>  局部变量线程安全。但局部变量引用的对象未必</p>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>juc</category>
+      </categories>
+      <tags>
+        <tag>juc</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>archLinux 安装</title>
     <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
@@ -82,42 +118,6 @@
       </categories>
       <tags>
         <tag>archLinux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JUC</title>
-    <url>/blog.github.io/2021/12/28/JUC/</url>
-    <content><![CDATA[<h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
-<li><p>栈帧图解</p>
-<p>  一个线程一个栈</p>
-<p>  <img src="/blog.github.io/2021/12/28/JUC/1.png"></p>
-</li>
-<li><p>六种线程状态</p>
-<p>  new runnable terminated blocked timed_waiting waiting </p>
-</li>
-<li><p>interrupt()</p>
-<p>  打断不是真打断，只是打个标记，打断sleep join wait会抛出异常且标记仍为false，打断正常执行中的线程还需被打断线程同意，标记为true</p>
-</li>
-<li><p>上下文切换</p>
-<p>  上下文切换会造成结果的不可预测（即使简单的++，–也由于jvm指令的存在也会出现该问题），即在临界区发生竞态，即出现线程安全问题，通过加锁解决，一个线程获得锁时即使cpu时间片用完从而想上下文切换到其他线程其他线程也不会获取锁而是继续被堵塞，直到先前线程完成</p>
-</li>
-<li><p>变量线程安全问题</p>
-<ul>
-<li><p>成员变量和静态变量</p>
-<p>  如果没有共享，则线程安全，如果共享了且只有读则线程安全，否则不安全</p>
-</li>
-<li><p>局部变量</p>
-<p>  局部变量线程安全。但局部变量引用的对象未必</p>
-</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>juc</category>
-      </categories>
-      <tags>
-        <tag>juc</tag>
       </tags>
   </entry>
 </search>

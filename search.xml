@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>archLinux 安装</title>
+    <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
+<h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式"><a href="#验证启动模式" class="headerlink" title="验证启动模式"></a>验证启动模式</h3><p>ls /sys/firmware/efi/efivars</p>
+<h3 id="联网"><a href="#联网" class="headerlink" title="联网"></a>联网</h3><p>iwctl </p>
+<h3 id="检查是否联通"><a href="#检查是否联通" class="headerlink" title="检查是否联通"></a>检查是否联通</h3><p>ping -c 3 archlinux.org</p>
+<h3 id="更新系统时间"><a href="#更新系统时间" class="headerlink" title="更新系统时间"></a>更新系统时间</h3><p>timedatectl set-ntp true </p>
+<h3 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h3><pre><code>1. fidsk /dev/sda
+2. g新建gpt分区表
+3. n新建分区 ,类型序号开头都回车结尾定义空间大小，然后t改成efi
+4. p查看完成的分区表，w保存退出
+5. 自改分区如下
+    1. sda1 +512M EFI
+    2. sda2 +50G 
+    3. sda3 余下
+</code></pre>
+<h3 id="格式化分区"><a href="#格式化分区" class="headerlink" title="格式化分区"></a>格式化分区</h3><pre><code>1.  mkfs.fat -F32 /dev/sda1
+2.  mkfs.ext4 /dev/sda2
+3.  mkfs.ext4 /dev/sda3
+</code></pre>
+<h3 id="挂载"><a href="#挂载" class="headerlink" title="挂载"></a>挂载</h3><pre><code>1.  mount /dev/sda2  /mnt
+2.  mkdir -p /mnt/boot &amp; mount /dev/sda1  /mnt/boot
+3.  mkdir -p /mnt/home &amp; mount /dev/sda3  /mnt/home
+</code></pre>
+<h3 id="安装基本操作系统"><a href="#安装基本操作系统" class="headerlink" title="安装基本操作系统"></a>安装基本操作系统</h3><p>pacstrap /mnt base linux linux-firmware vim iwd </p>
+<h3 id="配置挂载信息"><a href="#配置挂载信息" class="headerlink" title="配置挂载信息"></a>配置挂载信息</h3><p>genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</p>
+<h3 id="切换到安装到系统"><a href="#切换到安装到系统" class="headerlink" title="切换到安装到系统"></a>切换到安装到系统</h3><p>arch-chroot /mnt </p>
+<h3 id="时区"><a href="#时区" class="headerlink" title="时区"></a>时区</h3><pre><code>1. ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+2. hwclock --systohc
+</code></pre>
+<h3 id="本地化编码"><a href="#本地化编码" class="headerlink" title="本地化编码"></a>本地化编码</h3><pre><code>1.  vim /etc/locale.gen，反注释zh_CN.UTF-8 UTF-8和us_EN.UTF-8
+2.  locale-gen
+3.  vim /etc/locale.conf 加入 LANG=en_US.UTF-8
+</code></pre>
+<h3 id="主机名"><a href="#主机名" class="headerlink" title="主机名"></a>主机名</h3><pre><code>1. echo “shaka-arch” &gt;&gt; /etc/hostname
+2. /etc/hosts 
+    127.0.0.1   localhost
+    ::1             localhost
+    127.0.1.1   shaka-arch.localdomain  shaka-arch
+</code></pre>
+<h3 id="账号密码"><a href="#账号密码" class="headerlink" title="账号密码"></a>账号密码</h3><pre><code>1. passwd
+2. useradd -m xxx 然后passwd xxx
+</code></pre>
+<h3 id="Intel微码"><a href="#Intel微码" class="headerlink" title="Intel微码"></a>Intel微码</h3><p>pacman -S intel-ucode</p>
+<h3 id="引导"><a href="#引导" class="headerlink" title="引导"></a>引导</h3><pre><code>1.  bootctl --path=/boot$esp install
+2.  vim /boot/loader/loader.conf （没有下面的序号）
+    1. default arch #默认引导的系统，注意这里的 arch 对应的是 arch.conf
+    2. timeout 1    #在引导界面停留的时间，如果你想引导不止一个系统，不应将这一项设置成0
+    3. editor    0    #这将会禁用编辑内和参数的功能，默认是开启的，如果你的计算机可能被他人使用，将该功能关闭是推荐的选择
+3. vim /boot/loader/entries/arch.conf
+    1. title Arch Linux               #这是启动选项的名称，将会出现在引导界面
+    2. linux   /vmlinuz-linux         #压缩的可引导内核，用于系统启动
+    3. initrd  /intel-ucode.img       #由芯片制造商提供的对 CPU 微码的稳定性和安全性更新，按照 Arch wiki 的说法它应当是&#39; first initrd in the bootloader config file&#39;
+    4. initrd  /initramfs-linux.img   #为内核提供的一个临时的文件系统
+    5. options root=/dev/sdap2 rw     #/root 挂载的位置，可以由 LABEL, PARTUUID 或者 UUID识别，此处使用了块设备的路径
+</code></pre>
+<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><pre><code>1.  systemctl enable systemd-networkd
+2.  systemctl enable systemd-resolved
+3.  systemctl enable systemd-timesyncd
+4.  systemctl enable iwd
+</code></pre>
+<h3 id="加入sudoers"><a href="#加入sudoers" class="headerlink" title="加入sudoers"></a>加入sudoers</h3><p>pacman -S sudo 然后 EDITOR=vim visudo </p>
+<h3 id="复制网络配置到新系统"><a href="#复制网络配置到新系统" class="headerlink" title="复制网络配置到新系统"></a>复制网络配置到新系统</h3><p>cp /etc/systemd/network/* /mnt/etc/systemd/network/ </p>
+<h3 id="退出"><a href="#退出" class="headerlink" title="退出"></a>退出</h3><p>exit 然后 umount -R /mnt 接着reboot重启机器</p>
+<h2 id="桌面bspwm"><a href="#桌面bspwm" class="headerlink" title="桌面bspwm"></a>桌面bspwm</h2><pre><code>1. sudo pacman -S xf86-video-amdgpu alsa alsa-utils显卡声卡驱动
+2. alsamixer 调节音量
+3. sudo pacman -S xorg 图形服务
+4. sudo pacman -S bspwm sxhkd feh 
+5. yay -S polybar 状态栏
+6. 安装完成后需要在$HOME/.xinitrc中添加exec bspwm，然后通过startx即可启动。
+7. 在家目录下分别新建文件夹 .config/bspwm   .config/sxhkd   .config/polybar用于存放对应配置，分别是bspwm，快捷键和polybar的基本配置文件，初始配置可从/usr/share/doc中获取
+8. alacritty 终端模拟器 ranger 文件管理器 sxiv 图片浏览 rofi程序查找
+9. 壁纸feh --bg-fill --randomize --recursive IMAGES_DIR_PATH 加入到bspwmrc配置文件
+10. wqy-microhei中文字体
+</code></pre>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>archLinux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JUC</title>
+    <url>/blog.github.io/2021/12/28/JUC/</url>
+    <content><![CDATA[<p><img src="/blog.github.io/2021/12/28/JUC/1.png"></p>
+]]></content>
+      <categories>
+        <category>juc</category>
+      </categories>
+      <tags>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+</search>

@@ -332,35 +332,11 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          前言
-本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu
-
-基本安装
-验证启动模式
-ls /sys/firmware/efi/efivars
-
-联网
-iwctl 
-
-检查是否联通
-ping -c 3 archlinux.org
-
-更新系统时间
-timedatectl set-ntp true 
-
-分区
-1. fidsk /dev/sda
-2. g新建gpt分区表
-3. n新建分区 ,类型序号开头都回车结尾定义空间大小，然后t改成efi
-4. p查看完成的分区表，w保存退出
-5. 自改分区如下
-    1. sda1 +512M EFI
-    2. sda2 +50G 
-    3. sda3 余下
-
-
-格式化分区
-
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
+<h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式"><a href="#验证启动模式" class="headerlink" title="验证启动模式"></a>验证启动模式</h3><p>ls /sys/firmware/efi/efivars</p>
+<h3 id="联网"><a href="#联网" class="headerlink" title="联网"></a>联网</h3><p>iwctl </p>
+<h3 id="检查是否联通"><a href="#检查是否联通" class="headerlink" title="检查是否联通"></a>检查是否联通</h3><p>ping -c 3 archlinux.org</p>
+<h3 id="更新系统时间"><a href="#更新系统时间" class="headerlink" title="更新系统时间"></a>更新系统时间</h3>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/#more" rel="contents">

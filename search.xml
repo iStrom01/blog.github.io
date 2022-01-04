@@ -46,12 +46,22 @@
 </li>
 </ul>
 <h2 id="wait-notify"><a href="#wait-notify" class="headerlink" title="wait notify"></a>wait notify</h2><p>sleep 和 wait 的线程状态都是 timed_waiting ，但是sleep的其他线程不能获得锁，wait 可以。wait 和 notify 只有获得锁的线程才能调用。</p>
+<h2 id="park-unpark"><a href="#park-unpark" class="headerlink" title="park unpark"></a>park unpark</h2><p>类似 wait notify，但可以 unpark 再 park</p>
+<h2 id="状态转换"><a href="#状态转换" class="headerlink" title="状态转换"></a>状态转换</h2><ol>
+<li>调用 start()，由 new 变为 runable </li>
+<li>获得锁以后，调用 wait()，从 runable 变为 waiting</li>
+<li>调用 notify() noyifyALl() interrupt() 时，竞争失败由 waiting 变为 blocked，竞争成功由 waiting 变为 runable</li>
+<li>sleep(),从 runable 变为 timed_waiting</li>
+</ol>
+<h2 id="死锁查询"><a href="#死锁查询" class="headerlink" title="死锁查询"></a>死锁查询</h2><p>jps 获得id，jstack 查看详情或者用 visualVM 或 jconsole</p>
 ]]></content>
       <categories>
         <category>juc</category>
       </categories>
       <tags>
         <tag>juc</tag>
+        <tag>lock</tag>
+        <tag>锁</tag>
       </tags>
   </entry>
   <entry>

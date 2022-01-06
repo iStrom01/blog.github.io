@@ -69,6 +69,14 @@
 </blockquote>
 <h3 id="原子整数"><a href="#原子整数" class="headerlink" title="原子整数"></a>原子整数</h3><p>AtomicBoolean AtomicInteger AtomicLong</p>
 <h3 id="原子引用"><a href="#原子引用" class="headerlink" title="原子引用"></a>原子引用</h3><p>AtomicReference、AtomicReference「添加版本号解决ABA问题」</p>
+<h3 id="原子数组"><a href="#原子数组" class="headerlink" title="原子数组"></a>原子数组</h3><p>AtomicIntegerArray AtomicLongArray AtomicReferenceArray</p>
+<h3 id="原子更新器"><a href="#原子更新器" class="headerlink" title="原子更新器"></a>原子更新器</h3><p>AtomicIntegerFieldUpdater AtomicLongFieldUpdater AtomicReferenceFieldUpdater</p>
+<h3 id="原子累加器"><a href="#原子累加器" class="headerlink" title="原子累加器"></a>原子累加器</h3><h2 id="共享模型之不可变"><a href="#共享模型之不可变" class="headerlink" title="共享模型之不可变"></a>共享模型之不可变</h2><blockquote>
+<p>包装类、String、BigDecimal等。单个方法线程安全不代表多个方法组合线程安全</p>
+</blockquote>
+<h3 id="享元模式"><a href="#享元模式" class="headerlink" title="享元模式"></a>享元模式</h3><blockquote>
+<p>数据库连接池、包装类的cache等</p>
+</blockquote>
 ]]></content>
       <categories>
         <category>juc</category>

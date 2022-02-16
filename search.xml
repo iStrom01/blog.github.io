@@ -77,6 +77,9 @@
 <h3 id="享元模式"><a href="#享元模式" class="headerlink" title="享元模式"></a>享元模式</h3><blockquote>
 <p>数据库连接池、包装类的cache等</p>
 </blockquote>
+<h3 id="无状态"><a href="#无状态" class="headerlink" title="无状态"></a>无状态</h3><blockquote>
+<p>线程安全，因为没有成员变量，例如servlet不设置成员变量</p>
+</blockquote>
 ]]></content>
       <categories>
         <category>juc</category>

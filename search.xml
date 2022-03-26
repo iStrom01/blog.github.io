@@ -174,4 +174,171 @@
         <tag>archLinux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>jvm</title>
+    <url>/blog.github.io/2022/03/23/jvm/</url>
+    <content><![CDATA[<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
+<h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ol>
+<li><p>引导类加载器</p>
+<p> c/c++ 语言编写，无法获取，用于加载java的核心类库</p>
+</li>
+<li><p>扩展类加载器</p>
+<p> 加载 java.ext.dirs 系统路径所指定的类库，自己的应用放在其中也可以由扩展类加载器加载</p>
+</li>
+<li><p>系统类加载器</p>
+<p> 加载自己的 java 应用程序</p>
+</li>
+<li><p>自定义类加载器</p>
+</li>
+</ol>
+<h3 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h3><p>java虚拟机对 class 文件的加载是按需加载，收到加载请求先由父加载器加载，加载失败则由子加载器加载</p>
+<p>判断 Class 是否为同一个，则需要全限定类名和类加载器都相同</p>
+<p>优势</p>
+<ol>
+<li><p>防止重复加载</p>
+</li>
+<li><p>防止核心 API 被篡改</p>
+</li>
+</ol>
+<h2 id="内存与垃圾回收篇"><a href="#内存与垃圾回收篇" class="headerlink" title="内存与垃圾回收篇"></a>内存与垃圾回收篇</h2><h3 id="运行时数据区"><a href="#运行时数据区" class="headerlink" title="运行时数据区"></a>运行时数据区</h3><p>图示</p>
+<p><img src="/blog.github.io/2022/03/23/jvm/1.png"></p>
+<p>上图红色的共享，灰色的每个线程独有</p>
+<h3 id="PC-寄存器"><a href="#PC-寄存器" class="headerlink" title="PC 寄存器"></a>PC 寄存器</h3><p>用来存储 java 指令的地址，运行速度快且不会内存溢出</p>
+<h3 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h3><p>运行速度仅次于 PC 寄存器，基本单位为栈帧，设置栈大小 Xss</p>
+<h4 id="栈帧"><a href="#栈帧" class="headerlink" title="栈帧"></a>栈帧</h4><p>内部结构：<code>局部变量表</code>、<code>操作数栈</code>、动态链接、方法返回地址、一些附加信息</p>
+<ol>
+<li><p>局部变量表</p>
+<p> 基本单位为 slot，存放基本数据类型和引用，long 和 double 占两个 slot，非静态方法的第一个变量为 this，其他按声明顺序排序，且一旦销毁可以重用</p>
+<p> 类变量在链接的 prepare 阶段默认赋值，在初始化阶段显式赋值和静态代码块赋值</p>
+<p> 实例变量随着对象的创建在堆空间赋值</p>
+<p> 局部变量必须显式赋值</p>
+</li>
+<li><p>操作数栈</p>
+<p> 根据字节码指令往操作数栈中存取数据，主要用来保存计算过程中的中间结果，同时作为计算过程变量的临时保存空间，刚有栈帧时操作数栈是空的，但最大深度在编译器就定义好了</p>
+</li>
+</ol>
+<ol start="3">
+<li><p>动态链接</p>
+<p> 指向运行时常量池的方法的引用</p>
+</li>
+<li><p>方法的调用</p>
+<p> 早起绑定（编译期确定）和晚期绑定（运行期确定/多态）</p>
+<p> 非虚方法：静态方法、私有方法、final 方法、实例构造器、父类方法</p>
+<p> 虚方法：其他方法</p>
+<p> 在类加载的链接阶段为了提高性能会创建一个虚方法表，已经重写的用自己的，没重写的记录下来不必一层层向上找</p>
+</li>
+<li><p>方法返回地址</p>
+<p> 存放调用该方法的 PC 寄存器的值</p>
+</li>
+<li><p>栈帧附加信息</p>
+</li>
+</ol>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>有时 java 应用需要与外部环境交互，这是本地方法存在的主要原因，本地方法栈并非所有虚拟机都有</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>一个进程一个 jvm 实例，一个 jvm 实例一个运行时数据区，一个堆区，一个进程多个线程，一个线程一个栈、一个 pc 寄存器、一个本地方法栈，堆(除了TLAB)和方法区多个线程共享，堆是 GC 的重点</p>
+<h3 id="堆的细分"><a href="#堆的细分" class="headerlink" title="堆的细分"></a>堆的细分</h3><p>jdk7 及以前分为新生代、老年代和永久代（逻辑上）</p>
+<p>jdk8 以后分为新生代、老年代和元空间（逻辑上）</p>
+<p>新生代分为伊甸园区和幸存者区</p>
+<p>Xms 设置初始（新生代 + 老年代）大小， Xmx 设置最大（新生代 + 老年代）值，-XX:NewRatio 配置新生代与老年代占比，-XX: SurvivorRatio 配置伊甸园区与幸存者区占比</p>
+<p>对象不一定创建在堆中，可以开启逃逸分析开启栈上分配</p>
+<h3 id="对象分配过程"><a href="#对象分配过程" class="headerlink" title="对象分配过程"></a>对象分配过程</h3><ul>
+<li><p>新对象优先放伊甸园区</p>
+</li>
+<li><p>当伊甸园区空间满了又需要放入新对象，则进行 young GC/Minor GC，将不再需要的垃圾回收，再把新对象放入伊甸园区，将剩余的放入幸存者区</p>
+</li>
+<li><p>当伊甸园区再次满了，则再次垃圾回收将没回收的对象放入另一块幸存者区，同时将原来的幸存者区的对象也放入这块幸存者区</p>
+</li>
+<li><p>当幸存者区对象的年龄达到阈值值提升进老年代，默认15</p>
+</li>
+<li><p>当伊甸园区满了才会 young GC/Minor GC，幸存者区满了不会触发 young GC/Minor GC，但幸存者区的无用对象在 young GC/Minor GC  的时候也会被回收</p>
+</li>
+<li><p>大部分对象朝生夕死，在 young GC/Minor GC 就被回收掉了</p>
+</li>
+<li><p>如果新对象新生代 young GC 后还放不下则直接准备放进老年代，如果老年代放不下进行 Major GC，Major GC 之后放得下放进老年代，放不下则 OOM</p>
+</li>
+<li><p>当 young GC 时幸存者区放不下伊甸园区来的对象则放进老年代</p>
+</li>
+<li><p>young GC 会清空伊甸园区</p>
+</li>
+<li><p>TLAB 是在伊甸园区为每个线程创建的一小块区域，为线程私有，空间很小，无线程安全问题，对象优先分配在 TLAB 空间</p>
+</li>
+</ul>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>用于储存已经加载的类信息、运行时常量池、静态变量、JIT 代码缓存等</p>
+<p>Hotspot 方法区的变化：</p>
+<p><img src="/blog.github.io/2022/03/23/jvm/2.png"></p>
+<hr>
+<p>为什么去永久代？</p>
+<ol>
+<li><p>永久代大小很难确定，小了容易 Full GC 造成 STW，大了造成浪费</p>
+</li>
+<li><p>永久代调优困难</p>
+</li>
+</ol>
+<hr>
+<p>为什么 StringTable 换位置？</p>
+<p>放在堆里回收效率更高</p>
+<hr>
+<p>方法区的垃圾回收主要针对类的卸载和常量池，不同虚拟机不一定都有方法区的回收</p>
+<h3 id="对象的实例化、内存布局及访问定位"><a href="#对象的实例化、内存布局及访问定位" class="headerlink" title="对象的实例化、内存布局及访问定位"></a>对象的实例化、内存布局及访问定位</h3><p>对象实例化的几种方式：new、反射、反序列化、clone、第三方库</p>
+<p>对象的创建步骤：</p>
+<ol>
+<li><p>对象对应的类是否加载、链接、初始化</p>
+</li>
+<li><p>为对象分配内存</p>
+</li>
+<li><p>处理并发安全问题</p>
+</li>
+<li><p>初始化分配到的空间/默认初始化</p>
+</li>
+<li><p>设置对象头</p>
+</li>
+<li><p>执行 Init 方法的初始化</p>
+</li>
+</ol>
+<p>对象的内存布局：</p>
+<ol>
+<li><p>对象头</p>
+<ul>
+<li><p>运行时元数据</p>
+</li>
+<li><p>类型指针</p>
+</li>
+<li><p>如果是数组，还得记录数组长度</p>
+</li>
+</ul>
+</li>
+<li><p>实例数据</p>
+</li>
+<li><p>对齐填充</p>
+</li>
+</ol>
+<p>对象的访问主要有句柄访问和直接访问</p>
+]]></content>
+      <tags>
+        <tag>jvm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vue3</title>
+    <url>/blog.github.io/2022/02/21/vue3/</url>
+    <content><![CDATA[<h2 id="vite"><a href="#vite" class="headerlink" title="vite"></a>vite</h2><p><a href="https://cn.vitejs.dev/">新一代构建工具</a></p>
+<h2 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h2><p>组合式api,数据、方法等都要配置在setup函数中，并且必须返回，响应式基本数据类型、对象类型用ref，对象类型用reactive</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> name = ref(<span class="string">&#x27;shaka&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> tom = reactive(&#123;<span class="attr">uname</span>:<span class="string">&#x27;tom&#x27;</span>, <span class="attr">age</span>: <span class="number">11</span>&#125;);</span><br><span class="line">  <span class="keyword">let</span> say = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name.value);</span><br><span class="line">    tom.age = <span class="number">22</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(tom)</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    say,</span><br><span class="line">    tom</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>setup仅在beforeCreated执行一次，且this为undefined</p>
+<p>props父组件向子组件传参,context上下文对象</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params">props, context</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(props.p1);</span><br><span class="line">    <span class="built_in">console</span>.log(context.attrs)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>计算属性</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> firstName = <span class="string">&#x27;tom&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> lastName = <span class="string">&#x27;jerry&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> fullName = computed(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> firstName + lastName;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span>&#123;</span><br><span class="line">      firstName,</span><br><span class="line">      lastName,</span><br><span class="line">      fullName,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>监视</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> a = ref(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      a.value++;</span><br><span class="line">    &#125;;</span><br><span class="line">    watch(a,<span class="function">(<span class="params">newValue,oldValue</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;a的值变了&#x27;</span>,newValue,oldValue)</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      add,</span><br><span class="line">      a</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>vue3</tag>
+      </tags>
+  </entry>
 </search>

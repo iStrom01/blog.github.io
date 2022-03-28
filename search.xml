@@ -177,7 +177,10 @@
   <entry>
     <title>jvm</title>
     <url>/blog.github.io/2022/03/23/jvm/</url>
-    <content><![CDATA[<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
+    <content><![CDATA[<blockquote>
+<p>jvm 笔记</p>
+</blockquote>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
 <h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ol>
 <li><p>引导类加载器</p>
 <p> c/c++ 语言编写，无法获取，用于加载java的核心类库</p>
@@ -321,6 +324,58 @@
 <h3 id="String"><a href="#String" class="headerlink" title="String"></a>String</h3><p>JDK1.8 以前用 char 数组，9 以后用 byte 数组，因为大部分情况下都是拉丁字符，为了省空间改为 byte，为了兼容中文等字符，加上编码标记</p>
 <p>String 不可变</p>
 <p>字符串常量池不会存储相同的字符串，是一个固定大小的 HashTable</p>
+<p>拼接操作：</p>
+<pre><code>字符串常量与字符串常量拼接结果在字符串常量池，原因是编译期优化
+
+出现变量相当于堆中 new String()
+
+intern() 判断常量池中是否存在，存在返回地址，否则加载一份并返回地址
+</code></pre>
+<h3 id="GC-算法"><a href="#GC-算法" class="headerlink" title="GC 算法"></a>GC 算法</h3><p>垃圾回收针对<code>堆</code>和方法区，程序计数器没有 GC 没有溢出，栈和本地方法栈没有 GC 有 StackOverFlow</p>
+<h4 id="标记算法"><a href="#标记算法" class="headerlink" title="标记算法"></a>标记算法</h4><p><code>引用计数算法</code></p>
+<p>使用引用计数器</p>
+<p>优点：简单便于标识，效率比较高，回收没有延迟</p>
+<p>缺点: 增加储存空间和计数开销，最糟糕的是无法处理循环引用，因此 Java 不用该算法</p>
+<p><code>可达性分析算法</code></p>
+<p>直接或间接连接 GC Roots</p>
+<p>GC Roots:</p>
+<ul>
+<li><p>栈引用的对象</p>
+</li>
+<li><p>本地方法引用的对象</p>
+</li>
+<li><p>静态属性、常量引用的对象</p>
+</li>
+<li><p>被同步锁持有的对象</p>
+</li>
+<li><p>Java 虚拟机内部引用</p>
+</li>
+</ul>
+<h4 id="清除算法"><a href="#清除算法" class="headerlink" title="清除算法"></a>清除算法</h4><p><code>标记清除算法</code></p>
+<p>从根对象标记所有可达对象，然后线性遍历堆中所有对象删除不可达对象</p>
+<p>缺点：效率低、碎片化</p>
+<p><code>复制算法</code></p>
+<p>使用两块空间，每次只使用一块，然后把可达对象复制到另一块空间，需要复制的对象越少越好，例如新生代朝生夕死</p>
+<p>优点：高效、无碎片化</p>
+<p>缺点：需要两倍空间、需要维护引用关系</p>
+<p><code>标记压缩算法</code></p>
+<p>标记所有被引用对象，然后移动到内存的一端清除其他</p>
+<p>优点：消除了标记清除算法的碎片化和复制算法的 2 倍空间浪费</p>
+<p>缺点：效率不如复制算法，移动时需要调整引用位置</p>
+<p><code>分代收集算法</code></p>
+<p>新生代对象生命周期短，存活率低、回收频繁，用复制算法，空间浪费用两块幸存者区补偿，老年代空间大、对象大、存活率高、生命周期长回收频率又低适合标记清除和标记压缩的混合实现</p>
+<h3 id="垃圾回收相关"><a href="#垃圾回收相关" class="headerlink" title="垃圾回收相关"></a>垃圾回收相关</h3><p>System.gc() 不一定马上调用垃圾回收</p>
+<p>严格来说只有对象不被用到又无法 GC 才算内存泄露，内存泄露有可能导致内存溢出</p>
+<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><p>强引用</p>
+<p>传统的引用，只要引用关系在就不会被回收，强引用是造成内存泄露的主要原因之一</p>
+<p>软引用</p>
+<p>在内存溢出之前列入回收范围之内进行第二次回收，如果回收完还是不够则内存溢出，即内存不够则回收，典型应用场景比如高速缓存</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">SoftReference&lt;User&gt; userSoftReference = <span class="keyword">new</span> SoftReference&lt;User&gt;(<span class="keyword">new</span> User(<span class="string">&quot;shaka&quot;</span>, <span class="number">11</span>));</span><br></pre></td></tr></table></figure>
+
+<p>弱引用</p>
+<p>只能生存到下一次垃圾回收之前，当 GC 工作时无论是否引用都会被回收，即发现即回收</p>
+<p>虚引用</p>
+<p>对其生存没影响也不能通过引用获得对象，唯一目的是回收时收到一个系统通知</p>
 ]]></content>
       <tags>
         <tag>jvm</tag>

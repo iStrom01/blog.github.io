@@ -175,12 +175,9 @@
       </tags>
   </entry>
   <entry>
-    <title>jvm</title>
+    <title>JVM 内存与垃圾回收</title>
     <url>/blog.github.io/2022/03/23/jvm/</url>
-    <content><![CDATA[<blockquote>
-<p>jvm 笔记</p>
-</blockquote>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
+    <content><![CDATA[<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
 <h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ol>
 <li><p>引导类加载器</p>
 <p> c/c++ 语言编写，无法获取，用于加载java的核心类库</p>
@@ -366,19 +363,23 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <p>新生代对象生命周期短，存活率低、回收频繁，用复制算法，空间浪费用两块幸存者区补偿，老年代空间大、对象大、存活率高、生命周期长回收频率又低适合标记清除和标记压缩的混合实现</p>
 <h3 id="垃圾回收相关"><a href="#垃圾回收相关" class="headerlink" title="垃圾回收相关"></a>垃圾回收相关</h3><p>System.gc() 不一定马上调用垃圾回收</p>
 <p>严格来说只有对象不被用到又无法 GC 才算内存泄露，内存泄露有可能导致内存溢出</p>
-<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><p>强引用</p>
+<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><p><code>强引用</code></p>
 <p>传统的引用，只要引用关系在就不会被回收，强引用是造成内存泄露的主要原因之一</p>
-<p>软引用</p>
+<p><code>软引用</code></p>
 <p>在内存溢出之前列入回收范围之内进行第二次回收，如果回收完还是不够则内存溢出，即内存不够则回收，典型应用场景比如高速缓存</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">SoftReference&lt;User&gt; userSoftReference = <span class="keyword">new</span> SoftReference&lt;User&gt;(<span class="keyword">new</span> User(<span class="string">&quot;shaka&quot;</span>, <span class="number">11</span>));</span><br></pre></td></tr></table></figure>
 
-<p>弱引用</p>
+<p><code>弱引用</code></p>
 <p>只能生存到下一次垃圾回收之前，当 GC 工作时无论是否引用都会被回收，即发现即回收</p>
-<p>虚引用</p>
+<p><code>虚引用</code></p>
 <p>对其生存没影响也不能通过引用获得对象，唯一目的是回收时收到一个系统通知</p>
+<h3 id="垃圾回收器"><a href="#垃圾回收器" class="headerlink" title="垃圾回收器"></a>垃圾回收器</h3><p><img src="/blog.github.io/2022/03/23/jvm/3.png"></p>
 ]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
       <tags>
-        <tag>jvm</tag>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -403,6 +404,98 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>vue3</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JVM 字节码与类的加载</title>
+    <url>/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/</url>
+    <content><![CDATA[<h2 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h2><h3 id="构成"><a href="#构成" class="headerlink" title="构成"></a>构成</h3><p><code>魔数</code></p>
+<p>标识合法的 class 文件，4 个字节</p>
+<p><code>版本号</code></p>
+<p>4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行</p>
+<p><code>常量池</code></p>
+<p>构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 )</p>
+<p>常量池表构成：字面量和符号引用</p>
+<p><code>访问标识</code></p>
+<p><code>类索引</code></p>
+<p><code>父类索引</code></p>
+<p><code>接口索引集合</code></p>
+<p><code>字段表集合</code></p>
+<p>构成：字段计数器、字段表</p>
+<p><code>方法表集合</code></p>
+<p>构成：方法计数器、方法表</p>
+<p><code>属性集合</code></p>
+<p>构成：属性计数器、属性表</p>
+<h3 id="javac-与-javap"><a href="#javac-与-javap" class="headerlink" title="javac 与 javap"></a>javac 与 javap</h3><p>javac -g 与没有 -g 参数相比多了局部变量表等信息，idea 和 eclipse 默认有 -g 参数</p>
+<p>javap -v 反汇编，详细，加上 -p 显示私有</p>
+<h3 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h3><p>指令由操作码和操作数(很多没有)构成</p>
+<p>局部变量表、操作数栈以槽位为单位，byte short int boolean floot char 占4个字节，一个槽位，其中byte short char 存储时自动转为 int 以占满 4 个字节，double long 占 8 个字节，2 个槽位，引用类型也占一个槽位</p>
+<p><code>压栈指令</code></p>
+<p>从局部变量表压入操作数栈，load </p>
+<p><code>常量入栈指令</code></p>
+<p>const: int long double float 和引用类型使用</p>
+<p>push: byte short 使用</p>
+<p>dc: 万能型</p>
+<p><code>出栈装入局部变量表指令</code></p>
+<p>store</p>
+<p><code>算术指令</code></p>
+<p><img src="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/1.png"></p>
+<p><code>类型转换指令</code></p>
+<p>宽化类型转换/自动类型转换【简化: int ——&gt; long ——&gt; float ——&gt; double 会发生精度损失】</p>
+<ul>
+<li><p>int 到 其他: i2l i2f i2d</p>
+</li>
+<li><p>long 到其他: l2f l2d</p>
+</li>
+<li><p>float 到其他: f2d</p>
+</li>
+<li><p>byte short 转换为较大范围类型看作是 int</p>
+</li>
+</ul>
+<p>窄化类型转换【精度损失更大】</p>
+<ul>
+<li><p>int 到其他: i2s i2b i2c</p>
+</li>
+<li><p>long 到 int: l2i</p>
+</li>
+<li><p>float 到其他: f2i f2l</p>
+</li>
+<li><p>double 到其他: d2f d2l d2i</p>
+</li>
+</ul>
+<p><code>对象和数组的创建指令</code></p>
+<p>对象创建指令：new</p>
+<p>数组的创建指令：newarray（基本数据类型）anewarray（引用数据类型）multianewarray（多维数组）</p>
+<p><code>字段访问指令</code></p>
+<p>类字段：getstatic putstatic</p>
+<p>实例字段：gefield putfield</p>
+<p><code>数组操作指令</code></p>
+<p>aload（压栈） astore（赋值） arraylength（数组长度）</p>
+<p><code>类型检查指令</code></p>
+<p>instanceof checkcast</p>
+<p><code>方法调用指令</code></p>
+<p>invokevirtual：虚方法分派，支持多态</p>
+<p>invokeinterface：调用接口方法</p>
+<p>invokespecial：构造器、私有和父类方法</p>
+<p>invokestatic：类方法</p>
+<p><code>方法返回指令</code></p>
+<p>return</p>
+<p><code>操作数栈管理指令</code></p>
+<p>弹出：pop 复制：dup 交换数值：swap</p>
+<p><code>比较指令</code></p>
+<p>dcmpg dcmpl fcmpg fcmpl lcmp</p>
+<p>double float 有两套是因为 Nan 值处理方式不同，例如 fcmpg 压入 1，fcmpl 压入 -1</p>
+<p><code>条件跳转指令</code></p>
+<p>ifeq iflt ifle ifne ifgt ifge （用来比较 long float 和 double）</p>
+<p><code>比较条件跳转指令</code></p>
+<p>if_icmpeq if_icmpne if_icmplt if_icmpgt if_icmpge if_icmpeq if_acmpeq if_acmpne</p>
+<p><code>多条件跳转指令</code></p>
+]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
       </tags>
   </entry>
 </search>

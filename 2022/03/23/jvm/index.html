@@ -20,19 +20,20 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"istrom01.github.io","root":"/blog.github.io/","images":"/blog.github.io/images","scheme":"Muse","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/blog.github.io/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/blog.github.io/js/config.js"></script>
-<meta name="description" content="jvm 笔记  类加载器类的加载分为三个阶段，即加载、链接和初始化 分类 引导类加载器  c&#x2F;c++ 语言编写，无法获取，用于加载java的核心类库  扩展类加载器  加载 java.ext.dirs 系统路径所指定的类库，自己的应用放在其中也可以由扩展类加载器加载  系统类加载器  加载自己的 java 应用程序  自定义类加载器   双亲委派机制java虚拟机对 class 文件的加载是按需">
+<meta name="description" content="类加载器类的加载分为三个阶段，即加载、链接和初始化 分类 引导类加载器  c&#x2F;c++ 语言编写，无法获取，用于加载java的核心类库  扩展类加载器  加载 java.ext.dirs 系统路径所指定的类库，自己的应用放在其中也可以由扩展类加载器加载  系统类加载器  加载自己的 java 应用程序  自定义类加载器   双亲委派机制java虚拟机对 class 文件的加载是按需加载，收到加载请求">
 <meta property="og:type" content="article">
-<meta property="og:title" content="jvm">
+<meta property="og:title" content="JVM 内存与垃圾回收">
 <meta property="og:url" content="https://istrom01.github.io/blog.github.io/2022/03/23/jvm/index.html">
 <meta property="og:site_name" content="istorm">
-<meta property="og:description" content="jvm 笔记  类加载器类的加载分为三个阶段，即加载、链接和初始化 分类 引导类加载器  c&#x2F;c++ 语言编写，无法获取，用于加载java的核心类库  扩展类加载器  加载 java.ext.dirs 系统路径所指定的类库，自己的应用放在其中也可以由扩展类加载器加载  系统类加载器  加载自己的 java 应用程序  自定义类加载器   双亲委派机制java虚拟机对 class 文件的加载是按需">
+<meta property="og:description" content="类加载器类的加载分为三个阶段，即加载、链接和初始化 分类 引导类加载器  c&#x2F;c++ 语言编写，无法获取，用于加载java的核心类库  扩展类加载器  加载 java.ext.dirs 系统路径所指定的类库，自己的应用放在其中也可以由扩展类加载器加载  系统类加载器  加载自己的 java 应用程序  自定义类加载器   双亲委派机制java虚拟机对 class 文件的加载是按需加载，收到加载请求">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/03/23/jvm/1.png">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/03/23/jvm/2.png">
+<meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/03/23/jvm/3.png">
 <meta property="article:published_time" content="2022-03-23T07:02:40.000Z">
-<meta property="article:modified_time" content="2022-03-28T08:02:20.349Z">
+<meta property="article:modified_time" content="2022-03-29T12:06:06.134Z">
 <meta property="article:author" content="istorm">
-<meta property="article:tag" content="jvm">
+<meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://istrom01.github.io/blog.github.io/2022/03/23/jvm/1.png">
 
@@ -41,10 +42,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://istrom01.github.io/blog.github.io/2022/03/23/jvm/","path":"2022/03/23/jvm/","title":"jvm"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://istrom01.github.io/blog.github.io/2022/03/23/jvm/","path":"2022/03/23/jvm/","title":"JVM 内存与垃圾回收"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>jvm | istorm</title>
+<title>JVM 内存与垃圾回收 | istorm</title>
   
 
 
@@ -149,7 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">1.2.</span> <span class="nav-text">双亲委派机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E4%B8%8E%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AF%87"><span class="nav-number">2.</span> <span class="nav-text">内存与垃圾回收篇</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">2.1.</span> <span class="nav-text">运行时数据区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PC-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">PC 寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88"><span class="nav-number">2.3.</span> <span class="nav-text">栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%88%E5%B8%A7"><span class="nav-number">2.3.1.</span> <span class="nav-text">栈帧</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88"><span class="nav-number">2.4.</span> <span class="nav-text">本地方法栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86"><span class="nav-number">2.5.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E7%9A%84%E7%BB%86%E5%88%86"><span class="nav-number">2.6.</span> <span class="nav-text">堆的细分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">2.7.</span> <span class="nav-text">对象分配过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA"><span class="nav-number">2.8.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8C%96%E3%80%81%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%8F%8A%E8%AE%BF%E9%97%AE%E5%AE%9A%E4%BD%8D"><span class="nav-number">2.9.</span> <span class="nav-text">对象的实例化、内存布局及访问定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="nav-number">2.10.</span> <span class="nav-text">执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#String"><span class="nav-number">2.11.</span> <span class="nav-text">String</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC-%E7%AE%97%E6%B3%95"><span class="nav-number">2.12.</span> <span class="nav-text">GC 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E7%AE%97%E6%B3%95"><span class="nav-number">2.12.1.</span> <span class="nav-text">标记算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95"><span class="nav-number">2.12.2.</span> <span class="nav-text">清除算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%9B%B8%E5%85%B3"><span class="nav-number">2.13.</span> <span class="nav-text">垃圾回收相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">2.13.1.</span> <span class="nav-text">引用</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">1.2.</span> <span class="nav-text">双亲委派机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E4%B8%8E%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AF%87"><span class="nav-number">2.</span> <span class="nav-text">内存与垃圾回收篇</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">2.1.</span> <span class="nav-text">运行时数据区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PC-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">PC 寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88"><span class="nav-number">2.3.</span> <span class="nav-text">栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%88%E5%B8%A7"><span class="nav-number">2.3.1.</span> <span class="nav-text">栈帧</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88"><span class="nav-number">2.4.</span> <span class="nav-text">本地方法栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86"><span class="nav-number">2.5.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E7%9A%84%E7%BB%86%E5%88%86"><span class="nav-number">2.6.</span> <span class="nav-text">堆的细分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">2.7.</span> <span class="nav-text">对象分配过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA"><span class="nav-number">2.8.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8C%96%E3%80%81%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%8F%8A%E8%AE%BF%E9%97%AE%E5%AE%9A%E4%BD%8D"><span class="nav-number">2.9.</span> <span class="nav-text">对象的实例化、内存布局及访问定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="nav-number">2.10.</span> <span class="nav-text">执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#String"><span class="nav-number">2.11.</span> <span class="nav-text">String</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC-%E7%AE%97%E6%B3%95"><span class="nav-number">2.12.</span> <span class="nav-text">GC 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E7%AE%97%E6%B3%95"><span class="nav-number">2.12.1.</span> <span class="nav-text">标记算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95"><span class="nav-number">2.12.2.</span> <span class="nav-text">清除算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%9B%B8%E5%85%B3"><span class="nav-number">2.13.</span> <span class="nav-text">垃圾回收相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">2.13.1.</span> <span class="nav-text">引用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8"><span class="nav-number">2.14.</span> <span class="nav-text">垃圾回收器</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -164,13 +165,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/blog.github.io/archives/">
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/blog.github.io/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -232,7 +233,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          jvm
+          JVM 内存与垃圾回收
         </h1>
 
         <div class="post-meta-container">
@@ -250,7 +251,16 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-03-28 16:02:20" itemprop="dateModified" datetime="2022-03-28T16:02:20+08:00">2022-03-28</time>
+      <time title="修改时间：2022-03-29 20:06:06" itemprop="dateModified" datetime="2022-03-29T20:06:06+08:00">2022-03-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/blog.github.io/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+        </span>
     </span>
 
   
@@ -263,10 +273,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <blockquote>
-<p>jvm 笔记</p>
-</blockquote>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
+        <h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
 <h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ol>
 <li><p>引导类加载器</p>
 <p> c/c++ 语言编写，无法获取，用于加载java的核心类库</p>
@@ -452,16 +459,17 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <p>新生代对象生命周期短，存活率低、回收频繁，用复制算法，空间浪费用两块幸存者区补偿，老年代空间大、对象大、存活率高、生命周期长回收频率又低适合标记清除和标记压缩的混合实现</p>
 <h3 id="垃圾回收相关"><a href="#垃圾回收相关" class="headerlink" title="垃圾回收相关"></a>垃圾回收相关</h3><p>System.gc() 不一定马上调用垃圾回收</p>
 <p>严格来说只有对象不被用到又无法 GC 才算内存泄露，内存泄露有可能导致内存溢出</p>
-<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><p>强引用</p>
+<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><p><code>强引用</code></p>
 <p>传统的引用，只要引用关系在就不会被回收，强引用是造成内存泄露的主要原因之一</p>
-<p>软引用</p>
+<p><code>软引用</code></p>
 <p>在内存溢出之前列入回收范围之内进行第二次回收，如果回收完还是不够则内存溢出，即内存不够则回收，典型应用场景比如高速缓存</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SoftReference&lt;User&gt; userSoftReference = <span class="keyword">new</span> SoftReference&lt;User&gt;(<span class="keyword">new</span> User(<span class="string">&quot;shaka&quot;</span>, <span class="number">11</span>));</span><br></pre></td></tr></table></figure>
 
-<p>弱引用</p>
+<p><code>弱引用</code></p>
 <p>只能生存到下一次垃圾回收之前，当 GC 工作时无论是否引用都会被回收，即发现即回收</p>
-<p>虚引用</p>
+<p><code>虚引用</code></p>
 <p>对其生存没影响也不能通过引用获得对象，唯一目的是回收时收到一个系统通知</p>
+<h3 id="垃圾回收器"><a href="#垃圾回收器" class="headerlink" title="垃圾回收器"></a>垃圾回收器</h3><p><img src="/blog.github.io/2022/03/23/jvm/3.png"></p>
 
     </div>
 
@@ -471,7 +479,7 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/blog.github.io/tags/jvm/" rel="tag"># jvm</a>
+              <a href="/blog.github.io/tags/JVM/" rel="tag"># JVM</a>
           </div>
 
         
@@ -483,6 +491,9 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/" rel="next" title="JVM 字节码与类的加载">
+                  JVM 字节码与类的加载 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

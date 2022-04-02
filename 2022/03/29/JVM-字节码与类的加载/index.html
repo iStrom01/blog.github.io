@@ -20,16 +20,16 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"istrom01.github.io","root":"/blog.github.io/","images":"/blog.github.io/images","scheme":"Muse","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/blog.github.io/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/blog.github.io/js/config.js"></script>
-<meta name="description" content="字节码构成魔数 标识合法的 class 文件，4 个字节 版本号 4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行 常量池 构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 ) 常量池表构成：字面量和符号引用 访问标识">
+<meta name="description" content="字节码的构成、指令基础和类的加载">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM 字节码与类的加载">
 <meta property="og:url" content="https://istrom01.github.io/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/index.html">
 <meta property="og:site_name" content="istorm">
-<meta property="og:description" content="字节码构成魔数 标识合法的 class 文件，4 个字节 版本号 4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行 常量池 构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 ) 常量池表构成：字面量和符号引用 访问标识">
+<meta property="og:description" content="字节码的构成、指令基础和类的加载">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/1.png">
 <meta property="article:published_time" content="2022-03-29T11:58:56.000Z">
-<meta property="article:modified_time" content="2022-04-01T06:52:04.297Z">
+<meta property="article:modified_time" content="2022-04-02T04:46:38.605Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
@@ -148,7 +148,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">字节码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E6%88%90"><span class="nav-number">1.1.</span> <span class="nav-text">构成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#javac-%E4%B8%8E-javap"><span class="nav-number">1.2.</span> <span class="nav-text">javac 与 javap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E6%8C%87%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">字节码指令</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">字节码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E6%88%90"><span class="nav-number">1.1.</span> <span class="nav-text">构成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#javac-%E4%B8%8E-javap"><span class="nav-number">1.2.</span> <span class="nav-text">javac 与 javap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E6%8C%87%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">字节码指令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.</span> <span class="nav-text">类的加载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">2.2.</span> <span class="nav-text">类的使用</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -249,7 +249,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-04-01 14:52:04" itemprop="dateModified" datetime="2022-04-01T14:52:04+08:00">2022-04-01</time>
+      <time title="修改时间：2022-04-02 12:46:38" itemprop="dateModified" datetime="2022-04-02T12:46:38+08:00">2022-04-02</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -264,6 +264,7 @@
   
 </div>
 
+            <div class="post-description">字节码的构成、指令基础和类的加载</div>
         </div>
       </header>
 
@@ -352,6 +353,95 @@
 <p><code>比较条件跳转指令</code></p>
 <p>if_icmpeq if_icmpne if_icmplt if_icmpgt if_icmpge if_icmpeq if_acmpeq if_acmpne</p>
 <p><code>多条件跳转指令</code></p>
+<p>tablestitch（连续的值） lookupstitch（不连续但会进行排序）</p>
+<p><code>无条件跳转指令</code></p>
+<p>goto</p>
+<p><code>抛出异常指令</code></p>
+<p>athrow 手动抛出</p>
+<p><code>异常处理指令</code></p>
+<p>处理异常是由异常表实现的，并没有 try catch 体现</p>
+<p><code>同步指令</code></p>
+<p>方法级的同步和普通方法指令没区别，当通过访问标志判断某方法是同步方法会自动在方法调用前加锁</p>
+<p>同步代码块：monitorenter monitorexit，通过异常表维护释的放锁，如果监视器计数器为 0 则进入，为 1 则判断监视器线程是否为自己，为自己进入，否则等待</p>
+<h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p><code>过程一：加载阶段</code></p>
+<ul>
+<li><p>获取二进制流的方式</p>
+<ul>
+<li><p>通过文件系统读入</p>
+</li>
+<li><p>通过 jar 等数据包提取文件</p>
+</li>
+<li><p>通过网络加载</p>
+</li>
+<li><p>在运行时动态生成</p>
+</li>
+</ul>
+</li>
+<li><p>类模版和 Class 的位置</p>
+<p>  类模版在方法区，Class 实例在堆区</p>
+</li>
+<li><p>数组类的加载</p>
+<p>  数组类并非由类加载器负责创建，而是由 JVM 在运行时根据需要直接创建的</p>
+</li>
+</ul>
+<p><code>过程二：链接阶段</code></p>
+<ol>
+<li><p>验证</p>
+<ul>
+<li><p>格式检查（检查魔数、版本和长度，和加载同时进行）</p>
+</li>
+<li><p>语义检查</p>
+</li>
+<li><p>字节码验证</p>
+</li>
+<li><p>符号引用验证</p>
+</li>
+</ul>
+</li>
+<li><p>准备</p>
+</li>
+</ol>
+<p>为类中的静态变量分配内存并赋默认值，但并不包括常量，常量在编译时就已经分配，若以字符串字面量方式为常量赋值则也在此阶段显式赋值，在这个阶段并不会有代码的执行</p>
+<ol start="3">
+<li>解析</li>
+</ol>
+<p>将类、接口、字段、方法等符号引用转为直接引用，以方法为例，通过解析符号引用可以转为目标方法在方法表中的位置</p>
+<p><code>过程三：初始化阶段</code></p>
+<p>为静态变量赋予正确的值，到了此阶段才会真正执行代码（静态代码块），&lt;clinit&gt; 方法就是由静态变量的显示赋值和静态代码块构成，此方法由 JVM 自动调用，并且总是先调用父类的 &lt;clinit&gt;</p>
+<p>没有静态变量的显式赋值和静态代码块就没有 &lt;clinit&gt;，</p>
+<p>结论：使用 static final 修饰，且显式赋值中不涉及到方法和构造器调用的基本数据类型和 String 的显示赋值是在链接阶段的准备阶段进行</p>
+<p>&lt;clinit&gt; 是线程安全的</p>
+<h3 id="类的使用"><a href="#类的使用" class="headerlink" title="类的使用"></a>类的使用</h3><p>类的主动使用和被动使用区别在于 &lt;clinit&gt; 方法调用与否，主动使用会调用</p>
+<p>类的主动使用</p>
+<ol>
+<li><p>创建实例（序列化、new、反射）</p>
+</li>
+<li><p>调用类的静态方法</p>
+</li>
+<li><p>调用类/接口的静态字段（final 另算）</p>
+</li>
+<li><p>调用 java.lang.reflect 包中反射类的方法，比如 Class.forName()</p>
+</li>
+<li><p>调用子类的 &lt;clinit&gt; 先触发父类的 &lt;clinit&gt;，但不适用接口</p>
+</li>
+<li><p>如果一个接口有 default 方法，直接或间接实现该类的初始化会先初始化该接口</p>
+</li>
+<li><p>JVM 会先初始化主类</p>
+</li>
+<li><p>MethodHandle </p>
+</li>
+</ol>
+<p>类的被动使用</p>
+<ol>
+<li><p>通过子类引用调父类的静态字段不会造成子类初始化</p>
+</li>
+<li><p>通过数组定义类引用不会造成类的初始化</p>
+</li>
+<li><p>引用常量不会造成类的初始化（常量在链接阶段赋值）</p>
+</li>
+<li><p>ClassLoader 的 loadClass() 方法不是类的主动使用</p>
+</li>
+</ol>
 
     </div>
 

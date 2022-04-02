@@ -4,12 +4,6 @@
     <title>JUC</title>
     <url>/blog.github.io/2021/12/28/JUC/</url>
     <content><![CDATA[<h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
-<li><p>栈帧图解</p>
-<blockquote>
-<p>一个线程一个栈</p>
-</blockquote>
-<p>  <img src="/blog.github.io/2021/12/28/JUC/1.png"></p>
-</li>
 <li><p>六种线程状态</p>
 <p>  new runnable terminated blocked timed_waiting waiting </p>
 </li>
@@ -19,6 +13,10 @@
 <li><p>上下文切换</p>
 <p>  上下文切换会造成结果的不可预测（即使简单的++，–也由于jvm指令的存在也会出现该问题），即在临界区发生竞态，即出现线程安全问题，通过加锁解决，一个线程获得锁时即使cpu时间片用完从而想上下文切换到其他线程其他线程也不会获取锁而是继续被堵塞，直到先前线程完成</p>
 </li>
+</ul>
+<span id="more"></span>
+
+<ul>
 <li><p>变量线程安全问题</p>
 <ul>
 <li><p>成员变量和静态变量</p>
@@ -91,10 +89,193 @@
       </tags>
   </entry>
   <entry>
+    <title>JVM 字节码与类的加载</title>
+    <url>/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/</url>
+    <content><![CDATA[<h2 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h2><h3 id="构成"><a href="#构成" class="headerlink" title="构成"></a>构成</h3><p><code>魔数</code></p>
+<p>标识合法的 class 文件，4 个字节</p>
+<p><code>版本号</code></p>
+<p>4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行</p>
+<p><code>常量池</code></p>
+<p>构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 )</p>
+<p>常量池表构成：字面量和符号引用</p>
+<p><code>访问标识</code></p>
+<p><code>类索引</code></p>
+<p><code>父类索引</code></p>
+<p><code>接口索引集合</code></p>
+<p><code>字段表集合</code></p>
+<p>构成：字段计数器、字段表</p>
+<p><code>方法表集合</code></p>
+<p>构成：方法计数器、方法表</p>
+<p><code>属性集合</code></p>
+<p>构成：属性计数器、属性表</p>
+<h3 id="javac-与-javap"><a href="#javac-与-javap" class="headerlink" title="javac 与 javap"></a>javac 与 javap</h3><p>javac -g 与没有 -g 参数相比多了局部变量表等信息，idea 和 eclipse 默认有 -g 参数</p>
+<p>javap -v 反汇编，详细，加上 -p 显示私有</p>
+<h3 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h3><p>指令由操作码和操作数(很多没有)构成</p>
+<p>局部变量表、操作数栈以槽位为单位，byte short int boolean floot char 占4个字节，一个槽位，其中byte short char 存储时自动转为 int 以占满 4 个字节，double long 占 8 个字节，2 个槽位，引用类型也占一个槽位</p>
+<p><code>压栈指令</code></p>
+<p>从局部变量表压入操作数栈，load </p>
+<p><code>常量入栈指令</code></p>
+<p>const: int long double float 和引用类型使用</p>
+<p>push: byte short 使用</p>
+<p>dc: 万能型</p>
+<p><code>出栈装入局部变量表指令</code></p>
+<p>store</p>
+<p><code>算术指令</code></p>
+<p><img src="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/1.png"></p>
+<p><code>类型转换指令</code></p>
+<p>宽化类型转换/自动类型转换【简化: int ——&gt; long ——&gt; float ——&gt; double 会发生精度损失】</p>
+<ul>
+<li><p>int 到 其他: i2l i2f i2d</p>
+</li>
+<li><p>long 到其他: l2f l2d</p>
+</li>
+<li><p>float 到其他: f2d</p>
+</li>
+<li><p>byte short 转换为较大范围类型看作是 int</p>
+</li>
+</ul>
+<p>窄化类型转换【精度损失更大】</p>
+<ul>
+<li><p>int 到其他: i2s i2b i2c</p>
+</li>
+<li><p>long 到 int: l2i</p>
+</li>
+<li><p>float 到其他: f2i f2l</p>
+</li>
+<li><p>double 到其他: d2f d2l d2i</p>
+</li>
+</ul>
+<p><code>对象和数组的创建指令</code></p>
+<p>对象创建指令：new</p>
+<p>数组的创建指令：newarray（基本数据类型）anewarray（引用数据类型）multianewarray（多维数组）</p>
+<p><code>字段访问指令</code></p>
+<p>类字段：getstatic putstatic</p>
+<p>实例字段：gefield putfield</p>
+<p><code>数组操作指令</code></p>
+<p>aload（压栈） astore（赋值） arraylength（数组长度）</p>
+<p><code>类型检查指令</code></p>
+<p>instanceof checkcast</p>
+<p><code>方法调用指令</code></p>
+<p>invokevirtual：虚方法分派，支持多态</p>
+<p>invokeinterface：调用接口方法</p>
+<p>invokespecial：构造器、私有和父类方法</p>
+<p>invokestatic：类方法</p>
+<p><code>方法返回指令</code></p>
+<p>return</p>
+<p><code>操作数栈管理指令</code></p>
+<p>弹出：pop 复制：dup 交换数值：swap</p>
+<p><code>比较指令</code></p>
+<p>dcmpg dcmpl fcmpg fcmpl lcmp</p>
+<p>double float 有两套是因为 Nan 值处理方式不同，例如 fcmpg 压入 1，fcmpl 压入 -1</p>
+<p><code>条件跳转指令</code></p>
+<p>ifeq iflt ifle ifne ifgt ifge （用来比较 long float 和 double）</p>
+<p><code>比较条件跳转指令</code></p>
+<p>if_icmpeq if_icmpne if_icmplt if_icmpgt if_icmpge if_icmpeq if_acmpeq if_acmpne</p>
+<p><code>多条件跳转指令</code></p>
+<p>tablestitch（连续的值） lookupstitch（不连续但会进行排序）</p>
+<p><code>无条件跳转指令</code></p>
+<p>goto</p>
+<p><code>抛出异常指令</code></p>
+<p>athrow 手动抛出</p>
+<p><code>异常处理指令</code></p>
+<p>处理异常是由异常表实现的，并没有 try catch 体现</p>
+<p><code>同步指令</code></p>
+<p>方法级的同步和普通方法指令没区别，当通过访问标志判断某方法是同步方法会自动在方法调用前加锁</p>
+<p>同步代码块：monitorenter monitorexit，通过异常表维护释的放锁，如果监视器计数器为 0 则进入，为 1 则判断监视器线程是否为自己，为自己进入，否则等待</p>
+<h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p><code>过程一：加载阶段</code></p>
+<ul>
+<li><p>获取二进制流的方式</p>
+<ul>
+<li><p>通过文件系统读入</p>
+</li>
+<li><p>通过 jar 等数据包提取文件</p>
+</li>
+<li><p>通过网络加载</p>
+</li>
+<li><p>在运行时动态生成</p>
+</li>
+</ul>
+</li>
+<li><p>类模版和 Class 的位置</p>
+<p>  类模版在方法区，Class 实例在堆区</p>
+</li>
+<li><p>数组类的加载</p>
+<p>  数组类并非由类加载器负责创建，而是由 JVM 在运行时根据需要直接创建的</p>
+</li>
+</ul>
+<p><code>过程二：链接阶段</code></p>
+<ol>
+<li><p>验证</p>
+<ul>
+<li><p>格式检查（检查魔数、版本和长度，和加载同时进行）</p>
+</li>
+<li><p>语义检查</p>
+</li>
+<li><p>字节码验证</p>
+</li>
+<li><p>符号引用验证</p>
+</li>
+</ul>
+</li>
+<li><p>准备</p>
+</li>
+</ol>
+<p>为类中的静态变量分配内存并赋默认值，但并不包括常量，常量在编译时就已经分配，若以字符串字面量方式为常量赋值则也在此阶段显式赋值，在这个阶段并不会有代码的执行</p>
+<ol start="3">
+<li>解析</li>
+</ol>
+<p>将类、接口、字段、方法等符号引用转为直接引用，以方法为例，通过解析符号引用可以转为目标方法在方法表中的位置</p>
+<p><code>过程三：初始化阶段</code></p>
+<p>为静态变量赋予正确的值，到了此阶段才会真正执行代码（静态代码块），&lt;clinit&gt; 方法就是由静态变量的显示赋值和静态代码块构成，此方法由 JVM 自动调用，并且总是先调用父类的 &lt;clinit&gt;</p>
+<p>没有静态变量的显式赋值和静态代码块就没有 &lt;clinit&gt;，</p>
+<p>结论：使用 static final 修饰，且显式赋值中不涉及到方法和构造器调用的基本数据类型和 String 的显示赋值是在链接阶段的准备阶段进行</p>
+<p>&lt;clinit&gt; 是线程安全的</p>
+<h3 id="类的使用"><a href="#类的使用" class="headerlink" title="类的使用"></a>类的使用</h3><p>类的主动使用和被动使用区别在于 &lt;clinit&gt; 方法调用与否，主动使用会调用</p>
+<p>类的主动使用</p>
+<ol>
+<li><p>创建实例（序列化、new、反射）</p>
+</li>
+<li><p>调用类的静态方法</p>
+</li>
+<li><p>调用类/接口的静态字段（final 另算）</p>
+</li>
+<li><p>调用 java.lang.reflect 包中反射类的方法，比如 Class.forName()</p>
+</li>
+<li><p>调用子类的 &lt;clinit&gt; 先触发父类的 &lt;clinit&gt;，但不适用接口</p>
+</li>
+<li><p>如果一个接口有 default 方法，直接或间接实现该类的初始化会先初始化该接口</p>
+</li>
+<li><p>JVM 会先初始化主类</p>
+</li>
+<li><p>MethodHandle </p>
+</li>
+</ol>
+<p>类的被动使用</p>
+<ol>
+<li><p>通过子类引用调父类的静态字段不会造成子类初始化</p>
+</li>
+<li><p>通过数组定义类引用不会造成类的初始化</p>
+</li>
+<li><p>引用常量不会造成类的初始化（常量在链接阶段赋值）</p>
+</li>
+<li><p>ClassLoader 的 loadClass() 方法不是类的主动使用</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>archLinux 安装</title>
     <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
 <h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式"><a href="#验证启动模式" class="headerlink" title="验证启动模式"></a>验证启动模式</h3><p>ls /sys/firmware/efi/efivars</p>
+<span id="more"></span>
+
 <h3 id="联网"><a href="#联网" class="headerlink" title="联网"></a>联网</h3><p>iwctl </p>
 <h3 id="检查是否联通"><a href="#检查是否联通" class="headerlink" title="检查是否联通"></a>检查是否联通</h3><p>ping -c 3 archlinux.org</p>
 <h3 id="更新系统时间"><a href="#更新系统时间" class="headerlink" title="更新系统时间"></a>更新系统时间</h3><p>timedatectl set-ntp true </p>
@@ -200,6 +381,7 @@
 <li><p>防止核心 API 被篡改</p>
 </li>
 </ol>
+<p><a href="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/#类的加载过程">更多</a></p>
 <h2 id="内存与垃圾回收篇"><a href="#内存与垃圾回收篇" class="headerlink" title="内存与垃圾回收篇"></a>内存与垃圾回收篇</h2><h3 id="运行时数据区"><a href="#运行时数据区" class="headerlink" title="运行时数据区"></a>运行时数据区</h3><p>图示</p>
 <p><img src="/blog.github.io/2022/03/23/jvm/1.png"></p>
 <p>上图红色的共享，灰色的每个线程独有</p>
@@ -299,6 +481,20 @@
 <li><p>对象头</p>
 <ul>
 <li><p>运行时元数据</p>
+<ul>
+<li><p>哈希值</p>
+</li>
+<li><p>GC 分代年龄</p>
+</li>
+<li><p>锁状态标志</p>
+</li>
+<li><p>线程持有的锁</p>
+</li>
+<li><p>偏向线程ID</p>
+</li>
+<li><p>偏向线程时间戳</p>
+</li>
+</ul>
 </li>
 <li><p>类型指针</p>
 </li>
@@ -387,6 +583,8 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
     <url>/blog.github.io/2022/02/21/vue3/</url>
     <content><![CDATA[<h2 id="vite"><a href="#vite" class="headerlink" title="vite"></a>vite</h2><p><a href="https://cn.vitejs.dev/">新一代构建工具</a></p>
 <h2 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h2><p>组合式api,数据、方法等都要配置在setup函数中，并且必须返回，响应式基本数据类型、对象类型用ref，对象类型用reactive</p>
+<span id="more"></span>
+
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> name = ref(<span class="string">&#x27;shaka&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> tom = reactive(&#123;<span class="attr">uname</span>:<span class="string">&#x27;tom&#x27;</span>, <span class="attr">age</span>: <span class="number">11</span>&#125;);</span><br><span class="line">  <span class="keyword">let</span> say = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name.value);</span><br><span class="line">    tom.age = <span class="number">22</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(tom)</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    say,</span><br><span class="line">    tom</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
 
 <p>setup仅在beforeCreated执行一次，且this为undefined</p>
@@ -404,98 +602,6 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>vue3</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JVM 字节码与类的加载</title>
-    <url>/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/</url>
-    <content><![CDATA[<h2 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h2><h3 id="构成"><a href="#构成" class="headerlink" title="构成"></a>构成</h3><p><code>魔数</code></p>
-<p>标识合法的 class 文件，4 个字节</p>
-<p><code>版本号</code></p>
-<p>4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行</p>
-<p><code>常量池</code></p>
-<p>构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 )</p>
-<p>常量池表构成：字面量和符号引用</p>
-<p><code>访问标识</code></p>
-<p><code>类索引</code></p>
-<p><code>父类索引</code></p>
-<p><code>接口索引集合</code></p>
-<p><code>字段表集合</code></p>
-<p>构成：字段计数器、字段表</p>
-<p><code>方法表集合</code></p>
-<p>构成：方法计数器、方法表</p>
-<p><code>属性集合</code></p>
-<p>构成：属性计数器、属性表</p>
-<h3 id="javac-与-javap"><a href="#javac-与-javap" class="headerlink" title="javac 与 javap"></a>javac 与 javap</h3><p>javac -g 与没有 -g 参数相比多了局部变量表等信息，idea 和 eclipse 默认有 -g 参数</p>
-<p>javap -v 反汇编，详细，加上 -p 显示私有</p>
-<h3 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h3><p>指令由操作码和操作数(很多没有)构成</p>
-<p>局部变量表、操作数栈以槽位为单位，byte short int boolean floot char 占4个字节，一个槽位，其中byte short char 存储时自动转为 int 以占满 4 个字节，double long 占 8 个字节，2 个槽位，引用类型也占一个槽位</p>
-<p><code>压栈指令</code></p>
-<p>从局部变量表压入操作数栈，load </p>
-<p><code>常量入栈指令</code></p>
-<p>const: int long double float 和引用类型使用</p>
-<p>push: byte short 使用</p>
-<p>dc: 万能型</p>
-<p><code>出栈装入局部变量表指令</code></p>
-<p>store</p>
-<p><code>算术指令</code></p>
-<p><img src="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/1.png"></p>
-<p><code>类型转换指令</code></p>
-<p>宽化类型转换/自动类型转换【简化: int ——&gt; long ——&gt; float ——&gt; double 会发生精度损失】</p>
-<ul>
-<li><p>int 到 其他: i2l i2f i2d</p>
-</li>
-<li><p>long 到其他: l2f l2d</p>
-</li>
-<li><p>float 到其他: f2d</p>
-</li>
-<li><p>byte short 转换为较大范围类型看作是 int</p>
-</li>
-</ul>
-<p>窄化类型转换【精度损失更大】</p>
-<ul>
-<li><p>int 到其他: i2s i2b i2c</p>
-</li>
-<li><p>long 到 int: l2i</p>
-</li>
-<li><p>float 到其他: f2i f2l</p>
-</li>
-<li><p>double 到其他: d2f d2l d2i</p>
-</li>
-</ul>
-<p><code>对象和数组的创建指令</code></p>
-<p>对象创建指令：new</p>
-<p>数组的创建指令：newarray（基本数据类型）anewarray（引用数据类型）multianewarray（多维数组）</p>
-<p><code>字段访问指令</code></p>
-<p>类字段：getstatic putstatic</p>
-<p>实例字段：gefield putfield</p>
-<p><code>数组操作指令</code></p>
-<p>aload（压栈） astore（赋值） arraylength（数组长度）</p>
-<p><code>类型检查指令</code></p>
-<p>instanceof checkcast</p>
-<p><code>方法调用指令</code></p>
-<p>invokevirtual：虚方法分派，支持多态</p>
-<p>invokeinterface：调用接口方法</p>
-<p>invokespecial：构造器、私有和父类方法</p>
-<p>invokestatic：类方法</p>
-<p><code>方法返回指令</code></p>
-<p>return</p>
-<p><code>操作数栈管理指令</code></p>
-<p>弹出：pop 复制：dup 交换数值：swap</p>
-<p><code>比较指令</code></p>
-<p>dcmpg dcmpl fcmpg fcmpl lcmp</p>
-<p>double float 有两套是因为 Nan 值处理方式不同，例如 fcmpg 压入 1，fcmpl 压入 -1</p>
-<p><code>条件跳转指令</code></p>
-<p>ifeq iflt ifle ifne ifgt ifge （用来比较 long float 和 double）</p>
-<p><code>比较条件跳转指令</code></p>
-<p>if_icmpeq if_icmpne if_icmplt if_icmpgt if_icmpge if_icmpeq if_acmpeq if_acmpne</p>
-<p><code>多条件跳转指令</code></p>
-]]></content>
-      <categories>
-        <category>JVM</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
       </tags>
   </entry>
 </search>

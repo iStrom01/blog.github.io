@@ -261,7 +261,16 @@
 <li><p>ClassLoader 的 loadClass() 方法不是类的主动使用</p>
 </li>
 </ol>
-]]></content>
+<h3 id="类的卸载"><a href="#类的卸载" class="headerlink" title="类的卸载"></a>类的卸载</h3><p>方法区的回收很苛刻，要满足下面三个条件</p>
+<ol>
+<li><p>类的所有实例被回收</p>
+</li>
+<li><p>类的加载器被回收（很难达成）</p>
+</li>
+<li><p>Class 对象的引用被回收</p>
+</li>
+</ol>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2>]]></content>
       <categories>
         <category>JVM</category>
       </categories>
@@ -358,7 +367,10 @@
   <entry>
     <title>JVM 内存与垃圾回收</title>
     <url>/blog.github.io/2022/03/23/jvm/</url>
-    <content><![CDATA[<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类的加载分为三个阶段，即加载、链接和初始化</p>
+    <content><![CDATA[<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><blockquote>
+<p>此处只是基本介绍，关于加载篇 <a href="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/#类的加载">请看</a></p>
+</blockquote>
+<p>类的加载分为三个阶段，即加载、链接和初始化</p>
 <h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ol>
 <li><p>引导类加载器</p>
 <p> c/c++ 语言编写，无法获取，用于加载java的核心类库</p>
@@ -381,7 +393,6 @@
 <li><p>防止核心 API 被篡改</p>
 </li>
 </ol>
-<p><a href="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/#类的加载过程">更多</a></p>
 <h2 id="内存与垃圾回收篇"><a href="#内存与垃圾回收篇" class="headerlink" title="内存与垃圾回收篇"></a>内存与垃圾回收篇</h2><h3 id="运行时数据区"><a href="#运行时数据区" class="headerlink" title="运行时数据区"></a>运行时数据区</h3><p>图示</p>
 <p><img src="/blog.github.io/2022/03/23/jvm/1.png"></p>
 <p>上图红色的共享，灰色的每个线程独有</p>

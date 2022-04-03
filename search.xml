@@ -270,7 +270,21 @@
 <li><p>Class 对象的引用被回收</p>
 </li>
 </ol>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2>]]></content>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>基本数据类型已预先定义，引用类型才需要类加载器</p>
+<p>类的唯一性和命名空间：</p>
+<p>比较两个类是否想等只有在同一个加载器下才有意义</p>
+<p>命名空间由该类及其所有父加载器所加载的类组成，在同一个命名空间中不会出现类的完整名字相同的俩类，不同命名空间可以</p>
+<h3 id="引导类加载器"><a href="#引导类加载器" class="headerlink" title="引导类加载器"></a>引导类加载器</h3><p>由 c 实现，其他三个加载器都算自定义加载器实现，另外三个都派生与 ClassLoader 抽象类，自定义加载其都应该有自己的「父」加载器，即下层加载器包含上层加载器</p>
+<p>引导类加载器用来加载 Java 的核心类库（JAVA_HOME/jre/lib/rt.jar）</p>
+<p>引导类加载器不继承 ClassLoader，没有父加载器</p>
+<p>出于安全考虑，引导类加载器只加载包名以 java javax sun 开头的类</p>
+<p>扩展类加载器和系统类加载器是由引导类加载器加载的</p>
+<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><p>用来加载 JAVA_HOME/jre/lib/ext 的类库</p>
+<h3 id="系统类加载器"><a href="#系统类加载器" class="headerlink" title="系统类加载器"></a>系统类加载器</h3><p>是默认的加载器</p>
+<h3 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h3><h3 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h3><p>本质为类的加载顺序：引导类 —&gt; 拓展类 —&gt; 系统类/自定义</p>
+<p>优点：避免类的重复加载和防止核心 API 篡改</p>
+<p>弊端：顶层的加载器无法加载下层加载器加载的类</p>
+]]></content>
       <categories>
         <category>JVM</category>
       </categories>
@@ -613,6 +627,83 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>vue3</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java 设计模式</title>
+    <url>/blog.github.io/2022/04/03/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="对象之间的关系"><a href="#对象之间的关系" class="headerlink" title="对象之间的关系"></a>对象之间的关系</h3><p><code>一般关联关系</code></p>
+<p>单向关联：用带箭头的指向被关联类的实线表示</p>
+<p>双向关联：用实线表示</p>
+<p>自关联：带箭头的指向自己的实线表示</p>
+<p><code>聚合关系</code></p>
+<p>聚合关系是强关联关系，成员对象是整体对象的一部分，但成员对象也可以单独存在，用带空心菱形的实线表示</p>
+<p><code>组合关系</code></p>
+<p>组合是更强烈的聚合，成员不可以单独存在，用带实心菱形的实线表示</p>
+<p><code>依赖关系</code></p>
+<p>耦合度最弱的一种关联方式，是临时性的关联，在代码中通过局部变量、方法参数或静态方法调用来调用被依赖类的某些方法完成某些职责，用带箭头的虚线表示，指向被依赖类</p>
+<p><code>继承关系</code></p>
+<p>带实心三角的实线表示，子类指向父类</p>
+<p><code>实现关系</code></p>
+<p>带空心三角的虚线表示，实现类指向接口</p>
+<h3 id="软件设计六原则："><a href="#软件设计六原则：" class="headerlink" title="软件设计六原则："></a>软件设计六原则：</h3><blockquote>
+<p>为了提高软件系统的可维护性、可复用性 增加可扩展性和灵活性</p>
+</blockquote>
+<ol>
+<li>开闭原则</li>
+</ol>
+<p>对扩展开放，对修改关闭，在需要扩展的时候不去修改源代码，实现热插拔，要达到这样的效果需要使用接口和抽象类</p>
+<ol start="2">
+<li>里氏替换原则</li>
+</ol>
+<p>父类可以出现的地方子类也可以出现，通俗来说就是子类可以扩展父类功能但尽量不要重写父类的方法</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JVM 性能监控与调优</title>
+    <url>/blog.github.io/2022/04/02/JVM-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%B0%83%E4%BC%98/</url>
+    <content><![CDATA[<h2 id="监控之命令行工具"><a href="#监控之命令行工具" class="headerlink" title="监控之命令行工具"></a>监控之命令行工具</h2><ol>
+<li><p>jps 查看线程</p>
+</li>
+<li><p>jstat 查看 JVM 统计信息</p>
+<ul>
+<li><p>-class 类装载信息</p>
+</li>
+<li><p>-compiler JIT 编译过的方法、耗时等信息 </p>
+</li>
+<li><p>-printcompilation 编译过的方法</p>
+</li>
+<li><p>-gc GC 相关的堆信息，包括伊甸园区、幸存者区、老年代、方法区</p>
+</li>
+<li><p>-gcutil 和 -gc 差不多，但是显示的主要是占比</p>
+</li>
+<li><p>-gccause GC的原因</p>
+</li>
+</ul>
+</li>
+<li><p>jinfo 实时查看和修改 JVM 运行参数信息</p>
+</li>
+<li><p>jmap 导出堆内存映像文件和内存使用情况/dump（还有其他功能）</p>
+</li>
+<li><p><del>jhat JDK 自带堆分析工具</del></p>
+</li>
+<li><p>jstack 栈快照</p>
+</li>
+<li><p>jcmd 以上除了 jstat 的所有功能</p>
+</li>
+</ol>
+<h2 id="监控之UI工具"><a href="#监控之UI工具" class="headerlink" title="监控之UI工具"></a>监控之UI工具</h2>]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
       </tags>
   </entry>
 </search>

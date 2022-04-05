@@ -28,7 +28,7 @@
 <meta property="og:description" content="JVM 监控诊断工具、运行时参数、GC 日志、OOM 的常见场景和解决办法">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-04-02T09:03:43.000Z">
-<meta property="article:modified_time" content="2022-04-05T06:56:42.592Z">
+<meta property="article:modified_time" content="2022-04-05T12:30:40.563Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
@@ -146,7 +146,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E4%B9%8B%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">监控之命令行工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E4%B9%8BUI%E5%B7%A5%E5%85%B7"><span class="nav-number">2.</span> <span class="nav-text">监控之UI工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%8D%E8%B0%88%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2"><span class="nav-number">2.1.</span> <span class="nav-text">再谈内存泄露</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E4%B9%8B%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">监控之命令行工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E4%B9%8B-UI-%E5%B7%A5%E5%85%B7"><span class="nav-number">2.</span> <span class="nav-text">监控之 UI 工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%8D%E8%B0%88%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2"><span class="nav-number">2.1.</span> <span class="nav-text">再谈内存泄露</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-%E5%8F%82%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">JVM 参数</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -247,7 +247,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-04-05 14:56:42" itemprop="dateModified" datetime="2022-04-05T14:56:42+08:00">2022-04-05</time>
+      <time title="修改时间：2022-04-05 20:30:40" itemprop="dateModified" datetime="2022-04-05T20:30:40+08:00">2022-04-05</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -277,7 +277,7 @@
 <ul>
 <li><p>-class 类装载信息</p>
 </li>
-<li><p>-compiler JIT 编译过的方法、耗时等信息 </p>
+<li><p>-compiler JIT 编译过的方法、耗时等信息</p>
 </li>
 <li><p>-printcompilation 编译过的方法</p>
 </li>
@@ -285,7 +285,7 @@
 </li>
 <li><p>-gcutil 和 -gc 差不多，但是显示的主要是占比</p>
 </li>
-<li><p>-gccause GC的原因</p>
+<li><p>-gccause GC 的原因</p>
 </li>
 </ul>
 </li>
@@ -300,7 +300,7 @@
 <li><p>jcmd 以上除了 jstat 的所有功能</p>
 </li>
 </ol>
-<h2 id="监控之UI工具"><a href="#监控之UI工具" class="headerlink" title="监控之UI工具"></a>监控之UI工具</h2><p>jconsole visual mat(dump)  jprofiler <a target="_blank" rel="noopener" href="https://arthas.aliyun.com/doc/">arthas</a></p>
+<h2 id="监控之-UI-工具"><a href="#监控之-UI-工具" class="headerlink" title="监控之 UI 工具"></a>监控之 UI 工具</h2><p>jconsole visual mat(dump) jprofiler <a target="_blank" rel="noopener" href="https://arthas.aliyun.com/doc/">arthas</a> jmc</p>
 <p>浅堆：对象本身占用的内存，不包括其内部引用对象的大小</p>
 <p>深堆：一个对象直接或间接访问到的所有对象浅堆大小只和，而且是<code>只能通过</code>该对象访问，即被释放以后释放的真实大小</p>
 <p>支配树：所有指向 B 对象的路径都经过对象 A，则认为 A 为 B 的支配者</p>
@@ -326,6 +326,52 @@
 </ol>
 <p><code>OQL</code></p>
 <p>用来查询堆中对象，类似 SQL</p>
+<h2 id="JVM-参数"><a href="#JVM-参数" class="headerlink" title="JVM 参数"></a>JVM 参数</h2><ol>
+<li><p>标准参数类型（java -help 列出所有）</p>
+</li>
+<li><p>-X 非标准类型 （java -X 列出所有）</p>
+<p>编译器相关：-Xint(解释器)、-Xcomp(编译器)、-Xmixed(混合模式)</p>
+<p>-Xss&lt;大小&gt;(栈大小)、-Xms&lt;大小&gt;(初始堆大小)、-Xmx&lt;大小&gt;(最大堆大小) 属于 -XX 参数的缩写</p>
+</li>
+<li><p>-XX 非标准类型</p>
+<ul>
+<li><p>Boolean 类型：-XX:+&lt;option&gt; 表示启用某项 -XX:+&lt;option&gt; 表示禁用某项</p>
+</li>
+<li><p>非 Boolean 类型：-XX:+&lt;option&gt;=&lt;value&gt;</p>
+</li>
+<li><p>-XX:+PrintFlagsFinal 输出所有参数的名称和默认值，jinfo 设置运行中的 JVM 参数</p>
+</li>
+</ul>
+</li>
+<li><p>堆、栈、方法区相关参数</p>
+<p>-Xss&lt;大小&gt;：每个线程栈的大小</p>
+<p>-Xms&lt;大小&gt;：初始堆大小</p>
+<p>-Xmx&lt;大小&gt;：最大堆大小</p>
+<p>-XX:NewSize=&lt;大小&gt;：年轻代大小</p>
+<p>-XX:MaxNewSize=&lt;大小&gt;：年轻代最大大小</p>
+<p>-XX:NewRatio=&lt;比例&gt;：老年代和新生代比值，默认为 2</p>
+<p>-XX:SurvivorRatio=&lt;比例&gt;：伊甸园区和幸存者区比例，默认为 8</p>
+<p>-XX:+UseAdaptionSizePolicy: 新生代自动分配，默认打开，优先级高于 SurvivorRatio</p>
+<p>-XX:MaxTenuringThreshold=&lt;大小&gt;：新生代每次 MinorGC 之后还存活的对象年龄 +1，大于此年龄收到老年代，默认为 15</p>
+<p>-XX:+PrintTenuringDistribution：每次 MinorGC 之后打印幸存者区对象的年龄分布</p>
+<p>-XX:MetaspaceSize=&lt;大小&gt;：元空间大小</p>
+<p>-XX:MaxMetaspaceSize=&lt;大小&gt;：元空间最大小</p>
+</li>
+<li><p>OOM 相关参数</p>
+<p> -XX:+HeapDumpOnOutOfMemoryError：内存出现 OOM 时，生成 Heap 转储文件以便后续分析</p>
+<p> -XX:+HeapDumpBeforeFullGC：FullGC 之前转储</p>
+<p> -XX:HeapDumpPath=&lt;路径&gt;：转储文件位置</p>
+<p> -XX:OnOutofMemory=&lt;可执行文件&gt;：当 OOM 之后执行</p>
+</li>
+<li><p>垃圾回收器相关参数</p>
+<p> -XX:+UseSerialGC 新生代使用 SerialGC，老年代使用 SerialOldGC，SerialGC 是 Client 模式下默认的回收器</p>
+<p> -XX:+UseParNewGC 新生代使用 ParNewGC，老年代不受影响</p>
+<p> -XX:+UseParallelGC 新生代使用 ParallelGC，老年代使用 ParallelOldGC，JDK8 默认</p>
+<p> -XX:ParallelGCThreads=&lt;个数&gt; 设置年轻代并行回收器的线程数</p>
+<p> -XX:MaxGCPauseMillis=&lt;秒数&gt; 设置 GC 最大 STW 时间</p>
+<p> -XX:GCTimeRatio=&lt;比例&gt; 垃圾回收时间与总时间的占比，用来衡量吞吐量，默认99，范围 （0，100）</p>
+</li>
+</ol>
 
     </div>
 

@@ -72,7 +72,7 @@
 </ol>
 ]]></content>
       <categories>
-        <category>JUC</category>
+        <category>Java</category>
       </categories>
       <tags>
         <tag>JUC</tag>
@@ -158,7 +158,7 @@
 </blockquote>
 ]]></content>
       <categories>
-        <category>JUC</category>
+        <category>Java</category>
       </categories>
       <tags>
         <tag>JUC</tag>
@@ -364,7 +364,7 @@
 <p>弊端：顶层的加载器无法加载下层加载器加载的类</p>
 ]]></content>
       <categories>
-        <category>JVM</category>
+        <category>Java</category>
       </categories>
       <tags>
         <tag>JVM</tag>
@@ -491,92 +491,10 @@
 <h2 id="GC-日志分析工具"><a href="#GC-日志分析工具" class="headerlink" title="GC 日志分析工具"></a>GC 日志分析工具</h2><p><a href="https://gceasy.io">GCEasy</a></p>
 ]]></content>
       <categories>
-        <category>JVM</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java 设计模式</title>
-    <url>/blog.github.io/2022/04/03/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="对象之间的关系"><a href="#对象之间的关系" class="headerlink" title="对象之间的关系"></a>对象之间的关系</h3><p><code>一般关联关系</code></p>
-<p>单向关联：用带箭头的指向被关联类的实线表示</p>
-<p>双向关联：用实线表示</p>
-<p>自关联：带箭头的指向自己的实线表示</p>
-<p><code>聚合关系</code></p>
-<p>聚合关系是强关联关系，成员对象是整体对象的一部分，但成员对象也可以单独存在，用带空心菱形的实线表示</p>
-<p><code>组合关系</code></p>
-<p>组合是更强烈的聚合，成员不可以单独存在，用带实心菱形的实线表示</p>
-<p><code>依赖关系</code></p>
-<p>耦合度最弱的一种关联方式，是临时性的关联，在代码中通过局部变量、方法参数或静态方法调用来调用被依赖类的某些方法完成某些职责，用带箭头的虚线表示，指向被依赖类</p>
-<p><code>继承关系</code></p>
-<p>带实心三角的实线表示，子类指向父类</p>
-<p><code>实现关系</code></p>
-<p>带空心三角的虚线表示，实现类指向接口</p>
-<h3 id="软件设计六原则："><a href="#软件设计六原则：" class="headerlink" title="软件设计六原则："></a>软件设计六原则：</h3><blockquote>
-<p>为了提高软件系统的可维护性、可复用性 增加可扩展性和灵活性</p>
-</blockquote>
-<ol>
-<li><p>开闭原则</p>
-<p> 对扩展开放，对修改关闭，在需要扩展的时候不去修改源代码，实现热插拔，要达到这样的效果需要使用接口和抽象类</p>
-</li>
-<li><p>里氏替换原则</p>
-<p> 父类可以出现的地方子类也可以出现，通俗来说就是子类可以扩展父类功能但尽量不要重写父类的方法  </p>
-</li>
-</ol>
-<ol start="3">
-<li><p>依赖倒转原则</p>
-<p> 高层模块不应该依赖低层模块，两者应该依赖其抽象，简单说就面对抽象进行编程。</p>
-</li>
-<li><p>接口隔离原则</p>
-<p> 客户端不应该被迫依赖于它不使用的方法，一个类对另一个类的依赖应该建立在最小接口之上。</p>
-</li>
-<li><p>迪米特法则</p>
-<p> 只和认识的人说话，不和陌生人说话。当两个软件无须直接通信，那么不应该发生直接调用，而是通过第三方调用，目的是为了降低耦合度。</p>
-</li>
-<li><p>合成复用原则</p>
-<p> 尽量先使用聚合和组合实现关联关系，其次才考虑用继承实现。</p>
-<p> 继承复用虽然简单，但父类对子类来说是透明的，属于「白箱」复用，父类的任何改变都会造成子类的改变，耦合度高，并且从父类继承而来的实现是静态的，限制了复用的灵活性。</p>
-<p> 组合/聚合复用将已有对象纳入新对象中，新对象可以调用已有对象的功能。新对象对已有对象细节不知，维护了封装性，属于「黑箱」复用，可以声明抽象降低耦合，并且新对象可以引用和已有对象成分相同的对象，灵活性高</p>
-</li>
-</ol>
-<h3 id="创建者模式"><a href="#创建者模式" class="headerlink" title="创建者模式"></a>创建者模式</h3><blockquote>
-<p>对象的创建与使用分离使用者不关心对象的创建细节</p>
-</blockquote>
-<h4 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h4><p>角色：单例类（只能创建一个实例的类）和访问类（使用单例类的类）</p>
-<p>饿汉式（静态变量）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>饿汉式（静态代码块）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>懒汉式（线程不安全）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果方法加上 synchronized 是安全但是效率太差，因为对于读操作是线程安全的而大部分操作又是读</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>懒汉式（双重检查）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// volatile 防止指令重排</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 第一次检查过滤掉读操作</span></span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="comment">// 第二次检查为了保证单例</span></span><br><span class="line">                <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>懒汉式（静态内部类）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><font color=orange >说明：</font></p>
-<p>第一次加载 Singleton 类时并不会初始化 SINGLETON，只有第一次调 getInstance() 时 JVM 才会加载 SingletonHolder 并初始化 SINGLETON。这样不仅能保证线程安全也可以保证实例的唯一性，并且没有空间浪费（饿汉式会浪费）。是开源项目比较常用的一种单例模式方式。</p>
-<p>饿汉式（枚举类）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">SingletonEnum</span> </span>&#123;</span><br><span class="line">    INSTANCE(<span class="string">&quot;shaka&quot;</span>);</span><br><span class="line"></span><br><span class="line">    SingletonEnum(String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><font color=orange >说明：</font></p>
-<p>写法简单且是唯一一种不会被破坏的单例模式，极力推荐，破坏单例模式的方式可以序列化反序列化也可以反射创建对象</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> flag;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 解决反射破坏单例的解决方案</span></span><br><span class="line">        <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;不能创建多个对象&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            flag = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解决序列化破坏单例，会自动调用 readObject()</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">readObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><font color=orange >说明：</font></p>
-<p>解决序列化和反射破坏单例模式的方式</p>
-<h4 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h4><p>角色：抽象产品、具体产品、具体工厂</p>
-]]></content>
-      <categories>
         <category>Java</category>
       </categories>
       <tags>
-        <tag>设计模式</tag>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -666,29 +584,85 @@
       </tags>
   </entry>
   <entry>
-    <title>vue3</title>
-    <url>/blog.github.io/2022/02/21/vue3/</url>
-    <content><![CDATA[<h2 id="vite"><a href="#vite" class="headerlink" title="vite"></a>vite</h2><p><a href="https://cn.vitejs.dev/">新一代构建工具</a></p>
-<h2 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h2><p>组合式api,数据、方法等都要配置在setup函数中，并且必须返回，响应式基本数据类型、对象类型用ref，对象类型用reactive</p>
-<span id="more"></span>
+    <title>Java 设计模式</title>
+    <url>/blog.github.io/2022/04/03/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="对象之间的关系"><a href="#对象之间的关系" class="headerlink" title="对象之间的关系"></a>对象之间的关系</h3><p><code>一般关联关系</code></p>
+<p>单向关联：用带箭头的指向被关联类的实线表示</p>
+<p>双向关联：用实线表示</p>
+<p>自关联：带箭头的指向自己的实线表示</p>
+<p><code>聚合关系</code></p>
+<p>聚合关系是强关联关系，成员对象是整体对象的一部分，但成员对象也可以单独存在，用带空心菱形的实线表示</p>
+<p><code>组合关系</code></p>
+<p>组合是更强烈的聚合，成员不可以单独存在，用带实心菱形的实线表示</p>
+<p><code>依赖关系</code></p>
+<p>耦合度最弱的一种关联方式，是临时性的关联，在代码中通过局部变量、方法参数或静态方法调用来调用被依赖类的某些方法完成某些职责，用带箭头的虚线表示，指向被依赖类</p>
+<p><code>继承关系</code></p>
+<p>带实心三角的实线表示，子类指向父类</p>
+<p><code>实现关系</code></p>
+<p>带空心三角的虚线表示，实现类指向接口</p>
+<h3 id="软件设计六原则："><a href="#软件设计六原则：" class="headerlink" title="软件设计六原则："></a>软件设计六原则：</h3><blockquote>
+<p>为了提高软件系统的可维护性、可复用性 增加可扩展性和灵活性</p>
+</blockquote>
+<ol>
+<li><p>开闭原则</p>
+<p> 对扩展开放，对修改关闭，在需要扩展的时候不去修改源代码，实现热插拔，要达到这样的效果需要使用接口和抽象类</p>
+</li>
+<li><p>里氏替换原则</p>
+<p> 父类可以出现的地方子类也可以出现，通俗来说就是子类可以扩展父类功能但尽量不要重写父类的方法  </p>
+</li>
+</ol>
+<ol start="3">
+<li><p>依赖倒转原则</p>
+<p> 高层模块不应该依赖低层模块，两者应该依赖其抽象，简单说就面对抽象进行编程。</p>
+</li>
+<li><p>接口隔离原则</p>
+<p> 客户端不应该被迫依赖于它不使用的方法，一个类对另一个类的依赖应该建立在最小接口之上。</p>
+</li>
+<li><p>迪米特法则</p>
+<p> 只和认识的人说话，不和陌生人说话。当两个软件无须直接通信，那么不应该发生直接调用，而是通过第三方调用，目的是为了降低耦合度。</p>
+</li>
+<li><p>合成复用原则</p>
+<p> 尽量先使用聚合和组合实现关联关系，其次才考虑用继承实现。</p>
+<p> 继承复用虽然简单，但父类对子类来说是透明的，属于「白箱」复用，父类的任何改变都会造成子类的改变，耦合度高，并且从父类继承而来的实现是静态的，限制了复用的灵活性。</p>
+<p> 组合/聚合复用将已有对象纳入新对象中，新对象可以调用已有对象的功能。新对象对已有对象细节不知，维护了封装性，属于「黑箱」复用，可以声明抽象降低耦合，并且新对象可以引用和已有对象成分相同的对象，灵活性高</p>
+</li>
+</ol>
+<h3 id="创建者模式"><a href="#创建者模式" class="headerlink" title="创建者模式"></a>创建者模式</h3><blockquote>
+<p>对象的创建与使用分离使用者不关心对象的创建细节</p>
+</blockquote>
+<h4 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h4><p>角色：单例类（只能创建一个实例的类）和访问类（使用单例类的类）</p>
+<p>饿汉式（静态变量）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> name = ref(<span class="string">&#x27;shaka&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> tom = reactive(&#123;<span class="attr">uname</span>:<span class="string">&#x27;tom&#x27;</span>, <span class="attr">age</span>: <span class="number">11</span>&#125;);</span><br><span class="line">  <span class="keyword">let</span> say = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name.value);</span><br><span class="line">    tom.age = <span class="number">22</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(tom)</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    say,</span><br><span class="line">    tom</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>饿汉式（静态代码块）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>setup仅在beforeCreated执行一次，且this为undefined</p>
-<p>props父组件向子组件传参,context上下文对象</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params">props, context</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(props.p1);</span><br><span class="line">    <span class="built_in">console</span>.log(context.attrs)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>懒汉式（线程不安全）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果方法加上 synchronized 是安全但是效率太差，因为对于读操作是线程安全的而大部分操作又是读</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>计算属性</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> firstName = <span class="string">&#x27;tom&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> lastName = <span class="string">&#x27;jerry&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> fullName = computed(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> firstName + lastName;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span>&#123;</span><br><span class="line">      firstName,</span><br><span class="line">      lastName,</span><br><span class="line">      fullName,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>懒汉式（双重检查）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// volatile 防止指令重排</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 第一次检查过滤掉读操作</span></span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="comment">// 第二次检查为了保证单例</span></span><br><span class="line">                <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>监视</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> a = ref(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      a.value++;</span><br><span class="line">    &#125;;</span><br><span class="line">    watch(a,<span class="function">(<span class="params">newValue,oldValue</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;a的值变了&#x27;</span>,newValue,oldValue)</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      add,</span><br><span class="line">      a</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>懒汉式（静态内部类）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><font color=orange >说明：</font></p>
+<p>第一次加载 Singleton 类时并不会初始化 SINGLETON，只有第一次调 getInstance() 时 JVM 才会加载 SingletonHolder 并初始化 SINGLETON。这样不仅能保证线程安全也可以保证实例的唯一性，并且没有空间浪费（饿汉式会浪费）。是开源项目比较常用的一种单例模式方式。</p>
+<p>饿汉式（枚举类）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">SingletonEnum</span> </span>&#123;</span><br><span class="line">    INSTANCE(<span class="string">&quot;shaka&quot;</span>);</span><br><span class="line"></span><br><span class="line">    SingletonEnum(String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><font color=orange >说明：</font></p>
+<p>写法简单且是唯一一种不会被破坏的单例模式，极力推荐，破坏单例模式的方式可以序列化反序列化也可以反射创建对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> flag;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 解决反射破坏单例的解决方案</span></span><br><span class="line">        <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;不能创建多个对象&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            flag = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解决序列化破坏单例，会自动调用 readObject()</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">readObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=orange >说明：</font></p>
+<p>解决序列化和反射破坏单例模式的方式</p>
+<h4 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h4><p>角色：抽象产品、具体产品、具体工厂</p>
 ]]></content>
       <categories>
-        <category>前端</category>
+        <category>Java</category>
       </categories>
       <tags>
-        <tag>vue3</tag>
+        <tag>设计模式</tag>
       </tags>
   </entry>
   <entry>
@@ -912,10 +886,36 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <h3 id="垃圾回收器"><a href="#垃圾回收器" class="headerlink" title="垃圾回收器"></a>垃圾回收器</h3><p><img src="/blog.github.io/2022/03/23/jvm/3.png"></p>
 ]]></content>
       <categories>
-        <category>JVM</category>
+        <category>Java</category>
       </categories>
       <tags>
         <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vue3</title>
+    <url>/blog.github.io/2022/02/21/vue3/</url>
+    <content><![CDATA[<h2 id="vite"><a href="#vite" class="headerlink" title="vite"></a>vite</h2><p><a href="https://cn.vitejs.dev/">新一代构建工具</a></p>
+<h2 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h2><p>组合式api,数据、方法等都要配置在setup函数中，并且必须返回，响应式基本数据类型、对象类型用ref，对象类型用reactive</p>
+<span id="more"></span>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> name = ref(<span class="string">&#x27;shaka&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> tom = reactive(&#123;<span class="attr">uname</span>:<span class="string">&#x27;tom&#x27;</span>, <span class="attr">age</span>: <span class="number">11</span>&#125;);</span><br><span class="line">  <span class="keyword">let</span> say = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name.value);</span><br><span class="line">    tom.age = <span class="number">22</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(tom)</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    say,</span><br><span class="line">    tom</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>setup仅在beforeCreated执行一次，且this为undefined</p>
+<p>props父组件向子组件传参,context上下文对象</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params">props, context</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(props.p1);</span><br><span class="line">    <span class="built_in">console</span>.log(context.attrs)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>计算属性</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> firstName = <span class="string">&#x27;tom&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> lastName = <span class="string">&#x27;jerry&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> fullName = computed(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> firstName + lastName;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span>&#123;</span><br><span class="line">      firstName,</span><br><span class="line">      lastName,</span><br><span class="line">      fullName,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>监视</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> a = ref(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      a.value++;</span><br><span class="line">    &#125;;</span><br><span class="line">    watch(a,<span class="function">(<span class="params">newValue,oldValue</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;a的值变了&#x27;</span>,newValue,oldValue)</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      add,</span><br><span class="line">      a</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>vue3</tag>
       </tags>
   </entry>
 </search>

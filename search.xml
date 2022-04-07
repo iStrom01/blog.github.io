@@ -1,6 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>JUC 并发编程</title>
+    <url>/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/</url>
+    <content><![CDATA[<h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p><code>上下文切换原因</code></p>
+<ol>
+<li><p>时间片用完</p>
+</li>
+<li><p>垃圾回收</p>
+</li>
+<li><p>有更高线程优先级需要运行</p>
+</li>
+<li><p>线程自己调用了 sleep yiled join park lock synchronized 方法</p>
+</li>
+</ol>
+<p>当发生上下文切换时操作系统会保存当前线程状态（PC 寄存器、栈帧信息）并恢复另一个，频繁切换上下文会影响性能。</p>
+<p><code>sleep()</code></p>
+<ol>
+<li><p>调用 sleep 线程会让线程进入 TIMED_WAITING</p>
+</li>
+<li><p>其他线程调用 interrupt() 方法会打断正在睡的线程，打断的是睡眠，抛出 InterruptedException 异常</p>
+</li>
+<li><p>睡眠结束后的线程未必会立即执行</p>
+</li>
+<li><p>建议使用 TimeUnit 的 sleep，可读性更好</p>
+</li>
+</ol>
+<p><code>yiled()</code></p>
+<p>让线程从 Running 变成 Runnable 状态，具体实现依赖操作系统的任务调度，但还是有机会继续执行，而 sleep() 的线程处于 TIMED_WAITING，并不会调度到 sleep() 的线程</p>
+<p><code>join()</code></p>
+<p>等待某个线程运行结束，要等待的线程进入 WAITING</p>
+<p><code>interrupt()</code></p>
+<p>打断 join wait sleep 的线程之后的被打断线程的打断标记为 false，而正常运行的线程被打断的话只会把打断标记设为 true，相当于只是告知了有人要打断我，但结束与否还得看我自己</p>
+<p>interrupt() 的应用：两阶段终止模式</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"></span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (Thread.currentThread().isInterrupted()) &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;料理后事&quot;</span>);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">                    System.out.println(<span class="string">&quot;执行监控&quot;</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                    <span class="comment">// 重新设置打断标记</span></span><br><span class="line">                    Thread.currentThread().interrupt();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">5</span>);</span><br><span class="line">        t1.interrupt();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打断 park()</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            LockSupport.park();</span><br><span class="line">            <span class="comment">// 打断标记为 true 的线程只能 park 一次，要想再 park 只好再清除打断标记</span></span><br><span class="line">            System.out.println(<span class="string">&quot;打断标记为&quot;</span> + Thread.currentThread().isInterrupted());</span><br><span class="line">            Thread.interrupted();</span><br><span class="line">            System.out.println(<span class="string">&quot;打断标记为&quot;</span> + Thread.currentThread().isInterrupted());</span><br><span class="line">            LockSupport.park();</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        t1.interrupt();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h4><p>非守护线程结束了守护线程就算没执行完也会强制结束，垃圾回收器就是一种守护线程</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        <span class="comment">// 把 t1 设置为守护线程，这样一旦 main 线程结束则强制结束 t1 线程</span></span><br><span class="line">        t1.setDaemon(<span class="keyword">true</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="Java-线程的六种状态源码"><a href="#Java-线程的六种状态源码" class="headerlink" title="Java 线程的六种状态源码"></a>Java 线程的六种状态源码</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a thread which has not yet started.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        NEW,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a runnable thread.  A thread in the runnable</span></span><br><span class="line"><span class="comment">         * state is executing in the Java virtual machine but it may</span></span><br><span class="line"><span class="comment">         * be waiting for other resources from the operating system</span></span><br><span class="line"><span class="comment">         * such as processor.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        RUNNABLE,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a thread blocked waiting for a monitor lock.</span></span><br><span class="line"><span class="comment">         * A thread in the blocked state is waiting for a monitor lock</span></span><br><span class="line"><span class="comment">         * to enter a synchronized block/method or</span></span><br><span class="line"><span class="comment">         * reenter a synchronized block/method after calling</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@link</span> Object#wait() Object.wait&#125;.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        BLOCKED,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a waiting thread.</span></span><br><span class="line"><span class="comment">         * A thread is in the waiting state due to calling one of the</span></span><br><span class="line"><span class="comment">         * following methods:</span></span><br><span class="line"><span class="comment">         * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> Object#wait() Object.wait&#125; with no timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #join() Thread.join&#125; with no timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#park() LockSupport.park&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * &lt;p&gt;A thread in the waiting state is waiting for another thread to</span></span><br><span class="line"><span class="comment">         * perform a particular action.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * For example, a thread that has called &#123;<span class="doctag">@code</span> Object.wait()&#125;</span></span><br><span class="line"><span class="comment">         * on an object is waiting for another thread to call</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@code</span> Object.notify()&#125; or &#123;<span class="doctag">@code</span> Object.notifyAll()&#125; on</span></span><br><span class="line"><span class="comment">         * that object. A thread that has called &#123;<span class="doctag">@code</span> Thread.join()&#125;</span></span><br><span class="line"><span class="comment">         * is waiting for a specified thread to terminate.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a waiting thread with a specified waiting time.</span></span><br><span class="line"><span class="comment">         * A thread is in the timed waiting state due to calling one of</span></span><br><span class="line"><span class="comment">         * the following methods with a specified positive waiting time:</span></span><br><span class="line"><span class="comment">         * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #sleep Thread.sleep&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> Object#wait(long) Object.wait&#125; with timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #join(long) Thread.join&#125; with timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#parkNanos LockSupport.parkNanos&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#parkUntil LockSupport.parkUntil&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TIMED_WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a terminated thread.</span></span><br><span class="line"><span class="comment">         * The thread has completed execution.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TERMINATED;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="共享模型"><a href="#共享模型" class="headerlink" title="共享模型"></a>共享模型</h3><h4 id="管程"><a href="#管程" class="headerlink" title="管程"></a>管程</h4><p>临界区：一块代码去如果存在堆共享资源的对线程读写操作，则该代码块为临界区。</p>
+<p>竞态：多个线程在临界区执行，由于代码执行序列的不同导致结果不可预测，则称之为发生了竞态</p>
+<p><code>竞态解决方案：</code></p>
+<ol>
+<li><p>阻塞式：synchronized、Lock</p>
+</li>
+<li><p>非阻塞式：原子变量</p>
+</li>
+</ol>
+<p><code>线程安全分析</code></p>
+<ol>
+<li><p>成员变量、静态变量，如果没有共享则线程安全，共享了只有读操作也线程安全，读写都有则线程不安全</p>
+</li>
+<li><p>局部变量，局部变量线程安全，但其引用的对象未必安全，如果局部变量引用的对象没有逃离方法作用范围则线程安全，否则需要考虑线程安全问题</p>
+</li>
+</ol>
+<p>常用的 spring boot 增删查改方法是单例的，但是要么不涉及成员变量要么不涉及写操作，因此是线程安全的</p>
+<p><code>Monitor</code></p>
+<p>由 JVM 知道对象头（ 8 个字节）由 mark word 和 kclass word 组成，数组对象的对象头还多一个 array length, mark word 遇到 synchronized 会指向一个由操作系统提供的 Monitor 对象，Monitor 对象有 owner 属性指向该锁属于哪个线程，再来的线程会先自旋几次（万一锁被释放，自旋适合多核 CPU ）再进入 Monitor 对象的 entryList 队列中等待并且线程状态变为 Blocked。一个锁对应一个 Monitor，不加 synchronized 就不关联 Monitor</p>
+<p><code>synchronized 优化</code></p>
+<p>对象头格式：<br><img src="/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/1.png"></p>
+<p>轻量级锁</p>
+<p>偏向锁</p>
+]]></content>
+      <categories>
+        <category>JUC</category>
+      </categories>
+      <tags>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JUC</title>
     <url>/blog.github.io/2021/12/28/JUC/</url>
     <content><![CDATA[<h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
@@ -86,133 +160,6 @@
         <tag>juc</tag>
         <tag>lock</tag>
         <tag>锁</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JVM 性能监控与调优</title>
-    <url>/blog.github.io/2022/04/02/JVM-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%B0%83%E4%BC%98/</url>
-    <content><![CDATA[<h2 id="监控之命令行工具"><a href="#监控之命令行工具" class="headerlink" title="监控之命令行工具"></a>监控之命令行工具</h2><ol>
-<li><p>jps 查看线程</p>
-</li>
-<li><p>jstat 查看 JVM 统计信息</p>
-<ul>
-<li><p>-class 类装载信息</p>
-</li>
-<li><p>-compiler JIT 编译过的方法、耗时等信息</p>
-</li>
-<li><p>-printcompilation 编译过的方法</p>
-</li>
-<li><p>-gc GC 相关的堆信息，包括伊甸园区、幸存者区、老年代、方法区</p>
-</li>
-<li><p>-gcutil 和 -gc 差不多，但是显示的主要是占比</p>
-</li>
-<li><p>-gccause GC 的原因</p>
-</li>
-</ul>
-</li>
-<li><p>jinfo 实时查看和修改 JVM 运行参数信息</p>
-</li>
-<li><p>jmap 导出堆内存映像文件和内存使用情况/dump（还有其他功能）</p>
-</li>
-<li><p><del>jhat JDK 自带堆分析工具</del></p>
-</li>
-<li><p>jstack 栈快照</p>
-</li>
-<li><p>jcmd 以上除了 jstat 的所有功能</p>
-</li>
-</ol>
-<h2 id="监控之-UI-工具"><a href="#监控之-UI-工具" class="headerlink" title="监控之 UI 工具"></a>监控之 UI 工具</h2><p>jconsole visual mat(dump) jprofiler <a href="https://arthas.aliyun.com/doc/">arthas</a> jmc</p>
-<p>浅堆：对象本身占用的内存，不包括其内部引用对象的大小</p>
-<p>深堆：一个对象直接或间接访问到的所有对象浅堆大小只和，而且是<code>只能通过</code>该对象访问，即被释放以后释放的真实大小</p>
-<p>支配树：所有指向 B 对象的路径都经过对象 A，则认为 A 为 B 的支配者</p>
-<h3 id="再谈内存泄露"><a href="#再谈内存泄露" class="headerlink" title="再谈内存泄露"></a>再谈内存泄露</h3><p>严格来说只有不被程序用到但 GC 又无法回收才叫内存泄露，但实际上有些不太好的实现导致对象生命周期过长甚至造成 OOM 也可以叫做宽泛意义上的「内存泄露」。内存泄露过多可造成内存溢出。</p>
-<p><code>内存泄露的 8 种情况</code>：</p>
-<ol>
-<li><p>静态集合类</p>
-</li>
-<li><p>单例模式</p>
-</li>
-<li><p>内部类执有外部类</p>
-</li>
-<li><p>各种连接，数据库、网络 IO 等</p>
-</li>
-<li><p>不合理的变量作用域，比如只在方法中引用的局部变量的却搞成成员变量</p>
-</li>
-<li><p>hash 值问题，集合的</p>
-</li>
-<li><p>缓存泄露</p>
-</li>
-<li><p>监听器和回调</p>
-</li>
-</ol>
-<p><code>OQL</code></p>
-<p>用来查询堆中对象，类似 SQL</p>
-<h2 id="JVM-参数"><a href="#JVM-参数" class="headerlink" title="JVM 参数"></a>JVM 参数</h2><ol>
-<li><p>标准参数类型（java -help 列出所有）</p>
-</li>
-<li><p>-X 非标准类型 （java -X 列出所有）</p>
-<p>编译器相关：-Xint(解释器)、-Xcomp(编译器)、-Xmixed(混合模式)</p>
-<p>-Xss&lt;大小&gt;(栈大小)、-Xms&lt;大小&gt;(初始堆大小)、-Xmx&lt;大小&gt;(最大堆大小) 属于 -XX 参数的缩写</p>
-</li>
-<li><p>-XX 非标准类型</p>
-<ul>
-<li><p>Boolean 类型：-XX:+&lt;option&gt; 表示启用某项 -XX:+&lt;option&gt; 表示禁用某项</p>
-</li>
-<li><p>非 Boolean 类型：-XX:+&lt;option&gt;=&lt;value&gt;</p>
-</li>
-<li><p>-XX:+PrintFlagsFinal 输出所有参数的名称和默认值，jinfo 设置运行中的 JVM 参数</p>
-</li>
-</ul>
-</li>
-<li><p>堆、栈、方法区相关参数</p>
-<p>-Xss&lt;大小&gt;：每个线程栈的大小</p>
-<p>-Xms&lt;大小&gt;：初始堆大小</p>
-<p>-Xmx&lt;大小&gt;：最大堆大小</p>
-<p>-XX:NewSize=&lt;大小&gt;：年轻代大小</p>
-<p>-XX:MaxNewSize=&lt;大小&gt;：年轻代最大大小</p>
-<p>-XX:NewRatio=&lt;比例&gt;：老年代和新生代比值，默认为 2</p>
-<p>-XX:SurvivorRatio=&lt;比例&gt;：伊甸园区和幸存者区比例，默认为 8</p>
-<p>-XX:+UseAdaptionSizePolicy: 新生代自动分配，默认打开，优先级高于 SurvivorRatio</p>
-<p>-XX:MaxTenuringThreshold=&lt;大小&gt;：新生代每次 MinorGC 之后还存活的对象年龄 +1，大于此年龄收到老年代，默认为 15</p>
-<p>-XX:+PrintTenuringDistribution：每次 MinorGC 之后打印幸存者区对象的年龄分布</p>
-<p>-XX:MetaspaceSize=&lt;大小&gt;：元空间大小</p>
-<p>-XX:MaxMetaspaceSize=&lt;大小&gt;：元空间最大小</p>
-</li>
-<li><p>OOM 相关参数</p>
-<p>-XX:+HeapDumpOnOutOfMemoryError：内存出现 OOM 时，生成 Heap 转储文件以便后续分析</p>
-<p>-XX:+HeapDumpBeforeFullGC：FullGC 之前转储</p>
-<p>-XX:HeapDumpPath=&lt;路径&gt;：转储文件位置</p>
-<p>-XX:OnOutofMemory=&lt;可执行文件&gt;：当 OOM 之后执行</p>
-</li>
-<li><p>垃圾回收器相关参数</p>
-<p>-XX:+UseSerialGC 新生代使用 SerialGC，老年代使用 SerialOldGC，SerialGC 是 Client 模式下默认的回收器</p>
-<p>-XX:+UseParNewGC 新生代使用 ParNewGC，老年代不受影响</p>
-<p>-XX:+UseParallelGC 新生代使用 ParallelGC，老年代使用 ParallelOldGC，JDK8 默认</p>
-<p>-XX:ParallelGCThreads=&lt;个数&gt; 设置年轻代并行回收器的线程数</p>
-<p>-XX:MaxGCPauseMillis=&lt;秒数&gt; 设置 GC 最大 STW 时间</p>
-<p>-XX:GCTimeRatio=&lt;比例&gt; 垃圾回收时间与总时间的占比，用来衡量吞吐量，默认 99，范围 （0，100）</p>
-</li>
-<li><p>GC 日志相关</p>
-<p>-XX:+PrintGC/-XX:+PrintGCDetails 打印日志</p>
-<p>-XX:+PrintGCTimeStamp/-XX:+PrintGCDateStamp 打印日志时间戳和前面的配合使用</p>
-<p>-XX:+PrintHeapAtGC 每次 GC 前后 打印堆信息</p>
-<p>-X:Loggc:&lt;文件&gt; 输出到文件</p>
-</li>
-<li><p>其他参数</p>
-<p>-XX:+DoEscapeAnalySis 开启逃逸分析</p>
-<p>-XX:+UseBiasedLock 开启偏向锁</p>
-<p>-XX:+UseTLAB 开启 TLAB，默认打开</p>
-<p>-XX:+PrintTLAB 打印 TLAB 的使用情况</p>
-<p>-XX:TLABSize 设置 TLAB 大小</p>
-</li>
-</ol>
-<h2 id="GC-日志分析工具"><a href="#GC-日志分析工具" class="headerlink" title="GC 日志分析工具"></a>GC 日志分析工具</h2><p><a href="https://gceasy.io">GCEasy</a></p>
-]]></content>
-      <categories>
-        <category>JVM</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -411,6 +358,133 @@
 <h3 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h3><h3 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h3><p>本质为类的加载顺序：引导类 —&gt; 拓展类 —&gt; 系统类/自定义</p>
 <p>优点：避免类的重复加载和防止核心 API 篡改</p>
 <p>弊端：顶层的加载器无法加载下层加载器加载的类</p>
+]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JVM 性能监控与调优</title>
+    <url>/blog.github.io/2022/04/02/JVM-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%B0%83%E4%BC%98/</url>
+    <content><![CDATA[<h2 id="监控之命令行工具"><a href="#监控之命令行工具" class="headerlink" title="监控之命令行工具"></a>监控之命令行工具</h2><ol>
+<li><p>jps 查看线程</p>
+</li>
+<li><p>jstat 查看 JVM 统计信息</p>
+<ul>
+<li><p>-class 类装载信息</p>
+</li>
+<li><p>-compiler JIT 编译过的方法、耗时等信息</p>
+</li>
+<li><p>-printcompilation 编译过的方法</p>
+</li>
+<li><p>-gc GC 相关的堆信息，包括伊甸园区、幸存者区、老年代、方法区</p>
+</li>
+<li><p>-gcutil 和 -gc 差不多，但是显示的主要是占比</p>
+</li>
+<li><p>-gccause GC 的原因</p>
+</li>
+</ul>
+</li>
+<li><p>jinfo 实时查看和修改 JVM 运行参数信息</p>
+</li>
+<li><p>jmap 导出堆内存映像文件和内存使用情况/dump（还有其他功能）</p>
+</li>
+<li><p><del>jhat JDK 自带堆分析工具</del></p>
+</li>
+<li><p>jstack 栈快照</p>
+</li>
+<li><p>jcmd 以上除了 jstat 的所有功能</p>
+</li>
+</ol>
+<h2 id="监控之-UI-工具"><a href="#监控之-UI-工具" class="headerlink" title="监控之 UI 工具"></a>监控之 UI 工具</h2><p>jconsole visual mat(dump) jprofiler <a href="https://arthas.aliyun.com/doc/">arthas</a> jmc</p>
+<p>浅堆：对象本身占用的内存，不包括其内部引用对象的大小</p>
+<p>深堆：一个对象直接或间接访问到的所有对象浅堆大小只和，而且是<code>只能通过</code>该对象访问，即被释放以后释放的真实大小</p>
+<p>支配树：所有指向 B 对象的路径都经过对象 A，则认为 A 为 B 的支配者</p>
+<h3 id="再谈内存泄露"><a href="#再谈内存泄露" class="headerlink" title="再谈内存泄露"></a>再谈内存泄露</h3><p>严格来说只有不被程序用到但 GC 又无法回收才叫内存泄露，但实际上有些不太好的实现导致对象生命周期过长甚至造成 OOM 也可以叫做宽泛意义上的「内存泄露」。内存泄露过多可造成内存溢出。</p>
+<p><code>内存泄露的 8 种情况</code>：</p>
+<ol>
+<li><p>静态集合类</p>
+</li>
+<li><p>单例模式</p>
+</li>
+<li><p>内部类执有外部类</p>
+</li>
+<li><p>各种连接，数据库、网络 IO 等</p>
+</li>
+<li><p>不合理的变量作用域，比如只在方法中引用的局部变量的却搞成成员变量</p>
+</li>
+<li><p>hash 值问题，集合的</p>
+</li>
+<li><p>缓存泄露</p>
+</li>
+<li><p>监听器和回调</p>
+</li>
+</ol>
+<p><code>OQL</code></p>
+<p>用来查询堆中对象，类似 SQL</p>
+<h2 id="JVM-参数"><a href="#JVM-参数" class="headerlink" title="JVM 参数"></a>JVM 参数</h2><ol>
+<li><p>标准参数类型（java -help 列出所有）</p>
+</li>
+<li><p>-X 非标准类型 （java -X 列出所有）</p>
+<p>编译器相关：-Xint(解释器)、-Xcomp(编译器)、-Xmixed(混合模式)</p>
+<p>-Xss&lt;大小&gt;(栈大小)、-Xms&lt;大小&gt;(初始堆大小)、-Xmx&lt;大小&gt;(最大堆大小) 属于 -XX 参数的缩写</p>
+</li>
+<li><p>-XX 非标准类型</p>
+<ul>
+<li><p>Boolean 类型：-XX:+&lt;option&gt; 表示启用某项 -XX:+&lt;option&gt; 表示禁用某项</p>
+</li>
+<li><p>非 Boolean 类型：-XX:+&lt;option&gt;=&lt;value&gt;</p>
+</li>
+<li><p>-XX:+PrintFlagsFinal 输出所有参数的名称和默认值，jinfo 设置运行中的 JVM 参数</p>
+</li>
+</ul>
+</li>
+<li><p>堆、栈、方法区相关参数</p>
+<p>-Xss&lt;大小&gt;：每个线程栈的大小</p>
+<p>-Xms&lt;大小&gt;：初始堆大小</p>
+<p>-Xmx&lt;大小&gt;：最大堆大小</p>
+<p>-XX:NewSize=&lt;大小&gt;：年轻代大小</p>
+<p>-XX:MaxNewSize=&lt;大小&gt;：年轻代最大大小</p>
+<p>-XX:NewRatio=&lt;比例&gt;：老年代和新生代比值，默认为 2</p>
+<p>-XX:SurvivorRatio=&lt;比例&gt;：伊甸园区和幸存者区比例，默认为 8</p>
+<p>-XX:+UseAdaptionSizePolicy: 新生代自动分配，默认打开，优先级高于 SurvivorRatio</p>
+<p>-XX:MaxTenuringThreshold=&lt;大小&gt;：新生代每次 MinorGC 之后还存活的对象年龄 +1，大于此年龄收到老年代，默认为 15</p>
+<p>-XX:+PrintTenuringDistribution：每次 MinorGC 之后打印幸存者区对象的年龄分布</p>
+<p>-XX:MetaspaceSize=&lt;大小&gt;：元空间大小</p>
+<p>-XX:MaxMetaspaceSize=&lt;大小&gt;：元空间最大小</p>
+</li>
+<li><p>OOM 相关参数</p>
+<p>-XX:+HeapDumpOnOutOfMemoryError：内存出现 OOM 时，生成 Heap 转储文件以便后续分析</p>
+<p>-XX:+HeapDumpBeforeFullGC：FullGC 之前转储</p>
+<p>-XX:HeapDumpPath=&lt;路径&gt;：转储文件位置</p>
+<p>-XX:OnOutofMemory=&lt;可执行文件&gt;：当 OOM 之后执行</p>
+</li>
+<li><p>垃圾回收器相关参数</p>
+<p>-XX:+UseSerialGC 新生代使用 SerialGC，老年代使用 SerialOldGC，SerialGC 是 Client 模式下默认的回收器</p>
+<p>-XX:+UseParNewGC 新生代使用 ParNewGC，老年代不受影响</p>
+<p>-XX:+UseParallelGC 新生代使用 ParallelGC，老年代使用 ParallelOldGC，JDK8 默认</p>
+<p>-XX:ParallelGCThreads=&lt;个数&gt; 设置年轻代并行回收器的线程数</p>
+<p>-XX:MaxGCPauseMillis=&lt;秒数&gt; 设置 GC 最大 STW 时间</p>
+<p>-XX:GCTimeRatio=&lt;比例&gt; 垃圾回收时间与总时间的占比，用来衡量吞吐量，默认 99，范围 （0，100）</p>
+</li>
+<li><p>GC 日志相关</p>
+<p>-XX:+PrintGC/-XX:+PrintGCDetails 打印日志</p>
+<p>-XX:+PrintGCTimeStamp/-XX:+PrintGCDateStamp 打印日志时间戳和前面的配合使用</p>
+<p>-XX:+PrintHeapAtGC 每次 GC 前后 打印堆信息</p>
+<p>-X:Loggc:&lt;文件&gt; 输出到文件</p>
+</li>
+<li><p>其他参数</p>
+<p>-XX:+DoEscapeAnalySis 开启逃逸分析</p>
+<p>-XX:+UseBiasedLock 开启偏向锁</p>
+<p>-XX:+UseTLAB 开启 TLAB，默认打开</p>
+<p>-XX:+PrintTLAB 打印 TLAB 的使用情况</p>
+<p>-XX:TLABSize 设置 TLAB 大小</p>
+</li>
+</ol>
+<h2 id="GC-日志分析工具"><a href="#GC-日志分析工具" class="headerlink" title="GC 日志分析工具"></a>GC 日志分析工具</h2><p><a href="https://gceasy.io">GCEasy</a></p>
 ]]></content>
       <categories>
         <category>JVM</category>
@@ -838,57 +912,6 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>vue3</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JUC 并发编程</title>
-    <url>/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/</url>
-    <content><![CDATA[<h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p><code>上下文切换原因</code></p>
-<ol>
-<li><p>时间片用完</p>
-</li>
-<li><p>垃圾回收</p>
-</li>
-<li><p>有更高线程优先级需要运行</p>
-</li>
-<li><p>线程自己调用了 sleep yiled join park lock synchronized 方法</p>
-</li>
-</ol>
-<p>当发生上下文切换时操作系统会保存当前线程状态（PC 寄存器、栈帧信息）并恢复另一个，频繁切换上下文会影响性能。</p>
-<p><code>sleep()</code></p>
-<ol>
-<li><p>调用 sleep 线程会让线程进入 TIMED_WAITING</p>
-</li>
-<li><p>其他线程调用 interrupt() 方法会打断正在睡的线程，打断的是睡眠，抛出 InterruptedException 异常</p>
-</li>
-<li><p>睡眠结束后的线程未必会立即执行</p>
-</li>
-<li><p>建议使用 TimeUnit 的 sleep，可读性更好</p>
-</li>
-</ol>
-<p><code>yiled()</code></p>
-<p>让线程从 Running 变成 Runnable 状态，具体实现依赖操作系统的任务调度，但还是有机会继续执行，而 sleep() 的线程处于 TIMED_WAITING，并不会调度到 sleep() 的线程</p>
-<p><code>join()</code></p>
-<p>等待某个线程运行结束，要等待的线程进入 WAITING</p>
-<p><code>interrupt()</code></p>
-<p>打断 join wait sleep 的线程之后的被打断线程的打断标记为 false，而正常运行的线程被打断的话只会把打断标记设为 true，相当于只是告知了有人要打断我，但结束与否还得看我自己</p>
-<p>interrupt() 的应用：两阶段终止模式</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"></span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (Thread.currentThread().isInterrupted()) &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;料理后事&quot;</span>);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">                    System.out.println(<span class="string">&quot;执行监控&quot;</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                    <span class="comment">// 重新设置打断标记</span></span><br><span class="line">                    Thread.currentThread().interrupt();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">5</span>);</span><br><span class="line">        t1.interrupt();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>打断 park()</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            LockSupport.park();</span><br><span class="line">            <span class="comment">// 打断标记为 true 的线程只能 park 一次，要想再 park 只好再清除打断标记</span></span><br><span class="line">            System.out.println(<span class="string">&quot;打断标记为&quot;</span> + Thread.currentThread().isInterrupted());</span><br><span class="line">            Thread.interrupted();</span><br><span class="line">            System.out.println(<span class="string">&quot;打断标记为&quot;</span> + Thread.currentThread().isInterrupted());</span><br><span class="line">            LockSupport.park();</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        t1.interrupt();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h4><p>非守护线程结束了守护线程就算没执行完也会强制结束，垃圾回收器就是一种守护线程</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        <span class="comment">// 把 t1 设置为守护线程，这样一旦 main 线程结束则强制结束 t1 线程</span></span><br><span class="line">        t1.setDaemon(<span class="keyword">true</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="Java-线程的六种状态源码"><a href="#Java-线程的六种状态源码" class="headerlink" title="Java 线程的六种状态源码"></a>Java 线程的六种状态源码</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a thread which has not yet started.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        NEW,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a runnable thread.  A thread in the runnable</span></span><br><span class="line"><span class="comment">         * state is executing in the Java virtual machine but it may</span></span><br><span class="line"><span class="comment">         * be waiting for other resources from the operating system</span></span><br><span class="line"><span class="comment">         * such as processor.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        RUNNABLE,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a thread blocked waiting for a monitor lock.</span></span><br><span class="line"><span class="comment">         * A thread in the blocked state is waiting for a monitor lock</span></span><br><span class="line"><span class="comment">         * to enter a synchronized block/method or</span></span><br><span class="line"><span class="comment">         * reenter a synchronized block/method after calling</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@link</span> Object#wait() Object.wait&#125;.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        BLOCKED,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a waiting thread.</span></span><br><span class="line"><span class="comment">         * A thread is in the waiting state due to calling one of the</span></span><br><span class="line"><span class="comment">         * following methods:</span></span><br><span class="line"><span class="comment">         * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> Object#wait() Object.wait&#125; with no timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #join() Thread.join&#125; with no timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#park() LockSupport.park&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * &lt;p&gt;A thread in the waiting state is waiting for another thread to</span></span><br><span class="line"><span class="comment">         * perform a particular action.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * For example, a thread that has called &#123;<span class="doctag">@code</span> Object.wait()&#125;</span></span><br><span class="line"><span class="comment">         * on an object is waiting for another thread to call</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@code</span> Object.notify()&#125; or &#123;<span class="doctag">@code</span> Object.notifyAll()&#125; on</span></span><br><span class="line"><span class="comment">         * that object. A thread that has called &#123;<span class="doctag">@code</span> Thread.join()&#125;</span></span><br><span class="line"><span class="comment">         * is waiting for a specified thread to terminate.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a waiting thread with a specified waiting time.</span></span><br><span class="line"><span class="comment">         * A thread is in the timed waiting state due to calling one of</span></span><br><span class="line"><span class="comment">         * the following methods with a specified positive waiting time:</span></span><br><span class="line"><span class="comment">         * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #sleep Thread.sleep&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> Object#wait(long) Object.wait&#125; with timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #join(long) Thread.join&#125; with timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#parkNanos LockSupport.parkNanos&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#parkUntil LockSupport.parkUntil&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TIMED_WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a terminated thread.</span></span><br><span class="line"><span class="comment">         * The thread has completed execution.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TERMINATED;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="共享模型"><a href="#共享模型" class="headerlink" title="共享模型"></a>共享模型</h3><h4 id="管程"><a href="#管程" class="headerlink" title="管程"></a>管程</h4>]]></content>
-      <categories>
-        <category>JUC</category>
-      </categories>
-      <tags>
-        <tag>JUC</tag>
       </tags>
   </entry>
 </search>

@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="istorm">
 <meta property="og:description" content="JUC 并发编程，涵盖&quot;应用&quot;，&quot;原理&quot;和&quot;多线程设计模式&quot;">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/1.png">
 <meta property="article:published_time" content="2022-04-06T07:55:01.000Z">
-<meta property="article:modified_time" content="2022-04-06T12:48:41.922Z">
+<meta property="article:modified_time" content="2022-04-07T08:04:29.728Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="JUC">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://istrom01.github.io/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/1.png">
 
 
 <link rel="canonical" href="https://istrom01.github.io/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">
@@ -239,9 +241,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-04-06 15:55:01 / 修改时间：20:48:41" itemprop="dateCreated datePublished" datetime="2022-04-06T15:55:01+08:00">2022-04-06</time>
+      <time title="创建时间：2022-04-06 15:55:01" itemprop="dateCreated datePublished" datetime="2022-04-06T15:55:01+08:00">2022-04-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-04-07 16:04:29" itemprop="dateModified" datetime="2022-04-07T16:04:29+08:00">2022-04-07</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -304,7 +312,30 @@
 
 <h4 id="Java-线程的六种状态源码"><a href="#Java-线程的六种状态源码" class="headerlink" title="Java 线程的六种状态源码"></a>Java 线程的六种状态源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">State</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a thread which has not yet started.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        NEW,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a runnable thread.  A thread in the runnable</span></span><br><span class="line"><span class="comment">         * state is executing in the Java virtual machine but it may</span></span><br><span class="line"><span class="comment">         * be waiting for other resources from the operating system</span></span><br><span class="line"><span class="comment">         * such as processor.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        RUNNABLE,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a thread blocked waiting for a monitor lock.</span></span><br><span class="line"><span class="comment">         * A thread in the blocked state is waiting for a monitor lock</span></span><br><span class="line"><span class="comment">         * to enter a synchronized block/method or</span></span><br><span class="line"><span class="comment">         * reenter a synchronized block/method after calling</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@link</span> Object#wait() Object.wait&#125;.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        BLOCKED,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a waiting thread.</span></span><br><span class="line"><span class="comment">         * A thread is in the waiting state due to calling one of the</span></span><br><span class="line"><span class="comment">         * following methods:</span></span><br><span class="line"><span class="comment">         * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> Object#wait() Object.wait&#125; with no timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #join() Thread.join&#125; with no timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#park() LockSupport.park&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * &lt;p&gt;A thread in the waiting state is waiting for another thread to</span></span><br><span class="line"><span class="comment">         * perform a particular action.</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * For example, a thread that has called &#123;<span class="doctag">@code</span> Object.wait()&#125;</span></span><br><span class="line"><span class="comment">         * on an object is waiting for another thread to call</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@code</span> Object.notify()&#125; or &#123;<span class="doctag">@code</span> Object.notifyAll()&#125; on</span></span><br><span class="line"><span class="comment">         * that object. A thread that has called &#123;<span class="doctag">@code</span> Thread.join()&#125;</span></span><br><span class="line"><span class="comment">         * is waiting for a specified thread to terminate.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a waiting thread with a specified waiting time.</span></span><br><span class="line"><span class="comment">         * A thread is in the timed waiting state due to calling one of</span></span><br><span class="line"><span class="comment">         * the following methods with a specified positive waiting time:</span></span><br><span class="line"><span class="comment">         * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #sleep Thread.sleep&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> Object#wait(long) Object.wait&#125; with timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> #join(long) Thread.join&#125; with timeout&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#parkNanos LockSupport.parkNanos&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         *   &lt;li&gt;&#123;<span class="doctag">@link</span> LockSupport#parkUntil LockSupport.parkUntil&#125;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">         * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TIMED_WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Thread state for a terminated thread.</span></span><br><span class="line"><span class="comment">         * The thread has completed execution.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TERMINATED;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="共享模型"><a href="#共享模型" class="headerlink" title="共享模型"></a>共享模型</h3><h4 id="管程"><a href="#管程" class="headerlink" title="管程"></a>管程</h4>
+<h3 id="共享模型"><a href="#共享模型" class="headerlink" title="共享模型"></a>共享模型</h3><h4 id="管程"><a href="#管程" class="headerlink" title="管程"></a>管程</h4><p>临界区：一块代码去如果存在堆共享资源的对线程读写操作，则该代码块为临界区。</p>
+<p>竞态：多个线程在临界区执行，由于代码执行序列的不同导致结果不可预测，则称之为发生了竞态</p>
+<p><code>竞态解决方案：</code></p>
+<ol>
+<li><p>阻塞式：synchronized、Lock</p>
+</li>
+<li><p>非阻塞式：原子变量</p>
+</li>
+</ol>
+<p><code>线程安全分析</code></p>
+<ol>
+<li><p>成员变量、静态变量，如果没有共享则线程安全，共享了只有读操作也线程安全，读写都有则线程不安全</p>
+</li>
+<li><p>局部变量，局部变量线程安全，但其引用的对象未必安全，如果局部变量引用的对象没有逃离方法作用范围则线程安全，否则需要考虑线程安全问题</p>
+</li>
+</ol>
+<p>常用的 spring boot 增删查改方法是单例的，但是要么不涉及成员变量要么不涉及写操作，因此是线程安全的</p>
+<p><code>Monitor</code></p>
+<p>由 JVM 知道对象头（ 8 个字节）由 mark word 和 kclass word 组成，数组对象的对象头还多一个 array length, mark word 遇到 synchronized 会指向一个由操作系统提供的 Monitor 对象，Monitor 对象有 owner 属性指向该锁属于哪个线程，再来的线程会先自旋几次（万一锁被释放，自旋适合多核 CPU ）再进入 Monitor 对象的 entryList 队列中等待并且线程状态变为 Blocked。一个锁对应一个 Monitor，不加 synchronized 就不关联 Monitor</p>
+<p><code>synchronized 优化</code></p>
+<p>对象头格式：<br><img src="/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/1.png"></p>
+<p>轻量级锁</p>
+<p>偏向锁</p>
+
     </div>
 
     

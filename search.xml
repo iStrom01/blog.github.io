@@ -68,6 +68,7 @@
 <p>偏向锁</p>
 <ol>
 <li>偏向锁默认开启且有延迟</li>
+<li>调用 hashCode 会禁用禁用偏向锁</li>
 </ol>
 ]]></content>
       <categories>
@@ -157,10 +158,10 @@
 </blockquote>
 ]]></content>
       <categories>
-        <category>juc</category>
+        <category>JUC</category>
       </categories>
       <tags>
-        <tag>juc</tag>
+        <tag>JUC</tag>
         <tag>lock</tag>
         <tag>锁</tag>
       </tags>
@@ -665,6 +666,32 @@
       </tags>
   </entry>
   <entry>
+    <title>vue3</title>
+    <url>/blog.github.io/2022/02/21/vue3/</url>
+    <content><![CDATA[<h2 id="vite"><a href="#vite" class="headerlink" title="vite"></a>vite</h2><p><a href="https://cn.vitejs.dev/">新一代构建工具</a></p>
+<h2 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h2><p>组合式api,数据、方法等都要配置在setup函数中，并且必须返回，响应式基本数据类型、对象类型用ref，对象类型用reactive</p>
+<span id="more"></span>
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> name = ref(<span class="string">&#x27;shaka&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> tom = reactive(&#123;<span class="attr">uname</span>:<span class="string">&#x27;tom&#x27;</span>, <span class="attr">age</span>: <span class="number">11</span>&#125;);</span><br><span class="line">  <span class="keyword">let</span> say = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name.value);</span><br><span class="line">    tom.age = <span class="number">22</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(tom)</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    say,</span><br><span class="line">    tom</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>setup仅在beforeCreated执行一次，且this为undefined</p>
+<p>props父组件向子组件传参,context上下文对象</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params">props, context</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(props.p1);</span><br><span class="line">    <span class="built_in">console</span>.log(context.attrs)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>计算属性</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> firstName = <span class="string">&#x27;tom&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> lastName = <span class="string">&#x27;jerry&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> fullName = computed(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> firstName + lastName;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span>&#123;</span><br><span class="line">      firstName,</span><br><span class="line">      lastName,</span><br><span class="line">      fullName,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>监视</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> a = ref(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      a.value++;</span><br><span class="line">    &#125;;</span><br><span class="line">    watch(a,<span class="function">(<span class="params">newValue,oldValue</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;a的值变了&#x27;</span>,newValue,oldValue)</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      add,</span><br><span class="line">      a</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>vue3</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JVM 内存与垃圾回收</title>
     <url>/blog.github.io/2022/03/23/jvm/</url>
     <content><![CDATA[<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><blockquote>
@@ -889,32 +916,6 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>vue3</title>
-    <url>/blog.github.io/2022/02/21/vue3/</url>
-    <content><![CDATA[<h2 id="vite"><a href="#vite" class="headerlink" title="vite"></a>vite</h2><p><a href="https://cn.vitejs.dev/">新一代构建工具</a></p>
-<h2 id="setup"><a href="#setup" class="headerlink" title="setup"></a>setup</h2><p>组合式api,数据、方法等都要配置在setup函数中，并且必须返回，响应式基本数据类型、对象类型用ref，对象类型用reactive</p>
-<span id="more"></span>
-
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> name = ref(<span class="string">&#x27;shaka&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> tom = reactive(&#123;<span class="attr">uname</span>:<span class="string">&#x27;tom&#x27;</span>, <span class="attr">age</span>: <span class="number">11</span>&#125;);</span><br><span class="line">  <span class="keyword">let</span> say = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name.value);</span><br><span class="line">    tom.age = <span class="number">22</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(tom)</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    say,</span><br><span class="line">    tom</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
-
-<p>setup仅在beforeCreated执行一次，且this为undefined</p>
-<p>props父组件向子组件传参,context上下文对象</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params">props, context</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(props.p1);</span><br><span class="line">    <span class="built_in">console</span>.log(context.attrs)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>计算属性</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> firstName = <span class="string">&#x27;tom&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> lastName = <span class="string">&#x27;jerry&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> fullName = computed(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> firstName + lastName;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span>&#123;</span><br><span class="line">      firstName,</span><br><span class="line">      lastName,</span><br><span class="line">      fullName,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>监视</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;TestVue3&quot;</span>,</span><br><span class="line">  <span class="attr">props</span>: [<span class="string">&#x27;p1&#x27;</span>],</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> a = ref(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      a.value++;</span><br><span class="line">    &#125;;</span><br><span class="line">    watch(a,<span class="function">(<span class="params">newValue,oldValue</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;a的值变了&#x27;</span>,newValue,oldValue)</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      add,</span><br><span class="line">      a</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>vue3</tag>
       </tags>
   </entry>
 </search>

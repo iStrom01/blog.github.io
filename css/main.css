@@ -185,7 +185,7 @@ body {
   box-sizing: border-box;
   color: var(--text-color);
   font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  font-size: 14px;
+  font-size: 1em;
   line-height: 2;
   min-height: 100%;
   position: relative;
@@ -2763,7 +2763,7 @@ mark.search-keyword {
   vertical-align: middle;
 }
 .links-of-author a::before {
-  background: #fff96a;
+  background: #d0ff5c;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);

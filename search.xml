@@ -70,100 +70,33 @@
 <p>某些情况下会进行锁消除</p>
 <p><code>wait/notify</code></p>
 <p>sleep() 既不需要与 synchronized 配合也不会释放锁，wait() 需要synchronized也会释放锁</p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>JUC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JUC</title>
-    <url>/blog.github.io/2021/12/28/JUC/</url>
-    <content><![CDATA[<h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
-<li><p>六种线程状态</p>
-<p>  new runnable terminated blocked timed_waiting waiting </p>
+<p><code>保护性暂停(Guarded Suspension)模式</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GuardedObject</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> T res;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getMes</span><span class="params">(<span class="keyword">long</span> timeout)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">            <span class="keyword">long</span> pastedTime = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> (res == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">long</span> waitTime = timeout - pastedTime;</span><br><span class="line">                <span class="keyword">if</span> (pastedTime &gt;= timeout) &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">this</span>.wait(waitTime);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                pastedTime = System.currentTimeMillis() - begin;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendMes</span><span class="params">(T res)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.res = res;</span><br><span class="line">            <span class="keyword">this</span>.notifyAll();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">GuardedObject</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ---------------</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">T2</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> People().start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (Integer id : MailBox.getIds()) &#123;</span><br><span class="line">            <span class="keyword">new</span> Postman(id, <span class="string">&quot;消息&quot;</span> + id).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">People</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        GuardedObject&lt;String&gt; guardedObject = MailBox.creatGuardedObject();</span><br><span class="line">        String mes = guardedObject.getMes(<span class="number">3000</span>);</span><br><span class="line">        System.out.println(mes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Postman</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String msg;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Postman</span><span class="params">(<span class="keyword">int</span> id, String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">        <span class="keyword">this</span>.msg = msg;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        GuardedObject&lt;String&gt; guardedObject = MailBox.getGuardedObject(id);</span><br><span class="line">        guardedObject.sendMes(msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MailBox</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Map&lt;Integer, GuardedObject&lt;String&gt;&gt; map = <span class="keyword">new</span> Hashtable&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> id = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">productId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        id++;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> GuardedObject&lt;String&gt; <span class="title">getGuardedObject</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> map.remove(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> GuardedObject&lt;String&gt; <span class="title">creatGuardedObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        GuardedObject&lt;String&gt; guardedObject = <span class="keyword">new</span> GuardedObject&lt;&gt;(productId());</span><br><span class="line">        map.put(guardedObject.getId(), guardedObject);</span><br><span class="line">        <span class="keyword">return</span> guardedObject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Set&lt;Integer&gt; <span class="title">getIds</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> map.keySet();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><font color=orange >说明：</font></p>
+<p>保护性暂停(Guarded Suspension)模式是让一个线程等待另一个线程的结果。java中的join、Future、FutureTask均采用了该模式实现。</p>
+<p><code>park()/unpark()</code></p>
+<p>可以先 unpark() 再 park()，反之亦可</p>
+<p><code>ReentrantLock</code></p>
+<p>和 synchronized 对比：</p>
+<ol>
+<li><p>可中断（lockInterruptibly()）</p>
 </li>
-<li><p>interrupt()</p>
-<p>  打断不是真打断，只是打个标记，打断sleep join wait会抛出异常且标记仍为false，打断正常执行中的线程还需被打断线程同意，标记为true</p>
+<li><p>可以设置超时时间（tryLock(long timeout, TimeUnit unit)）</p>
 </li>
-<li><p>上下文切换</p>
-<p>  上下文切换会造成结果的不可预测（即使简单的++，–也由于jvm指令的存在也会出现该问题），即在临界区发生竞态，即出现线程安全问题，通过加锁解决，一个线程获得锁时即使cpu时间片用完从而想上下文切换到其他线程其他线程也不会获取锁而是继续被堵塞，直到先前线程完成</p>
+<li><p>可设置公平锁（ReentrantLock(boolean fair)）</p>
 </li>
-</ul>
-<span id="more"></span>
-
-<ul>
-<li><p>变量线程安全问题</p>
-<ul>
-<li><p>成员变量和静态变量</p>
-<p>  如果没有共享，则线程安全，如果共享了且只有读则线程安全，否则不安全</p>
+<li><p>支持多个条件变量（Condition#await()）</p>
 </li>
-<li><p>局部变量</p>
-<p>  局部变量线程安全。但局部变量引用的对象未必</p>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="sychronized"><a href="#sychronized" class="headerlink" title="sychronized"></a>sychronized</h2><ul>
-<li><p>对象头</p>
-<p>  对象头（ 8 个字节）由 mark word 和 kclass word 组成，数组对象的对象头还多一个 array length </p>
-</li>
-<li><p>monitor</p>
-<p>  每个java对象都可以关联一个 monitor 对象，当给对象加一个 sychronized ( 重量级锁 )，该对象 mark word 设置为指向 monitor 对象</p>
-</li>
-<li><p>moniter 工作原理</p>
-<p>  <img src="/blog.github.io/2021/12/28/JUC/2.png"></p>
-</li>
-<li><p>偏向锁-轻量级锁-重量级锁</p>
-<p>   偏向锁默认开启，第一个线程优先使用，此时第二个线程还没来即偏向第一个线程，当第一个线程解锁完毕，第二个开始使用轻量级锁，如果第三个线程来了发生线程竞争在膨胀为重量级锁。</p>
-<p>  没有竞争时撤销偏向锁超过 20 次则重新偏向，且是批量撤销，超过 40 次则不偏向</p>
-</li>
-</ul>
-<h2 id="wait-notify"><a href="#wait-notify" class="headerlink" title="wait notify"></a>wait notify</h2><p>sleep 和 wait 的线程状态都是 timed_waiting ，但是sleep的其他线程不能获得锁，wait 可以。wait 和 notify 只有获得锁的线程才能调用。</p>
-<h2 id="park-unpark"><a href="#park-unpark" class="headerlink" title="park unpark"></a>park unpark</h2><p>类似 wait notify，但可以 unpark 再 park，park 可以不用获取锁</p>
-<h2 id="状态转换"><a href="#状态转换" class="headerlink" title="状态转换"></a>状态转换</h2><ol>
-<li>调用 start()，由 new 变为 runable </li>
-<li>获得锁以后，调用 wait()，从 runable 变为 waiting</li>
-<li>调用 notify() noyifyALl() interrupt() 时，竞争失败由 waiting 变为 blocked，竞争成功由 waiting 变为 runable</li>
-<li>sleep(),从 runable 变为 timed_waiting</li>
 </ol>
-<h2 id="死锁查询"><a href="#死锁查询" class="headerlink" title="死锁查询"></a>死锁查询</h2><p>jps 获得 id，jstack 查看详情或者用 visualVM 或 jconsole</p>
-<h2 id="共享模型之内存"><a href="#共享模型之内存" class="headerlink" title="共享模型之内存"></a>共享模型之内存</h2><p>JMM(Java Memory Model)</p>
-<blockquote>
-<p>原子性（不会受到上下文切换的影响）</p>
-<p>可见性（不会受到cpu缓存影响）</p>
-<p>有序性（不会受到cpu指令优化的影响）</p>
+<h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><blockquote>
+<p>JMM/Java Memory Model 即内存模型，定义了主存（共享内存）、工作内存（局部变量）的抽象概念，底层对应了 CPU 寄存器、缓存、硬件内存、CPU 指令优化等。主要体现包括原子性（上一章）、可见性、有序性</p>
 </blockquote>
-<h3 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h3><p>jit 会将主存中的值缓存到工作内存从而导致可见性问题，可将共享变量加 volatile 解决，就是易变变量</p>
-<p>synchronized 既可以保证原子性又可以保证可见性，但 synchronized 是重量级操作，性能低，volatile 不能保证原子性，因此 volatile 仅适合用在一个线程写多个线程读的情况下，synchronized 不能禁止重排序</p>
-<h3 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h3><p>volatile 写屏障会保证屏障之前的代码排在屏障之后</p>
-<p>volatile 读屏障会保证屏障之后的代码排在屏障之前</p>
-<h2 id="共享模型之无锁"><a href="#共享模型之无锁" class="headerlink" title="共享模型之无锁"></a>共享模型之无锁</h2><blockquote>
-<p>线程数少于cpu核心数用 cas 保证线程安全，cas 基于「乐观锁」，synchronized 基于悲观锁</p>
-</blockquote>
-<h3 id="原子整数"><a href="#原子整数" class="headerlink" title="原子整数"></a>原子整数</h3><p>AtomicBoolean AtomicInteger AtomicLong</p>
-<h3 id="原子引用"><a href="#原子引用" class="headerlink" title="原子引用"></a>原子引用</h3><p>AtomicReference、AtomicReference「添加版本号解决ABA问题」</p>
-<h3 id="原子数组"><a href="#原子数组" class="headerlink" title="原子数组"></a>原子数组</h3><p>AtomicIntegerArray AtomicLongArray AtomicReferenceArray</p>
-<h3 id="原子更新器"><a href="#原子更新器" class="headerlink" title="原子更新器"></a>原子更新器</h3><p>AtomicIntegerFieldUpdater AtomicLongFieldUpdater AtomicReferenceFieldUpdater</p>
-<h3 id="原子累加器"><a href="#原子累加器" class="headerlink" title="原子累加器"></a>原子累加器</h3><h2 id="共享模型之不可变"><a href="#共享模型之不可变" class="headerlink" title="共享模型之不可变"></a>共享模型之不可变</h2><blockquote>
-<p>包装类、String、BigDecimal等。单个方法线程安全不代表多个方法组合线程安全</p>
-</blockquote>
-<h3 id="享元模式"><a href="#享元模式" class="headerlink" title="享元模式"></a>享元模式</h3><blockquote>
-<p>数据库连接池、包装类的cache等</p>
-</blockquote>
-<h3 id="无状态"><a href="#无状态" class="headerlink" title="无状态"></a>无状态</h3><blockquote>
-<p>线程安全，因为没有成员变量，例如servlet不设置成员变量</p>
-</blockquote>
-]]></content>
+<h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><h5 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h5>]]></content>
       <categories>
         <category>Java</category>
       </categories>
       <tags>
         <tag>JUC</tag>
-        <tag>lock</tag>
-        <tag>锁</tag>
       </tags>
   </entry>
   <entry>
@@ -368,301 +301,6 @@
       </categories>
       <tags>
         <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JVM 性能监控与调优</title>
-    <url>/blog.github.io/2022/04/02/JVM-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%B0%83%E4%BC%98/</url>
-    <content><![CDATA[<h2 id="监控之命令行工具"><a href="#监控之命令行工具" class="headerlink" title="监控之命令行工具"></a>监控之命令行工具</h2><ol>
-<li><p>jps 查看线程</p>
-</li>
-<li><p>jstat 查看 JVM 统计信息</p>
-<ul>
-<li><p>-class 类装载信息</p>
-</li>
-<li><p>-compiler JIT 编译过的方法、耗时等信息</p>
-</li>
-<li><p>-printcompilation 编译过的方法</p>
-</li>
-<li><p>-gc GC 相关的堆信息，包括伊甸园区、幸存者区、老年代、方法区</p>
-</li>
-<li><p>-gcutil 和 -gc 差不多，但是显示的主要是占比</p>
-</li>
-<li><p>-gccause GC 的原因</p>
-</li>
-</ul>
-</li>
-<li><p>jinfo 实时查看和修改 JVM 运行参数信息</p>
-</li>
-<li><p>jmap 导出堆内存映像文件和内存使用情况/dump（还有其他功能）</p>
-</li>
-<li><p><del>jhat JDK 自带堆分析工具</del></p>
-</li>
-<li><p>jstack 栈快照</p>
-</li>
-<li><p>jcmd 以上除了 jstat 的所有功能</p>
-</li>
-</ol>
-<h2 id="监控之-UI-工具"><a href="#监控之-UI-工具" class="headerlink" title="监控之 UI 工具"></a>监控之 UI 工具</h2><p>jconsole visual mat(dump) jprofiler <a href="https://arthas.aliyun.com/doc/">arthas</a> jmc</p>
-<p>浅堆：对象本身占用的内存，不包括其内部引用对象的大小</p>
-<p>深堆：一个对象直接或间接访问到的所有对象浅堆大小只和，而且是<code>只能通过</code>该对象访问，即被释放以后释放的真实大小</p>
-<p>支配树：所有指向 B 对象的路径都经过对象 A，则认为 A 为 B 的支配者</p>
-<h3 id="再谈内存泄露"><a href="#再谈内存泄露" class="headerlink" title="再谈内存泄露"></a>再谈内存泄露</h3><p>严格来说只有不被程序用到但 GC 又无法回收才叫内存泄露，但实际上有些不太好的实现导致对象生命周期过长甚至造成 OOM 也可以叫做宽泛意义上的「内存泄露」。内存泄露过多可造成内存溢出。</p>
-<p><code>内存泄露的 8 种情况</code>：</p>
-<ol>
-<li><p>静态集合类</p>
-</li>
-<li><p>单例模式</p>
-</li>
-<li><p>内部类执有外部类</p>
-</li>
-<li><p>各种连接，数据库、网络 IO 等</p>
-</li>
-<li><p>不合理的变量作用域，比如只在方法中引用的局部变量的却搞成成员变量</p>
-</li>
-<li><p>hash 值问题，集合的</p>
-</li>
-<li><p>缓存泄露</p>
-</li>
-<li><p>监听器和回调</p>
-</li>
-</ol>
-<p><code>OQL</code></p>
-<p>用来查询堆中对象，类似 SQL</p>
-<h2 id="JVM-参数"><a href="#JVM-参数" class="headerlink" title="JVM 参数"></a>JVM 参数</h2><ol>
-<li><p>标准参数类型（java -help 列出所有）</p>
-</li>
-<li><p>-X 非标准类型 （java -X 列出所有）</p>
-<p>编译器相关：-Xint(解释器)、-Xcomp(编译器)、-Xmixed(混合模式)</p>
-<p>-Xss&lt;大小&gt;(栈大小)、-Xms&lt;大小&gt;(初始堆大小)、-Xmx&lt;大小&gt;(最大堆大小) 属于 -XX 参数的缩写</p>
-</li>
-<li><p>-XX 非标准类型</p>
-<ul>
-<li><p>Boolean 类型：-XX:+&lt;option&gt; 表示启用某项 -XX:+&lt;option&gt; 表示禁用某项</p>
-</li>
-<li><p>非 Boolean 类型：-XX:+&lt;option&gt;=&lt;value&gt;</p>
-</li>
-<li><p>-XX:+PrintFlagsFinal 输出所有参数的名称和默认值，jinfo 设置运行中的 JVM 参数</p>
-</li>
-</ul>
-</li>
-<li><p>堆、栈、方法区相关参数</p>
-<p>-Xss&lt;大小&gt;：每个线程栈的大小</p>
-<p>-Xms&lt;大小&gt;：初始堆大小</p>
-<p>-Xmx&lt;大小&gt;：最大堆大小</p>
-<p>-XX:NewSize=&lt;大小&gt;：年轻代大小</p>
-<p>-XX:MaxNewSize=&lt;大小&gt;：年轻代最大大小</p>
-<p>-XX:NewRatio=&lt;比例&gt;：老年代和新生代比值，默认为 2</p>
-<p>-XX:SurvivorRatio=&lt;比例&gt;：伊甸园区和幸存者区比例，默认为 8</p>
-<p>-XX:+UseAdaptionSizePolicy: 新生代自动分配，默认打开，优先级高于 SurvivorRatio</p>
-<p>-XX:MaxTenuringThreshold=&lt;大小&gt;：新生代每次 MinorGC 之后还存活的对象年龄 +1，大于此年龄收到老年代，默认为 15</p>
-<p>-XX:+PrintTenuringDistribution：每次 MinorGC 之后打印幸存者区对象的年龄分布</p>
-<p>-XX:MetaspaceSize=&lt;大小&gt;：元空间大小</p>
-<p>-XX:MaxMetaspaceSize=&lt;大小&gt;：元空间最大小</p>
-</li>
-<li><p>OOM 相关参数</p>
-<p>-XX:+HeapDumpOnOutOfMemoryError：内存出现 OOM 时，生成 Heap 转储文件以便后续分析</p>
-<p>-XX:+HeapDumpBeforeFullGC：FullGC 之前转储</p>
-<p>-XX:HeapDumpPath=&lt;路径&gt;：转储文件位置</p>
-<p>-XX:OnOutofMemory=&lt;可执行文件&gt;：当 OOM 之后执行</p>
-</li>
-<li><p>垃圾回收器相关参数</p>
-<p>-XX:+UseSerialGC 新生代使用 SerialGC，老年代使用 SerialOldGC，SerialGC 是 Client 模式下默认的回收器</p>
-<p>-XX:+UseParNewGC 新生代使用 ParNewGC，老年代不受影响</p>
-<p>-XX:+UseParallelGC 新生代使用 ParallelGC，老年代使用 ParallelOldGC，JDK8 默认</p>
-<p>-XX:ParallelGCThreads=&lt;个数&gt; 设置年轻代并行回收器的线程数</p>
-<p>-XX:MaxGCPauseMillis=&lt;秒数&gt; 设置 GC 最大 STW 时间</p>
-<p>-XX:GCTimeRatio=&lt;比例&gt; 垃圾回收时间与总时间的占比，用来衡量吞吐量，默认 99，范围 （0，100）</p>
-</li>
-<li><p>GC 日志相关</p>
-<p>-XX:+PrintGC/-XX:+PrintGCDetails 打印日志</p>
-<p>-XX:+PrintGCTimeStamp/-XX:+PrintGCDateStamp 打印日志时间戳和前面的配合使用</p>
-<p>-XX:+PrintHeapAtGC 每次 GC 前后 打印堆信息</p>
-<p>-X:Loggc:&lt;文件&gt; 输出到文件</p>
-</li>
-<li><p>其他参数</p>
-<p>-XX:+DoEscapeAnalySis 开启逃逸分析</p>
-<p>-XX:+UseBiasedLock 开启偏向锁</p>
-<p>-XX:+UseTLAB 开启 TLAB，默认打开</p>
-<p>-XX:+PrintTLAB 打印 TLAB 的使用情况</p>
-<p>-XX:TLABSize 设置 TLAB 大小</p>
-</li>
-</ol>
-<h2 id="GC-日志分析工具"><a href="#GC-日志分析工具" class="headerlink" title="GC 日志分析工具"></a>GC 日志分析工具</h2><p><a href="https://gceasy.io">GCEasy</a></p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java 设计模式</title>
-    <url>/blog.github.io/2022/04/03/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="对象之间的关系"><a href="#对象之间的关系" class="headerlink" title="对象之间的关系"></a>对象之间的关系</h3><p><code>一般关联关系</code></p>
-<p>单向关联：用带箭头的指向被关联类的实线表示</p>
-<p>双向关联：用实线表示</p>
-<p>自关联：带箭头的指向自己的实线表示</p>
-<p><code>聚合关系</code></p>
-<p>聚合关系是强关联关系，成员对象是整体对象的一部分，但成员对象也可以单独存在，用带空心菱形的实线表示</p>
-<p><code>组合关系</code></p>
-<p>组合是更强烈的聚合，成员不可以单独存在，用带实心菱形的实线表示</p>
-<p><code>依赖关系</code></p>
-<p>耦合度最弱的一种关联方式，是临时性的关联，在代码中通过局部变量、方法参数或静态方法调用来调用被依赖类的某些方法完成某些职责，用带箭头的虚线表示，指向被依赖类</p>
-<p><code>继承关系</code></p>
-<p>带实心三角的实线表示，子类指向父类</p>
-<p><code>实现关系</code></p>
-<p>带空心三角的虚线表示，实现类指向接口</p>
-<h3 id="软件设计六原则："><a href="#软件设计六原则：" class="headerlink" title="软件设计六原则："></a>软件设计六原则：</h3><blockquote>
-<p>为了提高软件系统的可维护性、可复用性 增加可扩展性和灵活性</p>
-</blockquote>
-<ol>
-<li><p>开闭原则</p>
-<p> 对扩展开放，对修改关闭，在需要扩展的时候不去修改源代码，实现热插拔，要达到这样的效果需要使用接口和抽象类</p>
-</li>
-<li><p>里氏替换原则</p>
-<p> 父类可以出现的地方子类也可以出现，通俗来说就是子类可以扩展父类功能但尽量不要重写父类的方法  </p>
-</li>
-</ol>
-<ol start="3">
-<li><p>依赖倒转原则</p>
-<p> 高层模块不应该依赖低层模块，两者应该依赖其抽象，简单说就面对抽象进行编程。</p>
-</li>
-<li><p>接口隔离原则</p>
-<p> 客户端不应该被迫依赖于它不使用的方法，一个类对另一个类的依赖应该建立在最小接口之上。</p>
-</li>
-<li><p>迪米特法则</p>
-<p> 只和认识的人说话，不和陌生人说话。当两个软件无须直接通信，那么不应该发生直接调用，而是通过第三方调用，目的是为了降低耦合度。</p>
-</li>
-<li><p>合成复用原则</p>
-<p> 尽量先使用聚合和组合实现关联关系，其次才考虑用继承实现。</p>
-<p> 继承复用虽然简单，但父类对子类来说是透明的，属于「白箱」复用，父类的任何改变都会造成子类的改变，耦合度高，并且从父类继承而来的实现是静态的，限制了复用的灵活性。</p>
-<p> 组合/聚合复用将已有对象纳入新对象中，新对象可以调用已有对象的功能。新对象对已有对象细节不知，维护了封装性，属于「黑箱」复用，可以声明抽象降低耦合，并且新对象可以引用和已有对象成分相同的对象，灵活性高</p>
-</li>
-</ol>
-<h3 id="创建者模式"><a href="#创建者模式" class="headerlink" title="创建者模式"></a>创建者模式</h3><blockquote>
-<p>对象的创建与使用分离使用者不关心对象的创建细节</p>
-</blockquote>
-<h4 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h4><p>角色：单例类（只能创建一个实例的类）和访问类（使用单例类的类）</p>
-<p>饿汉式（静态变量）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>饿汉式（静态代码块）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>懒汉式（线程不安全）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果方法加上 synchronized 是安全但是效率太差，因为对于读操作是线程安全的而大部分操作又是读</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>懒汉式（双重检查）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// volatile 防止指令重排</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 第一次检查过滤掉读操作</span></span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="comment">// 第二次检查为了保证单例</span></span><br><span class="line">                <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>懒汉式（静态内部类）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><font color=orange >说明：</font></p>
-<p>第一次加载 Singleton 类时并不会初始化 SINGLETON，只有第一次调 getInstance() 时 JVM 才会加载 SingletonHolder 并初始化 SINGLETON。这样不仅能保证线程安全也可以保证实例的唯一性，并且没有空间浪费（饿汉式会浪费）。是开源项目比较常用的一种单例模式方式。</p>
-<p>饿汉式（枚举类）</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">SingletonEnum</span> </span>&#123;</span><br><span class="line">    INSTANCE(<span class="string">&quot;shaka&quot;</span>);</span><br><span class="line"></span><br><span class="line">    SingletonEnum(String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><font color=orange >说明：</font></p>
-<p>写法简单且是唯一一种不会被破坏的单例模式，极力推荐，破坏单例模式的方式可以序列化反序列化也可以反射创建对象</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> flag;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 解决反射破坏单例的解决方案</span></span><br><span class="line">        <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;不能创建多个对象&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            flag = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解决序列化破坏单例，会自动调用 readObject()</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">readObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><font color=orange >说明：</font></p>
-<p>解决序列化和反射破坏单例模式的方式</p>
-<h4 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h4><p>角色：抽象产品、具体产品、具体工厂</p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>archLinux 安装</title>
-    <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
-<h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式"><a href="#验证启动模式" class="headerlink" title="验证启动模式"></a>验证启动模式</h3><p>ls /sys/firmware/efi/efivars</p>
-<span id="more"></span>
-
-<h3 id="联网"><a href="#联网" class="headerlink" title="联网"></a>联网</h3><p>iwctl </p>
-<h3 id="检查是否联通"><a href="#检查是否联通" class="headerlink" title="检查是否联通"></a>检查是否联通</h3><p>ping -c 3 archlinux.org</p>
-<h3 id="更新系统时间"><a href="#更新系统时间" class="headerlink" title="更新系统时间"></a>更新系统时间</h3><p>timedatectl set-ntp true </p>
-<h3 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h3><pre><code>1. fidsk /dev/sda
-2. g新建gpt分区表
-3. n新建分区 ,类型序号开头都回车结尾定义空间大小，然后t改成efi
-4. p查看完成的分区表，w保存退出
-5. 自改分区如下
-    1. sda1 +512M EFI
-    2. sda2 +50G 
-    3. sda3 余下
-</code></pre>
-<h3 id="格式化分区"><a href="#格式化分区" class="headerlink" title="格式化分区"></a>格式化分区</h3><pre><code>1.  mkfs.fat -F32 /dev/sda1
-2.  mkfs.ext4 /dev/sda2
-3.  mkfs.ext4 /dev/sda3
-</code></pre>
-<h3 id="挂载"><a href="#挂载" class="headerlink" title="挂载"></a>挂载</h3><pre><code>1.  mount /dev/sda2  /mnt
-2.  mkdir -p /mnt/boot &amp; mount /dev/sda1  /mnt/boot
-3.  mkdir -p /mnt/home &amp; mount /dev/sda3  /mnt/home
-</code></pre>
-<h3 id="安装基本操作系统"><a href="#安装基本操作系统" class="headerlink" title="安装基本操作系统"></a>安装基本操作系统</h3><p>pacstrap /mnt base linux linux-firmware vim iwd </p>
-<h3 id="配置挂载信息"><a href="#配置挂载信息" class="headerlink" title="配置挂载信息"></a>配置挂载信息</h3><p>genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</p>
-<h3 id="切换到安装到系统"><a href="#切换到安装到系统" class="headerlink" title="切换到安装到系统"></a>切换到安装到系统</h3><p>arch-chroot /mnt </p>
-<h3 id="时区"><a href="#时区" class="headerlink" title="时区"></a>时区</h3><pre><code>1. ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-2. hwclock --systohc
-</code></pre>
-<h3 id="本地化编码"><a href="#本地化编码" class="headerlink" title="本地化编码"></a>本地化编码</h3><pre><code>1.  vim /etc/locale.gen，反注释zh_CN.UTF-8 UTF-8和us_EN.UTF-8
-2.  locale-gen
-3.  vim /etc/locale.conf 加入 LANG=en_US.UTF-8
-</code></pre>
-<h3 id="主机名"><a href="#主机名" class="headerlink" title="主机名"></a>主机名</h3><pre><code>1. echo “shaka-arch” &gt;&gt; /etc/hostname
-2. /etc/hosts 
-    127.0.0.1   localhost
-    ::1             localhost
-    127.0.1.1   shaka-arch.localdomain  shaka-arch
-</code></pre>
-<h3 id="账号密码"><a href="#账号密码" class="headerlink" title="账号密码"></a>账号密码</h3><pre><code>1. passwd
-2. useradd -m xxx 然后passwd xxx
-</code></pre>
-<h3 id="Intel微码"><a href="#Intel微码" class="headerlink" title="Intel微码"></a>Intel微码</h3><p>pacman -S intel-ucode</p>
-<h3 id="引导"><a href="#引导" class="headerlink" title="引导"></a>引导</h3><pre><code>1.  bootctl --path=/boot$esp install
-2.  vim /boot/loader/loader.conf （没有下面的序号）
-    1. default arch #默认引导的系统，注意这里的 arch 对应的是 arch.conf
-    2. timeout 1    #在引导界面停留的时间，如果你想引导不止一个系统，不应将这一项设置成0
-    3. editor    0    #这将会禁用编辑内和参数的功能，默认是开启的，如果你的计算机可能被他人使用，将该功能关闭是推荐的选择
-3. vim /boot/loader/entries/arch.conf
-    1. title Arch Linux               #这是启动选项的名称，将会出现在引导界面
-    2. linux   /vmlinuz-linux         #压缩的可引导内核，用于系统启动
-    3. initrd  /intel-ucode.img       #由芯片制造商提供的对 CPU 微码的稳定性和安全性更新，按照 Arch wiki 的说法它应当是&#39; first initrd in the bootloader config file&#39;
-    4. initrd  /initramfs-linux.img   #为内核提供的一个临时的文件系统
-    5. options root=/dev/sdap2 rw     #/root 挂载的位置，可以由 LABEL, PARTUUID 或者 UUID识别，此处使用了块设备的路径
-</code></pre>
-<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><pre><code>1.  systemctl enable systemd-networkd
-2.  systemctl enable systemd-resolved
-3.  systemctl enable systemd-timesyncd
-4.  systemctl enable iwd
-</code></pre>
-<h3 id="加入sudoers"><a href="#加入sudoers" class="headerlink" title="加入sudoers"></a>加入sudoers</h3><p>pacman -S sudo 然后 EDITOR=vim visudo </p>
-<h3 id="复制网络配置到新系统"><a href="#复制网络配置到新系统" class="headerlink" title="复制网络配置到新系统"></a>复制网络配置到新系统</h3><p>cp /etc/systemd/network/* /mnt/etc/systemd/network/ </p>
-<h3 id="退出"><a href="#退出" class="headerlink" title="退出"></a>退出</h3><p>exit 然后 umount -R /mnt 接着reboot重启机器</p>
-<h2 id="桌面bspwm"><a href="#桌面bspwm" class="headerlink" title="桌面bspwm"></a>桌面bspwm</h2><pre><code>1. sudo pacman -S xf86-video-amdgpu alsa alsa-utils显卡声卡驱动
-2. alsamixer 调节音量
-3. sudo pacman -S xorg 图形服务
-4. sudo pacman -S bspwm sxhkd feh 
-5. yay -S polybar 状态栏
-6. 安装完成后需要在$HOME/.xinitrc中添加exec bspwm，然后通过startx即可启动。
-7. 在家目录下分别新建文件夹 .config/bspwm   .config/sxhkd   .config/polybar用于存放对应配置，分别是bspwm，快捷键和polybar的基本配置文件，初始配置可从/usr/share/doc中获取
-8. alacritty 终端模拟器 ranger 文件管理器 sxiv 图片浏览 rofi程序查找
-9. 壁纸feh --bg-fill --randomize --recursive IMAGES_DIR_PATH 加入到bspwmrc配置文件
-10. wqy-microhei中文字体
-</code></pre>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>archLinux</tag>
       </tags>
   </entry>
   <entry>
@@ -890,6 +528,389 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java 设计模式</title>
+    <url>/blog.github.io/2022/04/03/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="对象之间的关系"><a href="#对象之间的关系" class="headerlink" title="对象之间的关系"></a>对象之间的关系</h3><p><code>一般关联关系</code></p>
+<p>单向关联：用带箭头的指向被关联类的实线表示</p>
+<p>双向关联：用实线表示</p>
+<p>自关联：带箭头的指向自己的实线表示</p>
+<p><code>聚合关系</code></p>
+<p>聚合关系是强关联关系，成员对象是整体对象的一部分，但成员对象也可以单独存在，用带空心菱形的实线表示</p>
+<p><code>组合关系</code></p>
+<p>组合是更强烈的聚合，成员不可以单独存在，用带实心菱形的实线表示</p>
+<p><code>依赖关系</code></p>
+<p>耦合度最弱的一种关联方式，是临时性的关联，在代码中通过局部变量、方法参数或静态方法调用来调用被依赖类的某些方法完成某些职责，用带箭头的虚线表示，指向被依赖类</p>
+<p><code>继承关系</code></p>
+<p>带实心三角的实线表示，子类指向父类</p>
+<p><code>实现关系</code></p>
+<p>带空心三角的虚线表示，实现类指向接口</p>
+<h3 id="软件设计六原则："><a href="#软件设计六原则：" class="headerlink" title="软件设计六原则："></a>软件设计六原则：</h3><blockquote>
+<p>为了提高软件系统的可维护性、可复用性 增加可扩展性和灵活性</p>
+</blockquote>
+<ol>
+<li><p>开闭原则</p>
+<p> 对扩展开放，对修改关闭，在需要扩展的时候不去修改源代码，实现热插拔，要达到这样的效果需要使用接口和抽象类</p>
+</li>
+<li><p>里氏替换原则</p>
+<p> 父类可以出现的地方子类也可以出现，通俗来说就是子类可以扩展父类功能但尽量不要重写父类的方法  </p>
+</li>
+</ol>
+<ol start="3">
+<li><p>依赖倒转原则</p>
+<p> 高层模块不应该依赖低层模块，两者应该依赖其抽象，简单说就面对抽象进行编程。</p>
+</li>
+<li><p>接口隔离原则</p>
+<p> 客户端不应该被迫依赖于它不使用的方法，一个类对另一个类的依赖应该建立在最小接口之上。</p>
+</li>
+<li><p>迪米特法则</p>
+<p> 只和认识的人说话，不和陌生人说话。当两个软件无须直接通信，那么不应该发生直接调用，而是通过第三方调用，目的是为了降低耦合度。</p>
+</li>
+<li><p>合成复用原则</p>
+<p> 尽量先使用聚合和组合实现关联关系，其次才考虑用继承实现。</p>
+<p> 继承复用虽然简单，但父类对子类来说是透明的，属于「白箱」复用，父类的任何改变都会造成子类的改变，耦合度高，并且从父类继承而来的实现是静态的，限制了复用的灵活性。</p>
+<p> 组合/聚合复用将已有对象纳入新对象中，新对象可以调用已有对象的功能。新对象对已有对象细节不知，维护了封装性，属于「黑箱」复用，可以声明抽象降低耦合，并且新对象可以引用和已有对象成分相同的对象，灵活性高</p>
+</li>
+</ol>
+<h3 id="创建者模式"><a href="#创建者模式" class="headerlink" title="创建者模式"></a>创建者模式</h3><blockquote>
+<p>对象的创建与使用分离使用者不关心对象的创建细节</p>
+</blockquote>
+<h4 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h4><p>角色：单例类（只能创建一个实例的类）和访问类（使用单例类的类）</p>
+<p>饿汉式（静态变量）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>饿汉式（静态代码块）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>懒汉式（线程不安全）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果方法加上 synchronized 是安全但是效率太差，因为对于读操作是线程安全的而大部分操作又是读</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>懒汉式（双重检查）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// volatile 防止指令重排</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 第一次检查过滤掉读操作</span></span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="comment">// 第二次检查为了保证单例</span></span><br><span class="line">                <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>懒汉式（静态内部类）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><font color=orange >说明：</font></p>
+<p>第一次加载 Singleton 类时并不会初始化 SINGLETON，只有第一次调 getInstance() 时 JVM 才会加载 SingletonHolder 并初始化 SINGLETON。这样不仅能保证线程安全也可以保证实例的唯一性，并且没有空间浪费（饿汉式会浪费）。是开源项目比较常用的一种单例模式方式。</p>
+<p>饿汉式（枚举类）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">SingletonEnum</span> </span>&#123;</span><br><span class="line">    INSTANCE(<span class="string">&quot;shaka&quot;</span>);</span><br><span class="line"></span><br><span class="line">    SingletonEnum(String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><font color=orange >说明：</font></p>
+<p>写法简单且是唯一一种不会被破坏的单例模式，极力推荐，破坏单例模式的方式可以序列化反序列化也可以反射创建对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> flag;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 解决反射破坏单例的解决方案</span></span><br><span class="line">        <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;不能创建多个对象&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            flag = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解决序列化破坏单例，会自动调用 readObject()</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">readObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=orange >说明：</font></p>
+<p>解决序列化和反射破坏单例模式的方式</p>
+<h4 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h4><p>角色：抽象产品、具体产品、具体工厂</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>archLinux 安装</title>
+    <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
+<h2 id="基本安装"><a href="#基本安装" class="headerlink" title="基本安装"></a>基本安装</h2><h3 id="验证启动模式"><a href="#验证启动模式" class="headerlink" title="验证启动模式"></a>验证启动模式</h3><p>ls /sys/firmware/efi/efivars</p>
+<span id="more"></span>
+
+<h3 id="联网"><a href="#联网" class="headerlink" title="联网"></a>联网</h3><p>iwctl </p>
+<h3 id="检查是否联通"><a href="#检查是否联通" class="headerlink" title="检查是否联通"></a>检查是否联通</h3><p>ping -c 3 archlinux.org</p>
+<h3 id="更新系统时间"><a href="#更新系统时间" class="headerlink" title="更新系统时间"></a>更新系统时间</h3><p>timedatectl set-ntp true </p>
+<h3 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h3><pre><code>1. fidsk /dev/sda
+2. g新建gpt分区表
+3. n新建分区 ,类型序号开头都回车结尾定义空间大小，然后t改成efi
+4. p查看完成的分区表，w保存退出
+5. 自改分区如下
+    1. sda1 +512M EFI
+    2. sda2 +50G 
+    3. sda3 余下
+</code></pre>
+<h3 id="格式化分区"><a href="#格式化分区" class="headerlink" title="格式化分区"></a>格式化分区</h3><pre><code>1.  mkfs.fat -F32 /dev/sda1
+2.  mkfs.ext4 /dev/sda2
+3.  mkfs.ext4 /dev/sda3
+</code></pre>
+<h3 id="挂载"><a href="#挂载" class="headerlink" title="挂载"></a>挂载</h3><pre><code>1.  mount /dev/sda2  /mnt
+2.  mkdir -p /mnt/boot &amp; mount /dev/sda1  /mnt/boot
+3.  mkdir -p /mnt/home &amp; mount /dev/sda3  /mnt/home
+</code></pre>
+<h3 id="安装基本操作系统"><a href="#安装基本操作系统" class="headerlink" title="安装基本操作系统"></a>安装基本操作系统</h3><p>pacstrap /mnt base linux linux-firmware vim iwd </p>
+<h3 id="配置挂载信息"><a href="#配置挂载信息" class="headerlink" title="配置挂载信息"></a>配置挂载信息</h3><p>genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</p>
+<h3 id="切换到安装到系统"><a href="#切换到安装到系统" class="headerlink" title="切换到安装到系统"></a>切换到安装到系统</h3><p>arch-chroot /mnt </p>
+<h3 id="时区"><a href="#时区" class="headerlink" title="时区"></a>时区</h3><pre><code>1. ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+2. hwclock --systohc
+</code></pre>
+<h3 id="本地化编码"><a href="#本地化编码" class="headerlink" title="本地化编码"></a>本地化编码</h3><pre><code>1.  vim /etc/locale.gen，反注释zh_CN.UTF-8 UTF-8和us_EN.UTF-8
+2.  locale-gen
+3.  vim /etc/locale.conf 加入 LANG=en_US.UTF-8
+</code></pre>
+<h3 id="主机名"><a href="#主机名" class="headerlink" title="主机名"></a>主机名</h3><pre><code>1. echo “shaka-arch” &gt;&gt; /etc/hostname
+2. /etc/hosts 
+    127.0.0.1   localhost
+    ::1             localhost
+    127.0.1.1   shaka-arch.localdomain  shaka-arch
+</code></pre>
+<h3 id="账号密码"><a href="#账号密码" class="headerlink" title="账号密码"></a>账号密码</h3><pre><code>1. passwd
+2. useradd -m xxx 然后passwd xxx
+</code></pre>
+<h3 id="Intel微码"><a href="#Intel微码" class="headerlink" title="Intel微码"></a>Intel微码</h3><p>pacman -S intel-ucode</p>
+<h3 id="引导"><a href="#引导" class="headerlink" title="引导"></a>引导</h3><pre><code>1.  bootctl --path=/boot$esp install
+2.  vim /boot/loader/loader.conf （没有下面的序号）
+    1. default arch #默认引导的系统，注意这里的 arch 对应的是 arch.conf
+    2. timeout 1    #在引导界面停留的时间，如果你想引导不止一个系统，不应将这一项设置成0
+    3. editor    0    #这将会禁用编辑内和参数的功能，默认是开启的，如果你的计算机可能被他人使用，将该功能关闭是推荐的选择
+3. vim /boot/loader/entries/arch.conf
+    1. title Arch Linux               #这是启动选项的名称，将会出现在引导界面
+    2. linux   /vmlinuz-linux         #压缩的可引导内核，用于系统启动
+    3. initrd  /intel-ucode.img       #由芯片制造商提供的对 CPU 微码的稳定性和安全性更新，按照 Arch wiki 的说法它应当是&#39; first initrd in the bootloader config file&#39;
+    4. initrd  /initramfs-linux.img   #为内核提供的一个临时的文件系统
+    5. options root=/dev/sdap2 rw     #/root 挂载的位置，可以由 LABEL, PARTUUID 或者 UUID识别，此处使用了块设备的路径
+</code></pre>
+<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><pre><code>1.  systemctl enable systemd-networkd
+2.  systemctl enable systemd-resolved
+3.  systemctl enable systemd-timesyncd
+4.  systemctl enable iwd
+</code></pre>
+<h3 id="加入sudoers"><a href="#加入sudoers" class="headerlink" title="加入sudoers"></a>加入sudoers</h3><p>pacman -S sudo 然后 EDITOR=vim visudo </p>
+<h3 id="复制网络配置到新系统"><a href="#复制网络配置到新系统" class="headerlink" title="复制网络配置到新系统"></a>复制网络配置到新系统</h3><p>cp /etc/systemd/network/* /mnt/etc/systemd/network/ </p>
+<h3 id="退出"><a href="#退出" class="headerlink" title="退出"></a>退出</h3><p>exit 然后 umount -R /mnt 接着reboot重启机器</p>
+<h2 id="桌面bspwm"><a href="#桌面bspwm" class="headerlink" title="桌面bspwm"></a>桌面bspwm</h2><pre><code>1. sudo pacman -S xf86-video-amdgpu alsa alsa-utils显卡声卡驱动
+2. alsamixer 调节音量
+3. sudo pacman -S xorg 图形服务
+4. sudo pacman -S bspwm sxhkd feh 
+5. yay -S polybar 状态栏
+6. 安装完成后需要在$HOME/.xinitrc中添加exec bspwm，然后通过startx即可启动。
+7. 在家目录下分别新建文件夹 .config/bspwm   .config/sxhkd   .config/polybar用于存放对应配置，分别是bspwm，快捷键和polybar的基本配置文件，初始配置可从/usr/share/doc中获取
+8. alacritty 终端模拟器 ranger 文件管理器 sxiv 图片浏览 rofi程序查找
+9. 壁纸feh --bg-fill --randomize --recursive IMAGES_DIR_PATH 加入到bspwmrc配置文件
+10. wqy-microhei中文字体
+</code></pre>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>archLinux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JVM 性能监控与调优</title>
+    <url>/blog.github.io/2022/04/02/JVM-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%B0%83%E4%BC%98/</url>
+    <content><![CDATA[<h2 id="监控之命令行工具"><a href="#监控之命令行工具" class="headerlink" title="监控之命令行工具"></a>监控之命令行工具</h2><ol>
+<li><p>jps 查看线程</p>
+</li>
+<li><p>jstat 查看 JVM 统计信息</p>
+<ul>
+<li><p>-class 类装载信息</p>
+</li>
+<li><p>-compiler JIT 编译过的方法、耗时等信息</p>
+</li>
+<li><p>-printcompilation 编译过的方法</p>
+</li>
+<li><p>-gc GC 相关的堆信息，包括伊甸园区、幸存者区、老年代、方法区</p>
+</li>
+<li><p>-gcutil 和 -gc 差不多，但是显示的主要是占比</p>
+</li>
+<li><p>-gccause GC 的原因</p>
+</li>
+</ul>
+</li>
+<li><p>jinfo 实时查看和修改 JVM 运行参数信息</p>
+</li>
+<li><p>jmap 导出堆内存映像文件和内存使用情况/dump（还有其他功能）</p>
+</li>
+<li><p><del>jhat JDK 自带堆分析工具</del></p>
+</li>
+<li><p>jstack 栈快照</p>
+</li>
+<li><p>jcmd 以上除了 jstat 的所有功能</p>
+</li>
+</ol>
+<h2 id="监控之-UI-工具"><a href="#监控之-UI-工具" class="headerlink" title="监控之 UI 工具"></a>监控之 UI 工具</h2><p>jconsole visual mat(dump) jprofiler <a href="https://arthas.aliyun.com/doc/">arthas</a> jmc</p>
+<p>浅堆：对象本身占用的内存，不包括其内部引用对象的大小</p>
+<p>深堆：一个对象直接或间接访问到的所有对象浅堆大小只和，而且是<code>只能通过</code>该对象访问，即被释放以后释放的真实大小</p>
+<p>支配树：所有指向 B 对象的路径都经过对象 A，则认为 A 为 B 的支配者</p>
+<h3 id="再谈内存泄露"><a href="#再谈内存泄露" class="headerlink" title="再谈内存泄露"></a>再谈内存泄露</h3><p>严格来说只有不被程序用到但 GC 又无法回收才叫内存泄露，但实际上有些不太好的实现导致对象生命周期过长甚至造成 OOM 也可以叫做宽泛意义上的「内存泄露」。内存泄露过多可造成内存溢出。</p>
+<p><code>内存泄露的 8 种情况</code>：</p>
+<ol>
+<li><p>静态集合类</p>
+</li>
+<li><p>单例模式</p>
+</li>
+<li><p>内部类执有外部类</p>
+</li>
+<li><p>各种连接，数据库、网络 IO 等</p>
+</li>
+<li><p>不合理的变量作用域，比如只在方法中引用的局部变量的却搞成成员变量</p>
+</li>
+<li><p>hash 值问题，集合的</p>
+</li>
+<li><p>缓存泄露</p>
+</li>
+<li><p>监听器和回调</p>
+</li>
+</ol>
+<p><code>OQL</code></p>
+<p>用来查询堆中对象，类似 SQL</p>
+<h2 id="JVM-参数"><a href="#JVM-参数" class="headerlink" title="JVM 参数"></a>JVM 参数</h2><ol>
+<li><p>标准参数类型（java -help 列出所有）</p>
+</li>
+<li><p>-X 非标准类型 （java -X 列出所有）</p>
+<p>编译器相关：-Xint(解释器)、-Xcomp(编译器)、-Xmixed(混合模式)</p>
+<p>-Xss&lt;大小&gt;(栈大小)、-Xms&lt;大小&gt;(初始堆大小)、-Xmx&lt;大小&gt;(最大堆大小) 属于 -XX 参数的缩写</p>
+</li>
+<li><p>-XX 非标准类型</p>
+<ul>
+<li><p>Boolean 类型：-XX:+&lt;option&gt; 表示启用某项 -XX:+&lt;option&gt; 表示禁用某项</p>
+</li>
+<li><p>非 Boolean 类型：-XX:+&lt;option&gt;=&lt;value&gt;</p>
+</li>
+<li><p>-XX:+PrintFlagsFinal 输出所有参数的名称和默认值，jinfo 设置运行中的 JVM 参数</p>
+</li>
+</ul>
+</li>
+<li><p>堆、栈、方法区相关参数</p>
+<p>-Xss&lt;大小&gt;：每个线程栈的大小</p>
+<p>-Xms&lt;大小&gt;：初始堆大小</p>
+<p>-Xmx&lt;大小&gt;：最大堆大小</p>
+<p>-XX:NewSize=&lt;大小&gt;：年轻代大小</p>
+<p>-XX:MaxNewSize=&lt;大小&gt;：年轻代最大大小</p>
+<p>-XX:NewRatio=&lt;比例&gt;：老年代和新生代比值，默认为 2</p>
+<p>-XX:SurvivorRatio=&lt;比例&gt;：伊甸园区和幸存者区比例，默认为 8</p>
+<p>-XX:+UseAdaptionSizePolicy: 新生代自动分配，默认打开，优先级高于 SurvivorRatio</p>
+<p>-XX:MaxTenuringThreshold=&lt;大小&gt;：新生代每次 MinorGC 之后还存活的对象年龄 +1，大于此年龄收到老年代，默认为 15</p>
+<p>-XX:+PrintTenuringDistribution：每次 MinorGC 之后打印幸存者区对象的年龄分布</p>
+<p>-XX:MetaspaceSize=&lt;大小&gt;：元空间大小</p>
+<p>-XX:MaxMetaspaceSize=&lt;大小&gt;：元空间最大小</p>
+</li>
+<li><p>OOM 相关参数</p>
+<p>-XX:+HeapDumpOnOutOfMemoryError：内存出现 OOM 时，生成 Heap 转储文件以便后续分析</p>
+<p>-XX:+HeapDumpBeforeFullGC：FullGC 之前转储</p>
+<p>-XX:HeapDumpPath=&lt;路径&gt;：转储文件位置</p>
+<p>-XX:OnOutofMemory=&lt;可执行文件&gt;：当 OOM 之后执行</p>
+</li>
+<li><p>垃圾回收器相关参数</p>
+<p>-XX:+UseSerialGC 新生代使用 SerialGC，老年代使用 SerialOldGC，SerialGC 是 Client 模式下默认的回收器</p>
+<p>-XX:+UseParNewGC 新生代使用 ParNewGC，老年代不受影响</p>
+<p>-XX:+UseParallelGC 新生代使用 ParallelGC，老年代使用 ParallelOldGC，JDK8 默认</p>
+<p>-XX:ParallelGCThreads=&lt;个数&gt; 设置年轻代并行回收器的线程数</p>
+<p>-XX:MaxGCPauseMillis=&lt;秒数&gt; 设置 GC 最大 STW 时间</p>
+<p>-XX:GCTimeRatio=&lt;比例&gt; 垃圾回收时间与总时间的占比，用来衡量吞吐量，默认 99，范围 （0，100）</p>
+</li>
+<li><p>GC 日志相关</p>
+<p>-XX:+PrintGC/-XX:+PrintGCDetails 打印日志</p>
+<p>-XX:+PrintGCTimeStamp/-XX:+PrintGCDateStamp 打印日志时间戳和前面的配合使用</p>
+<p>-XX:+PrintHeapAtGC 每次 GC 前后 打印堆信息</p>
+<p>-X:Loggc:&lt;文件&gt; 输出到文件</p>
+</li>
+<li><p>其他参数</p>
+<p>-XX:+DoEscapeAnalySis 开启逃逸分析</p>
+<p>-XX:+UseBiasedLock 开启偏向锁</p>
+<p>-XX:+UseTLAB 开启 TLAB，默认打开</p>
+<p>-XX:+PrintTLAB 打印 TLAB 的使用情况</p>
+<p>-XX:TLABSize 设置 TLAB 大小</p>
+</li>
+</ol>
+<h2 id="GC-日志分析工具"><a href="#GC-日志分析工具" class="headerlink" title="GC 日志分析工具"></a>GC 日志分析工具</h2><p><a href="https://gceasy.io">GCEasy</a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JUC</title>
+    <url>/blog.github.io/2021/12/28/JUC/</url>
+    <content><![CDATA[<h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
+<li><p>六种线程状态</p>
+<p>  new runnable terminated blocked timed_waiting waiting </p>
+</li>
+<li><p>interrupt()</p>
+<p>  打断不是真打断，只是打个标记，打断sleep join wait会抛出异常且标记仍为false，打断正常执行中的线程还需被打断线程同意，标记为true</p>
+</li>
+<li><p>上下文切换</p>
+<p>  上下文切换会造成结果的不可预测（即使简单的++，–也由于jvm指令的存在也会出现该问题），即在临界区发生竞态，即出现线程安全问题，通过加锁解决，一个线程获得锁时即使cpu时间片用完从而想上下文切换到其他线程其他线程也不会获取锁而是继续被堵塞，直到先前线程完成</p>
+</li>
+</ul>
+<span id="more"></span>
+
+<ul>
+<li><p>变量线程安全问题</p>
+<ul>
+<li><p>成员变量和静态变量</p>
+<p>  如果没有共享，则线程安全，如果共享了且只有读则线程安全，否则不安全</p>
+</li>
+<li><p>局部变量</p>
+<p>  局部变量线程安全。但局部变量引用的对象未必</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="sychronized"><a href="#sychronized" class="headerlink" title="sychronized"></a>sychronized</h2><ul>
+<li><p>对象头</p>
+<p>  对象头（ 8 个字节）由 mark word 和 kclass word 组成，数组对象的对象头还多一个 array length </p>
+</li>
+<li><p>monitor</p>
+<p>  每个java对象都可以关联一个 monitor 对象，当给对象加一个 sychronized ( 重量级锁 )，该对象 mark word 设置为指向 monitor 对象</p>
+</li>
+<li><p>moniter 工作原理</p>
+<p>  <img src="/blog.github.io/2021/12/28/JUC/2.png"></p>
+</li>
+<li><p>偏向锁-轻量级锁-重量级锁</p>
+<p>   偏向锁默认开启，第一个线程优先使用，此时第二个线程还没来即偏向第一个线程，当第一个线程解锁完毕，第二个开始使用轻量级锁，如果第三个线程来了发生线程竞争在膨胀为重量级锁。</p>
+<p>  没有竞争时撤销偏向锁超过 20 次则重新偏向，且是批量撤销，超过 40 次则不偏向</p>
+</li>
+</ul>
+<h2 id="wait-notify"><a href="#wait-notify" class="headerlink" title="wait notify"></a>wait notify</h2><p>sleep 和 wait 的线程状态都是 timed_waiting ，但是sleep的其他线程不能获得锁，wait 可以。wait 和 notify 只有获得锁的线程才能调用。</p>
+<h2 id="park-unpark"><a href="#park-unpark" class="headerlink" title="park unpark"></a>park unpark</h2><p>类似 wait notify，但可以 unpark 再 park，park 可以不用获取锁</p>
+<h2 id="状态转换"><a href="#状态转换" class="headerlink" title="状态转换"></a>状态转换</h2><ol>
+<li>调用 start()，由 new 变为 runable </li>
+<li>获得锁以后，调用 wait()，从 runable 变为 waiting</li>
+<li>调用 notify() noyifyALl() interrupt() 时，竞争失败由 waiting 变为 blocked，竞争成功由 waiting 变为 runable</li>
+<li>sleep(),从 runable 变为 timed_waiting</li>
+</ol>
+<h2 id="死锁查询"><a href="#死锁查询" class="headerlink" title="死锁查询"></a>死锁查询</h2><p>jps 获得 id，jstack 查看详情或者用 visualVM 或 jconsole</p>
+<h2 id="共享模型之内存"><a href="#共享模型之内存" class="headerlink" title="共享模型之内存"></a>共享模型之内存</h2><p>JMM(Java Memory Model)</p>
+<blockquote>
+<p>原子性（不会受到上下文切换的影响）</p>
+<p>可见性（不会受到cpu缓存影响）</p>
+<p>有序性（不会受到cpu指令优化的影响）</p>
+</blockquote>
+<h3 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h3><p>jit 会将主存中的值缓存到工作内存从而导致可见性问题，可将共享变量加 volatile 解决，就是易变变量</p>
+<p>synchronized 既可以保证原子性又可以保证可见性，但 synchronized 是重量级操作，性能低，volatile 不能保证原子性，因此 volatile 仅适合用在一个线程写多个线程读的情况下，synchronized 不能禁止重排序</p>
+<h3 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h3><p>volatile 写屏障会保证屏障之前的代码排在屏障之后</p>
+<p>volatile 读屏障会保证屏障之后的代码排在屏障之前</p>
+<h2 id="共享模型之无锁"><a href="#共享模型之无锁" class="headerlink" title="共享模型之无锁"></a>共享模型之无锁</h2><blockquote>
+<p>线程数少于cpu核心数用 cas 保证线程安全，cas 基于「乐观锁」，synchronized 基于悲观锁</p>
+</blockquote>
+<h3 id="原子整数"><a href="#原子整数" class="headerlink" title="原子整数"></a>原子整数</h3><p>AtomicBoolean AtomicInteger AtomicLong</p>
+<h3 id="原子引用"><a href="#原子引用" class="headerlink" title="原子引用"></a>原子引用</h3><p>AtomicReference、AtomicReference「添加版本号解决ABA问题」</p>
+<h3 id="原子数组"><a href="#原子数组" class="headerlink" title="原子数组"></a>原子数组</h3><p>AtomicIntegerArray AtomicLongArray AtomicReferenceArray</p>
+<h3 id="原子更新器"><a href="#原子更新器" class="headerlink" title="原子更新器"></a>原子更新器</h3><p>AtomicIntegerFieldUpdater AtomicLongFieldUpdater AtomicReferenceFieldUpdater</p>
+<h3 id="原子累加器"><a href="#原子累加器" class="headerlink" title="原子累加器"></a>原子累加器</h3><h2 id="共享模型之不可变"><a href="#共享模型之不可变" class="headerlink" title="共享模型之不可变"></a>共享模型之不可变</h2><blockquote>
+<p>包装类、String、BigDecimal等。单个方法线程安全不代表多个方法组合线程安全</p>
+</blockquote>
+<h3 id="享元模式"><a href="#享元模式" class="headerlink" title="享元模式"></a>享元模式</h3><blockquote>
+<p>数据库连接池、包装类的cache等</p>
+</blockquote>
+<h3 id="无状态"><a href="#无状态" class="headerlink" title="无状态"></a>无状态</h3><blockquote>
+<p>线程安全，因为没有成员变量，例如servlet不设置成员变量</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>JUC</tag>
+        <tag>lock</tag>
+        <tag>锁</tag>
       </tags>
   </entry>
   <entry>

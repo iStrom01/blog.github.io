@@ -91,7 +91,34 @@
 <h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><blockquote>
 <p>JMM/Java Memory Model 即内存模型，定义了主存（共享内存）、工作内存（局部变量）的抽象概念，底层对应了 CPU 寄存器、缓存、硬件内存、CPU 指令优化等。主要体现包括原子性（上一章）、可见性、有序性</p>
 </blockquote>
-<h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><h5 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h5>]]></content>
+<h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><p>每一个线程都有共享变量的副本在其工作缓存中，假设一个线程改了某个变量的值，另一个线程还是会读副本中的原值，这就发生了可见性问题</p>
+<p>volatile 用来修饰成员变量和静态变量，能避免线程从它的工作缓存中获取共享变量的值，必须到主存中获取它的值，线程操作 volatile 都是直接操作主存</p>
+<p>synchorized 也能保证共享变量的可见性</p>
+<p>两阶段终止模式改进：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">T3</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> <span class="keyword">boolean</span> stop = <span class="keyword">false</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (stop) &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;料理后事&quot;</span>);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">                    System.out.println(<span class="string">&quot;执行监控&quot;</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;打断 sleep&quot;</span>);</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        t1.start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">5</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            stop = <span class="keyword">true</span>;</span><br><span class="line">            t1.interrupt();</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h5><p>JVM 会在不影响执行结果的情况下通过重排序和组合来实现指令级的并行，但是指令重排在多线程的条件下会影响正确性</p>
+<p>volatile 可避免重排序，synchronized 可以同时保证原子性、可见性、有序性（在共享变量完全由 synchronized 管理的情况下保证有序性，synchronized 里面还是会重排序，比如单例懒汉模式的<a href="/blog.github.io/2022/04/03/Java-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/#dcl">双重检查</a>）</p>
+<p>volatile 可见性与有序性原理：</p>
+<ul>
+<li><p>保证可见性</p>
+<ol>
+<li><p>写屏障保证在 volatile 之前的对共享变量之前的改动都同步到主存中</p>
+</li>
+<li><p>读屏障保证在这之后对共享变量的读取加载的是主存中的最新数据</p>
+</li>
+</ol>
+</li>
+<li><p>保证有序性</p>
+<ol>
+<li><p>写屏障保证在指令重排时不会将屏障之前的代码排在写屏障之后</p>
+</li>
+<li><p>读屏障保证在指令重排时不会将屏障之后的代码排在读屏障之前</p>
+</li>
+</ol>
+</li>
+</ul>
+]]></content>
       <categories>
         <category>Java</category>
       </categories>
@@ -587,7 +614,7 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <p>懒汉式（线程不安全）</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果方法加上 synchronized 是安全但是效率太差，因为对于读操作是线程安全的而大部分操作又是读</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>懒汉式（双重检查）</p>
+<p>懒汉式（双重检查）<a id="dcl"></a></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// volatile 防止指令重排</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 第一次检查过滤掉读操作</span></span><br><span class="line">        <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="comment">// 第二次检查为了保证单例</span></span><br><span class="line">                <span class="keyword">if</span> (singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>懒汉式（静态内部类）</p>

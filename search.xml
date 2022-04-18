@@ -1251,5 +1251,11 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </li>
 </ol>
 ]]></content>
+      <categories>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
   </entry>
 </search>

@@ -1247,7 +1247,39 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </li>
 <li><p>limit 排序优化：使用索引完成排序分页操作然后回表查询其他字段</p>
 </li>
-<li><p>使用 SQL 提示</p>
+<li><p>使用 SQL 提示， use index、ignore index 和 force index</p>
+</li>
+</ol>
+<h3 id="应用优化"><a href="#应用优化" class="headerlink" title="应用优化"></a>应用优化</h3><ol>
+<li><p>使用连接池</p>
+</li>
+<li><p>减少对 MySQL 的访问，能一次获取的数据就不要分两次查询，还可以增加 cache 层（redis 等）</p>
+</li>
+<li><p>负载均衡</p>
+</li>
+</ol>
+<h3 id="查询缓存优化"><a href="#查询缓存优化" class="headerlink" title="查询缓存优化"></a>查询缓存优化</h3><p>缓存失效：</p>
+<ol>
+<li><p>查询语句不完全一致，包括大小写</p>
+</li>
+<li><p>不使用任何表查询语句</p>
+</li>
+<li><p>包含一些不确定的</p>
+</li>
+<li><p>查询系统数据库</p>
+</li>
+<li><p>在函数、触发器或事件的主体内执行的查询</p>
+</li>
+<li><p>表更改</p>
+</li>
+</ol>
+<h3 id="内存优化"><a href="#内存优化" class="headerlink" title="内存优化"></a>内存优化</h3><p>原则：</p>
+<ol>
+<li><p>尽可能把更多内存分配给 MySQL 做缓存</p>
+</li>
+<li><p>MyISAM 需要给操作系统预留更多空间做缓存</p>
+</li>
+<li><p>排序区、连接区等缓存是每个数据库会话专用的，要根据最大连接数合理分配</p>
 </li>
 </ol>
 ]]></content>

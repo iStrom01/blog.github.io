@@ -20,16 +20,16 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"istrom01.github.io","root":"/blog.github.io/","images":"/blog.github.io/images","scheme":"Muse","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/blog.github.io/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/blog.github.io/js/config.js"></script>
-<meta name="description" content="体系结构 组成：  连接池  管理服务和工具组件  存储引擎  文件系统   存储引擎 存储数据、建立索引、更新查询等技术等实现方式，MySQL 支持插件式索引，5.5 以后默认 InnoDB   查看支持的引擎：SHOW engines;  查看默认：SHOW variables LIKE ‘%storage_engine%’;  InnoDB vs MyISAM  InnoDB 支持事务、行锁">
+<meta name="description" content="MySQL 进阶之优化">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL 优化">
 <meta property="og:url" content="https://istrom01.github.io/blog.github.io/2022/04/18/MySQL-%E4%BC%98%E5%8C%96/index.html">
 <meta property="og:site_name" content="istorm">
-<meta property="og:description" content="体系结构 组成：  连接池  管理服务和工具组件  存储引擎  文件系统   存储引擎 存储数据、建立索引、更新查询等技术等实现方式，MySQL 支持插件式索引，5.5 以后默认 InnoDB   查看支持的引擎：SHOW engines;  查看默认：SHOW variables LIKE ‘%storage_engine%’;  InnoDB vs MyISAM  InnoDB 支持事务、行锁">
+<meta property="og:description" content="MySQL 进阶之优化">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/18/MySQL-%E4%BC%98%E5%8C%96/1.png">
 <meta property="article:published_time" content="2022-04-18T01:26:11.000Z">
-<meta property="article:modified_time" content="2022-04-18T02:52:54.748Z">
+<meta property="article:modified_time" content="2022-04-18T09:41:59.881Z">
 <meta property="article:author" content="istorm">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://istrom01.github.io/blog.github.io/2022/04/18/MySQL-%E4%BC%98%E5%8C%96/1.png">
@@ -147,7 +147,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">体系结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="nav-number">2.</span> <span class="nav-text">存储引擎</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">体系结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="nav-number">2.</span> <span class="nav-text">存储引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL-%E4%BC%98%E5%8C%96%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.</span> <span class="nav-text">SQL 优化步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">索引使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL-%E4%BC%98%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">SQL 优化</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -242,12 +242,13 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2022-04-18 09:26:11 / 修改时间：10:52:54" itemprop="dateCreated datePublished" datetime="2022-04-18T09:26:11+08:00">2022-04-18</time>
+      <time title="创建时间：2022-04-18 09:26:11 / 修改时间：17:41:59" itemprop="dateCreated datePublished" datetime="2022-04-18T09:26:11+08:00">2022-04-18</time>
     </span>
 
   
 </div>
 
+            <div class="post-description">MySQL 进阶之优化</div>
         </div>
       </header>
 
@@ -280,6 +281,76 @@
 </li>
 <li><p>MEMORY vs MERGE </p>
 <p> MEMORY 存储在 RAM 中，MERGE 是多张 MyISAM 的集合</p>
+</li>
+</ol>
+<h3 id="SQL-优化步骤"><a href="#SQL-优化步骤" class="headerlink" title="SQL 优化步骤"></a>SQL 优化步骤</h3><ol>
+<li><p>查询 SQL 执行频率</p>
+<p> <code>SHOW [GLOBAL|SESSION] STATUS LIKE [&#39;Com_______&#39;|&#39;InnoDB_rows_%&#39;];</code></p>
+</li>
+<li><p>定位低效率 SQL</p>
+<ul>
+<li><p>慢查询日志</p>
+</li>
+<li><p>SHOW processlist;</p>
+</li>
+</ul>
+</li>
+<li><p>分析 explain、show profiles、trance</p>
+</li>
+</ol>
+<h3 id="索引使用"><a href="#索引使用" class="headerlink" title="索引使用"></a>索引使用</h3><p>复合避免索引失效</p>
+<ol>
+<li><p>全值匹配，生效</p>
+</li>
+<li><p>最左前缀法则，生效，不包含最左列开始或者跳过中间的不生效，跳过一个只走左边索引</p>
+</li>
+<li><p>范围查询右边的列不走索引</p>
+</li>
+<li><p>不要在索引字段进行运算操作，否则失效</p>
+</li>
+<li><p>字符串不加单引号，失效</p>
+</li>
+<li><p>尽量使用覆盖索引，而不是 select *，回表查询效率低</p>
+</li>
+<li><p>or 分隔的条件一个有索引一个么有则索引失效</p>
+</li>
+<li><p>like 查询 % 加前面，失效，通过覆盖索引解决</p>
+</li>
+<li><p>全表扫描比索引快时，失效</p>
+</li>
+<li><p>IS NULL 和 IS NOT NULL 有时失效，绝大部分情况为 1 个值走全表比走索引快就不走索引,和 9 一样</p>
+</li>
+<li><p>in 走索引，not in 失效</p>
+</li>
+<li><p>尽量选择复合索引少用单例索引，多个单列索引数据库会选择一个最优的</p>
+</li>
+</ol>
+<h3 id="SQL-优化"><a href="#SQL-优化" class="headerlink" title="SQL 优化"></a>SQL 优化</h3><ol>
+<li><p>大量插入使用 load 导入时，主键有序效率高，还可以导入时先关闭唯一性校验、手动提交事务来进一步提高效率</p>
+</li>
+<li><p>insert 多行合成一行，大量 insert 前事务改为手动并分段提交，按主键顺序 insert 都可以提高效率</p>
+</li>
+<li><p>order by 优化</p>
+<ul>
+<li><p>直接通过索引返回不回表，类似覆盖索引，using index 效率高，而 using filesort 效率低</p>
+</li>
+<li><p>多字段排序有升有降是 using filesort，同时排序字段和索引字段顺序要一致，否则也是 using filesort</p>
+</li>
+<li><p>filesort 两次扫描算法效率高内存开销大，一次扫描算法效率低开销低，可适当增大排序区大小</p>
+</li>
+</ul>
+</li>
+</ol>
+<ol start="4">
+<li><p>group by 和 order by 一样也可以使用索引，同时使用 order by null 禁止 group by 的默认排序提高效率</p>
+</li>
+<li><p>少用自查询而使用 join</p>
+</li>
+<li><p>or 的所有字段应该都有索引否则索引失效效率低，还可以使用 union 代替 or</p>
+</li>
+<li><p>limit 排序优化：使用索引完成排序分页操作然后回表查询其他字段</p>
+</li>
+<li><p>使用 SQL 提示</p>
 </li>
 </ol>
 

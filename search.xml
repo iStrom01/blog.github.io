@@ -1180,6 +1180,76 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <p> MEMORY 存储在 RAM 中，MERGE 是多张 MyISAM 的集合</p>
 </li>
 </ol>
+<h3 id="SQL-优化步骤"><a href="#SQL-优化步骤" class="headerlink" title="SQL 优化步骤"></a>SQL 优化步骤</h3><ol>
+<li><p>查询 SQL 执行频率</p>
+<p> <code>SHOW [GLOBAL|SESSION] STATUS LIKE [&#39;Com_______&#39;|&#39;InnoDB_rows_%&#39;];</code></p>
+</li>
+<li><p>定位低效率 SQL</p>
+<ul>
+<li><p>慢查询日志</p>
+</li>
+<li><p>SHOW processlist;</p>
+</li>
+</ul>
+</li>
+<li><p>分析 explain、show profiles、trance</p>
+</li>
+</ol>
+<h3 id="索引使用"><a href="#索引使用" class="headerlink" title="索引使用"></a>索引使用</h3><p>复合避免索引失效</p>
+<ol>
+<li><p>全值匹配，生效</p>
+</li>
+<li><p>最左前缀法则，生效，不包含最左列开始或者跳过中间的不生效，跳过一个只走左边索引</p>
+</li>
+<li><p>范围查询右边的列不走索引</p>
+</li>
+<li><p>不要在索引字段进行运算操作，否则失效</p>
+</li>
+<li><p>字符串不加单引号，失效</p>
+</li>
+<li><p>尽量使用覆盖索引，而不是 select *，回表查询效率低</p>
+</li>
+<li><p>or 分隔的条件一个有索引一个么有则索引失效</p>
+</li>
+<li><p>like 查询 % 加前面，失效，通过覆盖索引解决</p>
+</li>
+<li><p>全表扫描比索引快时，失效</p>
+</li>
+<li><p>IS NULL 和 IS NOT NULL 有时失效，绝大部分情况为 1 个值走全表比走索引快就不走索引,和 9 一样</p>
+</li>
+<li><p>in 走索引，not in 失效</p>
+</li>
+<li><p>尽量选择复合索引少用单例索引，多个单列索引数据库会选择一个最优的</p>
+</li>
+</ol>
+<h3 id="SQL-优化"><a href="#SQL-优化" class="headerlink" title="SQL 优化"></a>SQL 优化</h3><ol>
+<li><p>大量插入使用 load 导入时，主键有序效率高，还可以导入时先关闭唯一性校验、手动提交事务来进一步提高效率</p>
+</li>
+<li><p>insert 多行合成一行，大量 insert 前事务改为手动并分段提交，按主键顺序 insert 都可以提高效率</p>
+</li>
+<li><p>order by 优化</p>
+<ul>
+<li><p>直接通过索引返回不回表，类似覆盖索引，using index 效率高，而 using filesort 效率低</p>
+</li>
+<li><p>多字段排序有升有降是 using filesort，同时排序字段和索引字段顺序要一致，否则也是 using filesort</p>
+</li>
+<li><p>filesort 两次扫描算法效率高内存开销大，一次扫描算法效率低开销低，可适当增大排序区大小</p>
+</li>
+</ul>
+</li>
+</ol>
+<ol start="4">
+<li><p>group by 和 order by 一样也可以使用索引，同时使用 order by null 禁止 group by 的默认排序提高效率</p>
+</li>
+<li><p>少用自查询而使用 join</p>
+</li>
+<li><p>or 的所有字段应该都有索引否则索引失效效率低，还可以使用 union 代替 or</p>
+</li>
+<li><p>limit 排序优化：使用索引完成排序分页操作然后回表查询其他字段</p>
+</li>
+<li><p>使用 SQL 提示</p>
+</li>
+</ol>
 ]]></content>
   </entry>
 </search>

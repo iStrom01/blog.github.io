@@ -157,7 +157,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/blog.github.io/archives/">
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -168,7 +168,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/blog.github.io/tags/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -791,103 +791,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/blog.github.io/2022/02/21/vue3/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://istrom01.github.io/blog.github.io/2021/12/28/JUC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog.github.io/uploads/avatar.png">
-      <meta itemprop="name" content="istorm">
-      <meta itemprop="description" content="不为自己内观是最大的愚痴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="istorm">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/blog.github.io/2021/12/28/JUC/" class="post-title-link" itemprop="url">JUC</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-12-28 19:35:33" itemprop="dateCreated datePublished" datetime="2021-12-28T19:35:33+08:00">2021-12-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-04-07 16:53:02" itemprop="dateModified" datetime="2022-04-07T16:53:02+08:00">2022-04-07</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/blog.github.io/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="java线程基础"><a href="#java线程基础" class="headerlink" title="java线程基础"></a>java线程基础</h2><ul>
-<li><p>六种线程状态</p>
-<p>  new runnable terminated blocked timed_waiting waiting </p>
-</li>
-<li><p>interrupt()</p>
-<p>  打断不是真打断，只是打个标记，打断sleep join wait会抛出异常且标记仍为false，打断正常执行中的线程还需被打断线程同意，标记为true</p>
-</li>
-<li><p>上下文切换</p>
-<p>  上下文切换会造成结果的不可预测（即使简单的++，–也由于jvm指令的存在也会出现该问题），即在临界区发生竞态，即出现线程安全问题，通过加锁解决，一个线程获得锁时即使cpu时间片用完从而想上下文切换到其他线程其他线程也不会获取锁而是继续被堵塞，直到先前线程完成</p>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog.github.io/2021/12/28/JUC/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

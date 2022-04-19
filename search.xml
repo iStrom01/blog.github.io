@@ -1282,7 +1282,20 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <li><p>排序区、连接区等缓存是每个数据库会话专用的，要根据最大连接数合理分配</p>
 </li>
 </ol>
-]]></content>
+<p>MySQL 优化：</p>
+<p>MySQL 使用 key_buffer 缓存索引块，数据块完全依赖系统 IO 缓存，key_buffer_size 设置索引块缓存大小。如果需要全表扫描，可适当提高 read_buffer_size 大小，read_buffer_size 增大排序区大小，后两个为会话独有。</p>
+<p>InnoDB 优化：</p>
+<p>InnoDB 有自己的缓存区，可同时缓存数据块和索引块，innnodb_buffer_pool_size 调整缓存区大小，innnodb_log_buffer_size 设置日志缓存大小。</p>
+<h3 id="并发参数"><a href="#并发参数" class="headerlink" title="并发参数"></a>并发参数</h3><p>max_connections 最大并发连接数</p>
+<p>back_log 积压请求栈大小</p>
+<p>table_open_cache 可打开表缓存的数量</p>
+<p>thread_cache_size MySQL 客户服务缓存线程数</p>
+<p>innodb_lock_wait_timeout 行锁等待时间</p>
+<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p>按粒度：行锁、页面锁、表锁，粒度依次增大</p>
+<p>按操作：读锁、写锁</p>
+<h4 id="MyISAM-锁"><a href="#MyISAM-锁" class="headerlink" title="MyISAM 锁"></a>MyISAM 锁</h4><p>执行查询前自动给所有表加读锁，更新前，给涉及的表加写锁，无需人为干预。手动加解锁：[lock|unlock] table xxx [read｜write]</p>
+<p>MyISAM 读写锁调度以写优先，因此 MyISAM 不适合作为以写为主的表都储存引擎</p>
+<h4 id="InnoDB-锁"><a href="#InnoDB-锁" class="headerlink" title="InnoDB 锁"></a>InnoDB 锁</h4>]]></content>
       <categories>
         <category>MySQL</category>
       </categories>

@@ -1207,7 +1207,39 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <p>按操作：读锁、写锁</p>
 <h4 id="MyISAM-锁"><a href="#MyISAM-锁" class="headerlink" title="MyISAM 锁"></a>MyISAM 锁</h4><p>执行查询前自动给所有表加读锁，更新前，给涉及的表加写锁，无需人为干预。手动加解锁：[lock|unlock] table xxx [read｜write]</p>
 <p>MyISAM 读写锁调度以写优先，因此 MyISAM 不适合作为以写为主的表都储存引擎</p>
-<h4 id="InnoDB-锁"><a href="#InnoDB-锁" class="headerlink" title="InnoDB 锁"></a>InnoDB 锁</h4>]]></content>
+<h4 id="InnoDB-锁"><a href="#InnoDB-锁" class="headerlink" title="InnoDB 锁"></a>InnoDB 锁</h4><p>行锁特点：开销大，加锁慢，锁粒度小，发生冲突概率低，并发度高。</p>
+<p>InnoDB 对于普通查询语句不回加任何锁，而对于更新操作，会自动给涉及数据加写锁。手动加读锁：lock in share mode，手动加写锁：for update</p>
+<p>不通过索引检索行锁自动升级为表锁</p>
+<p>使用范围检索时在范围内却不存在的数据 InnoDB 也会为其加锁，是为间隙锁</p>
+<p>查看行锁征用情况：show status like ‘innodb_row_lock’</p>
+<p>优化建议：</p>
+<ol>
+<li><p>避免行锁升级为表锁</p>
+</li>
+<li><p>合理设计索引，尽量缩小锁的范围</p>
+</li>
+<li><p>减少索引条件及范围，避免间隙锁</p>
+</li>
+<li><p>控制事务大小，少锁几行，尽可能使用较低隔离级别</p>
+</li>
+</ol>
+<h3 id="常用-SQL-技巧"><a href="#常用-SQL-技巧" class="headerlink" title="常用 SQL 技巧"></a>常用 SQL 技巧</h3><p>编写顺序：select、from、join、where、group by、having、order by、limit</p>
+<p>执行顺序：from、on、join、where、group by、having、select、order by、limit</p>
+<h3 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h3><ol>
+<li><p>错误日志，查看位置：show variables like ‘log_error%’;</p>
+</li>
+<li><p>binlog(默认关闭)</p>
+<p> 格式：</p>
+<p> STATEMENT：记录 SQL 语句。主从复制时，从库会解析为原 SQL 并执行一次</p>
+<p> ROW：记录每一行的数据变更</p>
+<p> MIXED：目前默认，结合 STATEMENT 和 ROW 各自的特点，默认 STATEMENT，特殊情况下 ROW</p>
+</li>
+<li><p>查询日志（默认关闭）</p>
+</li>
+<li><p>慢查询日志，记录了所有执行时间超过 long_query_time 并且扫描记录数不小于 min_examined_row_limit 的所有 SQL 语句日志</p>
+</li>
+</ol>
+]]></content>
       <categories>
         <category>MySQL</category>
       </categories>

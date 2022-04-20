@@ -1047,7 +1047,25 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </li>
 </ol>
 <p>随着硬件性能的提升有助于降低收集器运行时对性能的影响，即提高了吞吐量，同时对内存的占用越来越能够容忍，但是内存的提升却为 STW 带来负面影响，因此<font color=red>暂停时间</font>重要性日益凸显</p>
+<p><code>常见垃圾回收器</code></p>
+<p>串行：Serial、Serial Old</p>
+<p>并行：ParNew、Parallel Scavenge、Parallel Old</p>
+<p>并发：CMS、G1</p>
+<p>七款经典垃圾回收器与堆内存分代关系：</p>
 <p><img src="/blog.github.io/2022/03/23/jvm/3.png"></p>
+<p>新生代垃圾回收器：Serial、ParNew、Parallel Scavenge</p>
+<p>老年代垃圾回收器：Serial Old、Parallel Old、CMS</p>
+<p>整堆垃圾回收器：G1</p>
+<h4 id="Serial-与-Serial-Old"><a href="#Serial-与-Serial-Old" class="headerlink" title="Serial 与 Serial Old"></a>Serial 与 Serial Old</h4><p>Serial 使用复制算法、STW、穿行回收新生代</p>
+<p>Serial Old 使用标记压缩算法、STW、穿行回收老年代</p>
+<p>Serial 与 Serial Old 是 Hotspot 虚拟机 Client 模式下默认的垃圾回收器</p>
+<h4 id="Parnew"><a href="#Parnew" class="headerlink" title="Parnew"></a>Parnew</h4><p>是 Serial 的多线程版本的新时代垃圾回收器，是很多垃圾回收器 Server 模式下的默认垃圾回收器</p>
+<h4 id="Parallel-Scavenge-和-Parallel-Old"><a href="#Parallel-Scavenge-和-Parallel-Old" class="headerlink" title="Parallel Scavenge 和 Parallel Old"></a>Parallel Scavenge 和 Parallel Old</h4><p>Parallel Scavenge 和 Parnew 差不多，不过以吞吐量为优先，达到一个可控制的吞吐量，高吞吐量可以更多的利用 Cpu，适合后台运行不需要多少交互的场景</p>
+<p>Parallel Old 是采用标记压缩算法、并行回收的老年代垃圾回收器</p>
+<p>Parallel Scavenge 和 Parallel Old 是 JDK8 默认的垃圾回收器</p>
+<h4 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h4><p>主打低延迟，采用标记清除算法，同样也有 STW ，第一次实现了并发的GC，执行步骤为串行初始标记、并发标记、并行重新标记、并发清除，由于耗时时间长的并发标记阶段和并发清除阶段都是并发的，因此 STW 时间相对较短，实现了低延迟。由于清除阶段用户线程没有中断，这时要保证用户线程有足够的空间，因此不能像其他垃圾回收器一样等到老年代完全填满了再进行回收，而是达到一定比例就需要回收，如果预留内存不过就要切换 Serial Old，这时 STW 就很长了</p>
+<p>弊端：标记清除造成的内存碎片，并发阶段造成吞吐量降低，并发标记阶段的新垃圾也不能及时清理需要等到下一次 GC</p>
+<h4 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h4><p>区域化分代式垃圾回收器，</p>
 ]]></content>
       <categories>
         <category>Java</category>

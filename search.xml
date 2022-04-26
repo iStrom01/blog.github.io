@@ -1401,5 +1401,11 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <p>ApplicationContext 与 BeanFactory 关系</p>
 <p><img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
 ]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Spring</tag>
+      </tags>
   </entry>
 </search>

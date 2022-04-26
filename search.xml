@@ -1399,8 +1399,9 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
 <p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
 <ol>
-<li><p>ApplicationContext 与 BeanFactory 关系</p>
+<li><p>ApplicationContext 与 BeanFactory 关系，和默认 BeanFactory</p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
+<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png"></p>
 </li>
 <li><p>BeanDefinition </p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png"></p>

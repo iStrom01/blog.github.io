@@ -1379,7 +1379,7 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <ol>
 <li><p>解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition</p>
 </li>
-<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息（比如 PlaceholderConfigurerSupport 替换 xml 配置文件中的占位符）</p>
+<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息</p>
 </li>
 <li><p>实例化（半成品），属性都是默认值</p>
 </li>
@@ -1398,8 +1398,20 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </ol>
 <h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
 <p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
-<p>ApplicationContext 与 BeanFactory 关系</p>
-<p><img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
+<ol>
+<li><p>ApplicationContext 与 BeanFactory 关系</p>
+<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
+</li>
+<li><p>BeanDefinition </p>
+<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png"></p>
+</li>
+<li><p>BeanFactoryPostProcessor 增强器</p>
+ <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Factory hook that allows for custom modification of an application context&#x27;s</span></span><br><span class="line"><span class="comment">* bean definitions, adapting the bean property values of the context&#x27;s underlying</span></span><br><span class="line"><span class="comment">* bean factory.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Modify the application context&#x27;s internal bean factory after its standard</span></span><br><span class="line"><span class="comment">    * initialization. All bean definitions will have been loaded, but no beans</span></span><br><span class="line"><span class="comment">    * will have been instantiated yet. This allows for overriding or adding</span></span><br><span class="line"><span class="comment">    * properties even to eager-initializing beans.</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> beanFactory the bean factory used by the application context</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> <font color=orange>说明</font></p>
+<p> PlaceholderConfigurerSupport 是其抽象子实现，可以替换 xml 配置文件中的占位符</p>
+</li>
+</ol>
 ]]></content>
       <categories>
         <category>Java</category>

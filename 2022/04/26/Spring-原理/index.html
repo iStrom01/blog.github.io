@@ -20,28 +20,29 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"istrom01.github.io","root":"/blog.github.io/","images":"/blog.github.io/images","scheme":"Muse","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/blog.github.io/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/blog.github.io/js/config.js"></script>
-<meta name="description" content="无我原非你，从他不解伊。肆行无碍凭来去。茫茫着甚悲愁喜，纷纷说甚亲疏密。从前碌碌却因何，到如今回头试想真无趣！">
-<meta property="og:type" content="website">
-<meta property="og:title" content="关于我">
-<meta property="og:url" content="https://istrom01.github.io/blog.github.io/about/index.html">
+<meta name="description" content="IOC 过程 BeanFactory 为整个容器的根入口，也是容器的入口   解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition  使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息（比如 PlaceholderConfigurerSupport 替换 xml 配置文件中的占位">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring 原理">
+<meta property="og:url" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="istorm">
-<meta property="og:description" content="无我原非你，从他不解伊。肆行无碍凭来去。茫茫着甚悲愁喜，纷纷说甚亲疏密。从前碌碌却因何，到如今回头试想真无趣！">
+<meta property="og:description" content="IOC 过程 BeanFactory 为整个容器的根入口，也是容器的入口   解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition  使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息（比如 PlaceholderConfigurerSupport 替换 xml 配置文件中的占位">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-12-28T05:26:08.000Z">
-<meta property="article:modified_time" content="2022-02-16T09:20:49.354Z">
+<meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png">
+<meta property="article:published_time" content="2022-04-26T08:16:09.000Z">
+<meta property="article:modified_time" content="2022-04-26T08:19:45.197Z">
 <meta property="article:author" content="istorm">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png">
 
 
-<link rel="canonical" href="https://istrom01.github.io/blog.github.io/about/">
+<link rel="canonical" href="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":true,"permalink":"https://istrom01.github.io/blog.github.io/about/index.html","path":"about/index.html","title":"关于我"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/","path":"2022/04/26/Spring-原理/","title":"Spring 原理"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>关于我 | istorm
-</title>
+<title>Spring 原理 | istorm</title>
   
 
 
@@ -133,7 +134,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -146,6 +147,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -204,37 +206,109 @@
 </noscript>
 
 
-    <div class="main-inner page posts-expand">
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
   
   
 
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/">
 
-    
-    
-    
-    <div class="post-block" lang="zh-CN"><header class="post-header">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog.github.io/uploads/avatar.png">
+      <meta itemprop="name" content="istorm">
+      <meta itemprop="description" content="不为自己内观是最大的愚痴">
+    </span>
 
-<h1 class="post-title" itemprop="name headline">关于我
-</h1>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="istorm">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring 原理
+        </h1>
 
-<div class="post-meta-container">
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-04-26 16:16:09 / 修改时间：16:19:45" itemprop="dateCreated datePublished" datetime="2022-04-26T16:16:09+08:00">2022-04-26</time>
+    </span>
+
+  
 </div>
 
-</header>
+        </div>
+      </header>
 
-      
-      
-      <div class="post-body">
-          <p>无我原非你，从他不解伊。肆行无碍凭来去。茫茫着甚悲愁喜，纷纷说甚亲疏密。从前碌碌却因何，到如今回头试想真无趣！</p>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="IOC-过程"><a href="#IOC-过程" class="headerlink" title="IOC 过程"></a>IOC 过程</h3><blockquote>
+<p>BeanFactory 为整个容器的根入口，也是容器的入口</p>
+</blockquote>
+<ol>
+<li><p>解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition</p>
+</li>
+<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息（比如 PlaceholderConfigurerSupport 替换 xml 配置文件中的占位符）</p>
+</li>
+<li><p>实例化（半成品），属性都是默认值</p>
+</li>
+<li><p>初始化:填充属性</p>
+<ol>
+<li><p>自定义属性 populate</p>
+</li>
+<li><p>容器属性 aware</p>
+</li>
+<li><p>使用 BeanPostProcessor 增强 bean 信息（比如 AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
+</li>
+</ol>
+</li>
+<li><p>使用</p>
+</li>
+</ol>
+<h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
+<p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
+<p>ApplicationContext 与 BeanFactory 关系</p>
+<p><img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
 
-      </div>
-      
-      
-      
     </div>
 
     
     
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/" rel="prev" title="Spring Boot 原理">
+                  <i class="fa fa-chevron-left"></i> Spring Boot 原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
 
 
 </div>

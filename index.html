@@ -157,7 +157,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/blog.github.io/archives/">
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -202,6 +202,182 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog.github.io/uploads/avatar.png">
+      <meta itemprop="name" content="istorm">
+      <meta itemprop="description" content="不为自己内观是最大的愚痴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="istorm">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">Spring 原理</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-04-26 16:16:09 / 修改时间：16:19:45" itemprop="dateCreated datePublished" datetime="2022-04-26T16:16:09+08:00">2022-04-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="IOC-过程"><a href="#IOC-过程" class="headerlink" title="IOC 过程"></a>IOC 过程</h3><blockquote>
+<p>BeanFactory 为整个容器的根入口，也是容器的入口</p>
+</blockquote>
+<ol>
+<li><p>解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition</p>
+</li>
+<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息（比如 PlaceholderConfigurerSupport 替换 xml 配置文件中的占位符）</p>
+</li>
+<li><p>实例化（半成品），属性都是默认值</p>
+</li>
+<li><p>初始化:填充属性</p>
+<ol>
+<li><p>自定义属性 populate</p>
+</li>
+<li><p>容器属性 aware</p>
+</li>
+<li><p>使用 BeanPostProcessor 增强 bean 信息（比如 AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
+</li>
+</ol>
+</li>
+<li><p>使用</p>
+</li>
+</ol>
+<h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
+<p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
+<p>ApplicationContext 与 BeanFactory 关系</p>
+<p><img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://istrom01.github.io/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog.github.io/uploads/avatar.png">
+      <meta itemprop="name" content="istorm">
+      <meta itemprop="description" content="不为自己内观是最大的愚痴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="istorm">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">Spring Boot 原理</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-04-22 17:35:06" itemprop="dateCreated datePublished" datetime="2022-04-22T17:35:06+08:00">2022-04-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-04-23 10:08:39" itemprop="dateModified" datetime="2022-04-23T10:08:39+08:00">2022-04-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/blog.github.io/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h4 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h4><ol>
+<li><p>main 方法启动生成一个 SpringApplication 对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(Class&lt;?&gt;[] primarySources, String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">new</span> SpringApplication(primarySources)).run(args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 重载的构造器</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SpringApplication</span><span class="params">(ResourceLoader resourceLoader, Class&lt;?&gt;... primarySources)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.sources = <span class="keyword">new</span> LinkedHashSet();</span><br><span class="line">    <span class="keyword">this</span>.bannerMode = Mode.CONSOLE;</span><br><span class="line">    <span class="keyword">this</span>.logStartupInfo = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.addCommandLineProperties = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.addConversionService = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.headless = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.registerShutdownHook = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.additionalProfiles = Collections.emptySet();</span><br><span class="line">    <span class="keyword">this</span>.isCustomEnvironment = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">this</span>.lazyInitialization = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">this</span>.applicationContextFactory = ApplicationContextFactory.DEFAULT;</span><br><span class="line">    <span class="keyword">this</span>.applicationStartup = ApplicationStartup.DEFAULT;</span><br><span class="line">    <span class="keyword">this</span>.resourceLoader = resourceLoader;</span><br><span class="line">    Assert.notNull(primarySources, <span class="string">&quot;PrimarySources must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.primarySources = <span class="keyword">new</span> LinkedHashSet(Arrays.asList(primarySources));</span><br><span class="line">    <span class="comment">// 推断 WEB 应用类型(NONE、REACTIVE、SERVLET)</span></span><br><span class="line">    <span class="keyword">this</span>.webApplicationType = WebApplicationType.deduceFromClasspath();</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 BootstrapRegistryInitializer 对象</span></span><br><span class="line">    <span class="keyword">this</span>.bootstrapRegistryInitializers = <span class="keyword">new</span> ArrayList(<span class="keyword">this</span>.getSpringFactoriesInstances(BootstrapRegistryInitializer.class));</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 ApplicationContextInitializer 对象</span></span><br><span class="line">    <span class="keyword">this</span>.setInitializers(<span class="keyword">this</span>.getSpringFactoriesInstances(ApplicationContextInitializer.class));</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 ApplicationListener 对象</span></span><br><span class="line">    <span class="keyword">this</span>.setListeners(<span class="keyword">this</span>.getSpringFactoriesInstances(ApplicationListener.class));</span><br><span class="line">    <span class="comment">// 推测出 main() 所在的类</span></span><br><span class="line">    <span class="keyword">this</span>.mainApplicationClass = <span class="keyword">this</span>.deduceMainApplicationClass();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>执行 SpringApplication 对象它的 run() 方法</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(String... args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> startTime = System.nanoTime();</span><br><span class="line">    DefaultBootstrapContext bootstrapContext = <span class="keyword">this</span>.createBootstrapContext();</span><br><span class="line">    ConfigurableApplicationContext context = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">this</span>.configureHeadlessProperty();</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 SpringApplicationRunListener --&gt; EventPublishingRunListener</span></span><br><span class="line">    <span class="comment">// 会启动过程的各个阶段发布对应的事件</span></span><br><span class="line">    SpringApplicationRunListeners listeners = <span class="keyword">this</span>.getRunListeners(args);</span><br><span class="line">    listeners.starting(bootstrapContext, <span class="keyword">this</span>.mainApplicationClass);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 将 run 方法参数封装成 DefaultApplicationArguments 对象</span></span><br><span class="line">        ApplicationArguments applicationArguments = <span class="keyword">new</span> DefaultApplicationArguments(args);</span><br><span class="line">        ConfigurableEnvironment environment = <span class="keyword">this</span>.prepareEnvironment(listeners, bootstrapContext, applicationArguments);</span><br><span class="line">        <span class="keyword">this</span>.configureIgnoreBeanInfo(environment);</span><br><span class="line">        Banner printedBanner = <span class="keyword">this</span>.printBanner(environment);</span><br><span class="line">        <span class="comment">// 根据应用类型创建 Spring 容器</span></span><br><span class="line">        context = <span class="keyword">this</span>.createApplicationContext();</span><br><span class="line">        context.setApplicationStartup(<span class="keyword">this</span>.applicationStartup);</span><br><span class="line">        <span class="keyword">this</span>.prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);</span><br><span class="line">        <span class="comment">// 刷新 Spring 容器，解析配置类、扫描、启动 WebServer</span></span><br><span class="line">        <span class="keyword">this</span>.refreshContext(context);</span><br><span class="line">        <span class="keyword">this</span>.afterRefresh(context, applicationArguments);</span><br><span class="line">        Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.logStartupInfo) &#123;</span><br><span class="line">            (<span class="keyword">new</span> StartupInfoLogger(<span class="keyword">this</span>.mainApplicationClass)).logStarted(<span class="keyword">this</span>.getApplicationLog(), timeTakenToStartup);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        listeners.started(context, timeTakenToStartup);</span><br><span class="line">        <span class="keyword">this</span>.callRunners(context, applicationArguments);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable var12) &#123;</span><br><span class="line">        <span class="keyword">this</span>.handleRunFailure(context, var12, listeners);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(var12);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);</span><br><span class="line">        listeners.ready(context, timeTakenToReady);</span><br><span class="line">        <span class="keyword">return</span> context;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable var11) &#123;</span><br><span class="line">        <span class="keyword">this</span>.handleRunFailure(context, var11, (SpringApplicationRunListeners)<span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(var11);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h3>
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -416,7 +592,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-04-21 16:11:27" itemprop="dateModified" datetime="2022-04-21T16:11:27+08:00">2022-04-21</time>
+      <time title="修改时间：2022-04-21 17:37:44" itemprop="dateModified" datetime="2022-04-21T17:37:44+08:00">2022-04-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.0.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog.github.io/images/icons8-blogger-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog.github.io/images/icons8-blogger-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog.github.io/images/icons8-blogger-16.png">
+  <link rel="mask-icon" href="/blog.github.io/images/icons8-blogger.svg" color="#222">
+
+<link rel="stylesheet" href="/blog.github.io/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"istrom01.github.io","root":"/blog.github.io/","images":"/blog.github.io/images","scheme":"Muse","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/blog.github.io/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/blog.github.io/js/config.js"></script>
+<meta name="description" content="启动流程 main 方法启动生成一个 SpringApplication 对象 12345678910111213141516171819202122232425262728293031323334public static ConfigurableApplicationContext run(Class&lt;?&gt;[] primarySources, String[] args) &amp;#12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot 原理">
+<meta property="og:url" content="https://istrom01.github.io/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="istorm">
+<meta property="og:description" content="启动流程 main 方法启动生成一个 SpringApplication 对象 12345678910111213141516171819202122232425262728293031323334public static ConfigurableApplicationContext run(Class&lt;?&gt;[] primarySources, String[] args) &amp;#12">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-22T09:35:06.000Z">
+<meta property="article:modified_time" content="2022-04-23T02:08:39.744Z">
+<meta property="article:author" content="istorm">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://istrom01.github.io/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://istrom01.github.io/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/","path":"2022/04/22/Spring-Boot-原理/","title":"Spring Boot 原理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring Boot 原理 | istorm</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/blog.github.io/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog.github.io/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">istorm</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">赌打吹</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-about"><a href="/blog.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/blog.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/blog.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">启动流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring"><span class="nav-number"></span> <span class="nav-text">Spring</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="istorm"
+      src="/blog.github.io/uploads/avatar.png">
+  <p class="site-author-name" itemprop="name">istorm</p>
+  <div class="site-description" itemprop="description">不为自己内观是最大的愚痴</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/blog.github.io/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/blog.github.io/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/blog.github.io/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/iStrom01" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;iStrom01" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://istrom01.github.io/blog.github.io/2022/04/22/Spring-Boot-%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog.github.io/uploads/avatar.png">
+      <meta itemprop="name" content="istorm">
+      <meta itemprop="description" content="不为自己内观是最大的愚痴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="istorm">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring Boot 原理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-04-22 17:35:06" itemprop="dateCreated datePublished" datetime="2022-04-22T17:35:06+08:00">2022-04-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-04-23 10:08:39" itemprop="dateModified" datetime="2022-04-23T10:08:39+08:00">2022-04-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/blog.github.io/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h4><ol>
+<li><p>main 方法启动生成一个 SpringApplication 对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(Class&lt;?&gt;[] primarySources, String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">new</span> SpringApplication(primarySources)).run(args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 重载的构造器</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SpringApplication</span><span class="params">(ResourceLoader resourceLoader, Class&lt;?&gt;... primarySources)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.sources = <span class="keyword">new</span> LinkedHashSet();</span><br><span class="line">    <span class="keyword">this</span>.bannerMode = Mode.CONSOLE;</span><br><span class="line">    <span class="keyword">this</span>.logStartupInfo = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.addCommandLineProperties = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.addConversionService = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.headless = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.registerShutdownHook = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.additionalProfiles = Collections.emptySet();</span><br><span class="line">    <span class="keyword">this</span>.isCustomEnvironment = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">this</span>.lazyInitialization = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">this</span>.applicationContextFactory = ApplicationContextFactory.DEFAULT;</span><br><span class="line">    <span class="keyword">this</span>.applicationStartup = ApplicationStartup.DEFAULT;</span><br><span class="line">    <span class="keyword">this</span>.resourceLoader = resourceLoader;</span><br><span class="line">    Assert.notNull(primarySources, <span class="string">&quot;PrimarySources must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.primarySources = <span class="keyword">new</span> LinkedHashSet(Arrays.asList(primarySources));</span><br><span class="line">    <span class="comment">// 推断 WEB 应用类型(NONE、REACTIVE、SERVLET)</span></span><br><span class="line">    <span class="keyword">this</span>.webApplicationType = WebApplicationType.deduceFromClasspath();</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 BootstrapRegistryInitializer 对象</span></span><br><span class="line">    <span class="keyword">this</span>.bootstrapRegistryInitializers = <span class="keyword">new</span> ArrayList(<span class="keyword">this</span>.getSpringFactoriesInstances(BootstrapRegistryInitializer.class));</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 ApplicationContextInitializer 对象</span></span><br><span class="line">    <span class="keyword">this</span>.setInitializers(<span class="keyword">this</span>.getSpringFactoriesInstances(ApplicationContextInitializer.class));</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 ApplicationListener 对象</span></span><br><span class="line">    <span class="keyword">this</span>.setListeners(<span class="keyword">this</span>.getSpringFactoriesInstances(ApplicationListener.class));</span><br><span class="line">    <span class="comment">// 推测出 main() 所在的类</span></span><br><span class="line">    <span class="keyword">this</span>.mainApplicationClass = <span class="keyword">this</span>.deduceMainApplicationClass();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>执行 SpringApplication 对象它的 run() 方法</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(String... args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> startTime = System.nanoTime();</span><br><span class="line">    DefaultBootstrapContext bootstrapContext = <span class="keyword">this</span>.createBootstrapContext();</span><br><span class="line">    ConfigurableApplicationContext context = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">this</span>.configureHeadlessProperty();</span><br><span class="line">    <span class="comment">// 从 spring.factories 中获取 SpringApplicationRunListener --&gt; EventPublishingRunListener</span></span><br><span class="line">    <span class="comment">// 会启动过程的各个阶段发布对应的事件</span></span><br><span class="line">    SpringApplicationRunListeners listeners = <span class="keyword">this</span>.getRunListeners(args);</span><br><span class="line">    listeners.starting(bootstrapContext, <span class="keyword">this</span>.mainApplicationClass);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 将 run 方法参数封装成 DefaultApplicationArguments 对象</span></span><br><span class="line">        ApplicationArguments applicationArguments = <span class="keyword">new</span> DefaultApplicationArguments(args);</span><br><span class="line">        ConfigurableEnvironment environment = <span class="keyword">this</span>.prepareEnvironment(listeners, bootstrapContext, applicationArguments);</span><br><span class="line">        <span class="keyword">this</span>.configureIgnoreBeanInfo(environment);</span><br><span class="line">        Banner printedBanner = <span class="keyword">this</span>.printBanner(environment);</span><br><span class="line">        <span class="comment">// 根据应用类型创建 Spring 容器</span></span><br><span class="line">        context = <span class="keyword">this</span>.createApplicationContext();</span><br><span class="line">        context.setApplicationStartup(<span class="keyword">this</span>.applicationStartup);</span><br><span class="line">        <span class="keyword">this</span>.prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);</span><br><span class="line">        <span class="comment">// 刷新 Spring 容器，解析配置类、扫描、启动 WebServer</span></span><br><span class="line">        <span class="keyword">this</span>.refreshContext(context);</span><br><span class="line">        <span class="keyword">this</span>.afterRefresh(context, applicationArguments);</span><br><span class="line">        Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.logStartupInfo) &#123;</span><br><span class="line">            (<span class="keyword">new</span> StartupInfoLogger(<span class="keyword">this</span>.mainApplicationClass)).logStarted(<span class="keyword">this</span>.getApplicationLog(), timeTakenToStartup);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        listeners.started(context, timeTakenToStartup);</span><br><span class="line">        <span class="keyword">this</span>.callRunners(context, applicationArguments);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable var12) &#123;</span><br><span class="line">        <span class="keyword">this</span>.handleRunFailure(context, var12, listeners);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(var12);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);</span><br><span class="line">        listeners.ready(context, timeTakenToReady);</span><br><span class="line">        <span class="keyword">return</span> context;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable var11) &#123;</span><br><span class="line">        <span class="keyword">this</span>.handleRunFailure(context, var11, (SpringApplicationRunListeners)<span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(var11);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h3>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/blog.github.io/2022/04/18/MySQL-%E4%BC%98%E5%8C%96/" rel="prev" title="MySQL 优化">
+                  <i class="fa fa-chevron-left"></i> MySQL 优化
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/" rel="next" title="Spring 原理">
+                  Spring 原理 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">istorm</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/blog.github.io/js/comments.js"></script><script src="/blog.github.io/js/utils.js"></script><script src="/blog.github.io/js/motion.js"></script><script src="/blog.github.io/js/schemes/muse.js"></script><script src="/blog.github.io/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/blog.github.io/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/blog.github.io/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/blog.github.io/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body>
+</html>

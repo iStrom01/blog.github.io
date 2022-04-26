@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png">
 <meta property="article:published_time" content="2022-04-26T08:16:09.000Z">
-<meta property="article:modified_time" content="2022-04-26T08:51:48.536Z">
+<meta property="article:modified_time" content="2022-04-26T12:49:40.899Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -150,7 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.</span> <span class="nav-text">循环依赖</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -245,7 +245,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2022-04-26 16:16:09 / 修改时间：16:51:48" itemprop="dateCreated datePublished" datetime="2022-04-26T16:16:09+08:00">2022-04-26</time>
+      <time title="创建时间：2022-04-26 16:16:09 / 修改时间：20:49:40" itemprop="dateCreated datePublished" datetime="2022-04-26T16:16:09+08:00">2022-04-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -280,9 +280,9 @@
 </li>
 <li><p>初始化:填充属性</p>
 <ol>
-<li><p>自定义属性 populate</p>
+<li><p>自定义属性 populateBean</p>
 </li>
-<li><p>容器属性 aware</p>
+<li><p>容器属性 invokeAwareMethods</p>
 </li>
 <li><p>使用 BeanPostProcessor 增强 bean 信息（比如 AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
 </li>
@@ -292,7 +292,6 @@
 </li>
 </ol>
 <h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
-<p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
 <ol>
 <li><p>ApplicationContext 与 BeanFactory 关系，和默认 BeanFactory</p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
@@ -301,13 +300,24 @@
 <li><p>BeanDefinition </p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png"></p>
 </li>
-<li><p>BeanFactoryPostProcessor 增强器</p>
+<li><p>BeanFactoryPostProcessor 增强器，增强 BeanDefinition</p>
  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Factory hook that allows for custom modification of an application context&#x27;s</span></span><br><span class="line"><span class="comment">* bean definitions, adapting the bean property values of the context&#x27;s underlying</span></span><br><span class="line"><span class="comment">* bean factory.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Modify the application context&#x27;s internal bean factory after its standard</span></span><br><span class="line"><span class="comment">    * initialization. All bean definitions will have been loaded, but no beans</span></span><br><span class="line"><span class="comment">    * will have been instantiated yet. This allows for overriding or adding</span></span><br><span class="line"><span class="comment">    * properties even to eager-initializing beans.</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> beanFactory the bean factory used by the application context</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p> <font color=orange>说明</font></p>
 <p> PlaceholderConfigurerSupport 是其抽象子实现，可以替换 xml 配置文件中的占位符</p>
 </li>
 </ol>
+<ol start="4">
+<li><p>Aware</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 标志 bean 的容器属性赋值，由 spring 调用，Bean 应实现其子接口，如 ApplicationContextAware</span></span><br><span class="line"><span class="comment">* A marker superinterface indicating that a bean is eligible to be notified by the</span></span><br><span class="line"><span class="comment">* Spring container of a particular framework object through a callback-style method.</span></span><br><span class="line"><span class="comment">* The actual method signature is determined by individual subinterfaces but should</span></span><br><span class="line"><span class="comment">* typically consist of just one void-returning method that accepts a single argument.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* &lt;p&gt;Note that merely implementing &#123;<span class="doctag">@link</span> Aware&#125; provides no default functionality.</span></span><br><span class="line"><span class="comment">* Rather, processing must be done explicitly, for example in a</span></span><br><span class="line"><span class="comment">* &#123;<span class="doctag">@link</span> org.springframework.beans.factory.config.BeanPostProcessor&#125;.</span></span><br><span class="line"><span class="comment">* Refer to &#123;<span class="doctag">@link</span> org.springframework.context.support.ApplicationContextAwareProcessor&#125;</span></span><br><span class="line"><span class="comment">* for an example of processing specific &#123;<span class="doctag">@code</span> *Aware&#125; interface callbacks.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Chris Beams</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Juergen Hoeller</span></span><br><span class="line"><span class="comment">* <span class="doctag">@since</span> 3.1</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Aware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>BeanPostProcessor 可以扩展 Bean，比如 AOP、注解（@AutoWired、@Value、@AfterContruct）</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @AutoWired、@Value 注解的功能的完成，先有 XML 配置方式后来扩展的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AutowiredAnnotationBeanPostProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Autowired.class);</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Value.class);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.autowiredAnnotationTypes.add((Class&lt;? extends Annotation&gt;)</span><br><span class="line">                ClassUtils.forName(<span class="string">&quot;javax.inject.Inject&quot;</span>, AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));</span><br><span class="line">        logger.trace(<span class="string">&quot;JSR-330 &#x27;javax.inject.Inject&#x27; annotation found and supported for autowiring&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">        <span class="comment">// JSR-330 API not available - simply skip.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
+</li>
+</ol>
+<h4 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h4><blockquote>
+<p>6 个方法：getBean doGetBean createBean doCreateBean createBeanInstance populateBean</p>
+</blockquote>
 
     </div>
 

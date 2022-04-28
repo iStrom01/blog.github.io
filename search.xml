@@ -1423,7 +1423,12 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <h4 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h4><blockquote>
 <p>6 个方法：getBean doGetBean createBean doCreateBean createBeanInstance populateBean</p>
 </blockquote>
-]]></content>
+<p>三级缓存</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** 一级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of singleton objects: bean name to bean instance. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 三级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of singleton factories: bean name to ObjectFactory. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 二级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of early singleton objects: bean name to bean instance. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">16</span>);</span><br></pre></td></tr></table></figure>
+
+<p><font color=orange>说明</font></p>
+<p>按照 123 的顺序来获取对象，前面的缓存有就把后面的除掉。如果只有一级缓存，成品和半成品对象放到一起会覆盖掉，因此需要两个缓存分别放对象和半成品对象。Spring 无法预知是否需要代理对象，因此需要一个类似回调的方法 getEarlyBeanReference 放三级缓存中，需要代理对象时就覆盖原始对象并对外暴露代理对象</p>
+<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3>]]></content>
       <categories>
         <category>Java</category>
       </categories>

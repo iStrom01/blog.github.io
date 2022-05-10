@@ -1537,7 +1537,48 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </blockquote>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">t1</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    EmbeddedChannel channel = <span class="keyword">new</span> EmbeddedChannel(</span><br><span class="line">            <span class="comment">// LTC 解决黏包半包</span></span><br><span class="line">            <span class="keyword">new</span> LengthFieldBasedFrameDecoder(<span class="number">1024</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">4</span>)</span><br><span class="line">            , <span class="keyword">new</span> LoggingHandler(LogLevel.DEBUG));</span><br><span class="line">    ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();</span><br><span class="line">    toBuf(buffer, <span class="string">&quot;shaka&quot;</span>);</span><br><span class="line">    channel.writeInbound(buffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">toBuf</span><span class="params">(ByteBuf buffer, String msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = msg.getBytes();</span><br><span class="line">    <span class="keyword">int</span> length = bytes.length;</span><br><span class="line">    buffer.writeInt(length);</span><br><span class="line">    buffer.writeBytes(bytes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="协议设计与解析"><a href="#协议设计与解析" class="headerlink" title="协议设计与解析"></a>协议设计与解析</h3>]]></content>
+<h3 id="协议设计与解析"><a href="#协议设计与解析" class="headerlink" title="协议设计与解析"></a>协议设计与解析</h3><p><code>redis RESP 协议</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 以此为例</span><br><span class="line">redis&gt; SET mykey &quot;Hello&quot;</span><br><span class="line">&quot;OK&quot;</span><br><span class="line"></span><br><span class="line">// 实际发送的数据</span><br><span class="line">*3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$5\r\nHello\r\n</span><br><span class="line"></span><br><span class="line">// 实际响应的数据</span><br><span class="line">+OK\r\n</span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>自定义协议要素</code></p>
+<ol>
+<li><p>魔数，第一时间判断是否是无效数据包</p>
+</li>
+<li><p>版本，可以支持协议的升级</p>
+</li>
+<li><p>序列化方式（json jdk hessian protobuf）</p>
+</li>
+<li><p>指令类型，是登录、注册、单聊、群聊。。。</p>
+</li>
+<li><p>请求序号，为了双工通信</p>
+</li>
+<li><p>正文长度</p>
+</li>
+<li><p>正文</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessageCodec</span> <span class="keyword">extends</span> <span class="title">ByteToMessageCodec</span>&lt;<span class="title">Message</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">encode</span><span class="params">(ChannelHandlerContext channelHandlerContext, Message message, ByteBuf byteBuf)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 魔数 4 字节</span></span><br><span class="line">        byteBuf.writeBytes(<span class="string">&quot;haka&quot;</span>.getBytes());</span><br><span class="line">        <span class="comment">// 版本 1字节</span></span><br><span class="line">        byteBuf.writeByte(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 序列化方式 1 字节，0 jdk 1 json</span></span><br><span class="line">        byteBuf.writeByte(<span class="number">0</span>);</span><br><span class="line">        <span class="comment">// 指令类型 1 字节</span></span><br><span class="line">        byteBuf.writeByte(message.getMessageType());</span><br><span class="line">        <span class="comment">// 4 个字节</span></span><br><span class="line">        byteBuf.writeInt(message.getSequenceId());</span><br><span class="line">        <span class="comment">// 填充 1 个字节</span></span><br><span class="line">        byteBuf.writeByte(<span class="number">0xff</span>);</span><br><span class="line"></span><br><span class="line">        ByteArrayOutputStream arrayOutputStream = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">        ObjectOutputStream outputStream = <span class="keyword">new</span> ObjectOutputStream(arrayOutputStream);</span><br><span class="line">        outputStream.writeObject(message);</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = arrayOutputStream.toByteArray();</span><br><span class="line">        <span class="keyword">int</span> length = bytes.length;</span><br><span class="line">        <span class="comment">// 长度 4个字节</span></span><br><span class="line">        byteBuf.writeInt(length);</span><br><span class="line">        <span class="comment">// 内容</span></span><br><span class="line">        byteBuf.writeBytes(bytes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">decode</span><span class="params">(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List&lt;Object&gt; list)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> magicNum = byteBuf.readInt();</span><br><span class="line">        <span class="keyword">byte</span> version = byteBuf.readByte();</span><br><span class="line">        <span class="keyword">byte</span> serializerType = byteBuf.readByte();</span><br><span class="line">        <span class="keyword">byte</span> messageType = byteBuf.readByte();</span><br><span class="line">        <span class="keyword">int</span> sequenceId = byteBuf.readInt();</span><br><span class="line">        <span class="keyword">byte</span> padding = byteBuf.readByte();</span><br><span class="line">        <span class="keyword">int</span> length = byteBuf.readInt();</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = <span class="keyword">new</span> <span class="keyword">byte</span>[length];</span><br><span class="line">        byteBuf.readBytes(bytes, <span class="number">0</span>, length);</span><br><span class="line">        ObjectInputStream stream = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> ByteArrayInputStream(bytes));</span><br><span class="line">        Message msg = (Message) stream.readObject();</span><br><span class="line">        log.debug(<span class="string">&quot;&#123;&#125; &#123;&#125; &#123;&#125; &#123;&#125; &#123;&#125; &#123;&#125;&quot;</span>, magicNum, version, serializerType, messageType, sequenceId, length);</span><br><span class="line">        log.debug(<span class="string">&quot;&#123;&#125;&quot;</span>, msg);</span><br><span class="line">        list.add(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        EmbeddedChannel channel = <span class="keyword">new</span> EmbeddedChannel(<span class="keyword">new</span> LoggingHandler(), <span class="keyword">new</span> MessageCodec());</span><br><span class="line">        channel.writeOutbound(<span class="keyword">new</span> LoginRequestMessage(<span class="string">&quot;shaka&quot;</span>, <span class="string">&quot;1111&quot;</span>, <span class="string">&quot;haka&quot;</span>));</span><br><span class="line"></span><br><span class="line">        ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();</span><br><span class="line">        <span class="keyword">new</span> MessageCodec().encode(<span class="keyword">null</span>,</span><br><span class="line">                <span class="keyword">new</span> LoginRequestMessage(<span class="string">&quot;shaka&quot;</span>, <span class="string">&quot;1111&quot;</span>, <span class="string">&quot;haka&quot;</span>),</span><br><span class="line">                buf);</span><br><span class="line">        channel.writeInbound(buf);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]></content>
       <categories>
         <category>Java</category>
       </categories>

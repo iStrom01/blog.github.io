@@ -1585,4 +1585,17 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
         <tag>vue3</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Java 集合</title>
+    <url>/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/</url>
+    <content><![CDATA[<h3 id="简略结构"><a href="#简略结构" class="headerlink" title="简略结构"></a>简略结构</h3><p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Collection.png" alt="Collection"></p>
+<p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Map.png" alt="Map"></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>集合</tag>
+      </tags>
+  </entry>
 </search>

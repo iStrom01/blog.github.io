@@ -1590,6 +1590,31 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
     <url>/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/</url>
     <content><![CDATA[<h3 id="简略结构"><a href="#简略结构" class="headerlink" title="简略结构"></a>简略结构</h3><p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Collection.png" alt="Collection"></p>
 <p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Map.png" alt="Map"></p>
+<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Iterator 仅用于遍历集合，并不存放对象</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    list.add(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">    list.add(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">    list.add(<span class="string">&quot;c&quot;</span>);</span><br><span class="line">    Iterator&lt;String&gt; iterator = list.iterator();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">        <span class="comment">// 指针向下移并返回元素，next() 之前必须 hasNext()，否则报错</span></span><br><span class="line">        <span class="comment">// 增强 for 即是简化版的迭代器</span></span><br><span class="line">        String s = iterator.next();</span><br><span class="line">        log.debug(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><blockquote>
+<p>有序（添加顺序和取出顺序一致）可重复，支持索引</p>
+</blockquote>
+<h4 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h4><p>ArrayList 内部维护了一个 Object 的数组，如果使用的是无参构造器则初始化容量为 0，第一次添加扩容为 10，再次扩容为 1.5 倍，若使用指定大小的构造器，则初始化容量为指定大小，再次扩容为 1.5 倍</p>
+<h4 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h4><p>Vector 的底层也是 Object 数组并且线程安全（synchorized，效率不高）</p>
+<p>Vector 的扩容机制类似 ArrayList，不过是按 2 倍扩容</p>
+<h4 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a>LinkedList</h4><p>底层实现了双向链表和双端队列的特点，添加和删除的效率比较高，ArrayList 的改查效率高</p>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><blockquote>
+<p>无序不可重复，没有索引</p>
+</blockquote>
+<h4 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h4><p>实际上是 HashMap，底层为（数组 + 链表 + 红黑树），可以有 null 但只能有一个</p>
+<ul>
+<li><p>add 步骤</p>
+<ol>
+<li><p>得到 hash 值，转为索引</p>
+</li>
+<li><p>找到存储数据表 table(数组),如果索引位置无元素则直接放入，有元素则调用 equals 比较，相同放弃添加，不同添加到链表最后</p>
+</li>
+<li><p>java8 中如果一条链表的元素个数超过 TREEIFY_THRESHOLD(默认 8)，并且 table 大小超过 MIN_TREEIFY_CAPACITY(默认 64) 则树化</p>
+</li>
+</ol>
+</li>
+</ul>
 ]]></content>
       <categories>
         <category>Java</category>

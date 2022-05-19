@@ -1621,7 +1621,8 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 
 
 <h4 id="LinkedHashSet"><a href="#LinkedHashSet" class="headerlink" title="LinkedHashSet"></a>LinkedHashSet</h4><p>底层为 LinkedHashMap，维护了一个数组和双向链表，可以保证插入顺序和取出顺序一致</p>
-<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3>]]></content>
+<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3><p>HashTable 的 key value 都不能为 null, 线程安全（synchronized），底层数组默认大小 11，加载因子 0.75，TreeMap 和 TreeSet 可以排序，TreeSet 底层为 TreeMap</p>
+]]></content>
       <categories>
         <category>Java</category>
       </categories>

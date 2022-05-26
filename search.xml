@@ -1655,6 +1655,8 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </li>
 <li><p>主节点将 RDB 期间的命令记录在 repl_bakLog 并持续将 log 发给子节点</p>
 </li>
+<li><p>repl_bakLog 大小有上限，从节点宕机太久 repl_bakLog 写满后会覆盖最早的数据，此时需要再次全量同步</p>
+</li>
 </ol>
 ]]></content>
       <categories>

@@ -1643,6 +1643,19 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <h4 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h4><p>命令备份</p>
 <p>缺点：备份恢复慢，文件体积大</p>
 <h3 id="主从架构"><a href="#主从架构" class="headerlink" title="主从架构"></a>主从架构</h3><p>redis 的读操作一般较多因此使用一主多从架构</p>
+<h4 id="同步原理"><a href="#同步原理" class="headerlink" title="同步原理"></a>同步原理</h4><p><img src="/blog.github.io/2022/05/26/Redis-%E7%9B%B8%E5%85%B3/1.png" alt="全量同步"></p>
+<ol>
+<li><p>从节点发起增量同步请求</p>
+</li>
+<li><p>主节点查看从节点的 replid 是否和自己一致，不一致拒绝增量同步</p>
+</li>
+<li><p>主节点生成 RDB 并发送到从节点</p>
+</li>
+<li><p>子节点清空本地数据加载主节点 RDB</p>
+</li>
+<li><p>主节点将 RDB 期间的命令记录在 repl_bakLog 并持续将 log 发给子节点</p>
+</li>
+</ol>
 ]]></content>
       <categories>
         <category>Redis</category>

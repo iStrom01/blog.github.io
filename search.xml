@@ -1658,6 +1658,13 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <li><p>repl_bakLog 大小有上限，从节点宕机太久 repl_bakLog 写满后会覆盖最早的数据，此时需要再次全量同步</p>
 </li>
 </ol>
+<h3 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h3><p>作用：监控、故障转移、通知</p>
+<h3 id="分片集群"><a href="#分片集群" class="headerlink" title="分片集群"></a>分片集群</h3><p>多个 master 节点解决海量数据存储和并发写问题。master 之间通过 ping 检测彼此健康状态，不再需要哨兵。</p>
+<p>key 不是与节点绑定的，而是与分配到各个节点的 hash slot 绑定，redis 会根据key 的有效值计算插槽值，方便伸缩。插槽共有 16384 个。有 {} 的 key 有效值为大括号内的内容。</p>
+<p>向集群中添加新节点默认为 master 节点，可以设置为从节点并设置对应 master 的id</p>
+<h3 id="多级缓存"><a href="#多级缓存" class="headerlink" title="多级缓存"></a>多级缓存</h3><h4 id="JVM-本地进程缓存"><a href="#JVM-本地进程缓存" class="headerlink" title="JVM 本地进程缓存"></a>JVM 本地进程缓存</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testCaffeine</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Cache&lt;String, String&gt; cache = Caffeine.newBuilder().build();</span><br><span class="line">    String s1 = cache.get(<span class="string">&quot;k1&quot;</span>, s -&gt; <span class="string">&quot;v1&quot;</span>);</span><br><span class="line">    System.out.println(s1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="OpenResty（nginx）"><a href="#OpenResty（nginx）" class="headerlink" title="OpenResty（nginx）"></a>OpenResty（nginx）</h4><p><a href="https://openresty.org/cn/">https://openresty.org/cn/</a></p>
 ]]></content>
       <categories>
         <category>Redis</category>

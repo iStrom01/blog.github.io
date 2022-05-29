@@ -1268,7 +1268,8 @@
 
 <p><font color=orange>说明</font></p>
 <p>按照 123 的顺序来获取对象，前面的缓存有就把后面的除掉。如果只有一级缓存，成品和半成品对象放到一起会覆盖掉，因此需要两个缓存分别放对象和半成品对象。Spring 无法预知是否需要代理对象，因此需要一个类似回调的方法 getEarlyBeanReference 放三级缓存中，需要代理对象时就覆盖原始对象并对外暴露代理对象</p>
-<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3>]]></content>
+<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3><p>cglib 往代理对象里聚合了一个原对象，当执行 AOP 逻辑时会调用原对象的对应方法，当调用事务是要分清调用方法的是代理对象还是原对象，原对象没有事务判断逻辑</p>
+]]></content>
       <categories>
         <category>Java</category>
       </categories>

@@ -1036,6 +1036,7 @@
 <p> 多路复用和阻塞 IO 在等待阶段都是阻塞的，但是阻塞只能一个挨着一个执行等待和复制，而多路复用可以一次 select 返回多个等待结果，然后直接复制</p>
 </li>
 </ol>
+<p><a href="/blog.github.io/2022/05/26/Redis-%E7%9B%B8%E5%85%B3/#Redis 网络模型">补充</a></p>
 <h4 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h4><p>以发送一个文件到其他机器为例：会先将磁盘拷贝到内核缓存区，接着拷贝到用户缓冲区，再拷贝到 socket 缓冲区，最后再拷贝到网卡，一共发生四次拷贝，且来回切换内核态和用户态，耗费性能。</p>
 <p>而 JVM 调用 transforTo 方法则会先切换到内核态拷贝到内核缓存区，然后拷贝到网卡，只往一些 offset 和 length 信息拷贝到 socket 缓冲区，所谓零拷贝是指不拷贝到用户态。</p>
 <p>零拷贝只适合小文件</p>
@@ -1665,6 +1666,24 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <h3 id="多级缓存"><a href="#多级缓存" class="headerlink" title="多级缓存"></a>多级缓存</h3><h4 id="JVM-本地进程缓存"><a href="#JVM-本地进程缓存" class="headerlink" title="JVM 本地进程缓存"></a>JVM 本地进程缓存</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testCaffeine</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Cache&lt;String, String&gt; cache = Caffeine.newBuilder().build();</span><br><span class="line">    String s1 = cache.get(<span class="string">&quot;k1&quot;</span>, s -&gt; <span class="string">&quot;v1&quot;</span>);</span><br><span class="line">    System.out.println(s1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="OpenResty（nginx）"><a href="#OpenResty（nginx）" class="headerlink" title="OpenResty（nginx）"></a>OpenResty（nginx）</h4><p><a href="https://openresty.org/cn/">https://openresty.org/cn/</a></p>
+<p>OpenResty 为 nginx 提供了 shared dict 的功能，可以在多个 worker 之间共享数据，实现 nginx 本地缓存功能</p>
+<h4 id="缓存预热"><a href="#缓存预热" class="headerlink" title="缓存预热"></a>缓存预热</h4><p>InitializingBean</p>
+<h4 id="缓存同步"><a href="#缓存同步" class="headerlink" title="缓存同步"></a>缓存同步</h4><p>cancel，主要利用 mysql 的基于 binlog 日志的主从同步机制实现</p>
+<h3 id="Redis-数据结构"><a href="#Redis-数据结构" class="headerlink" title="Redis 数据结构"></a>Redis 数据结构</h3><h4 id="动态字符串-SDS"><a href="#动态字符串-SDS" class="headerlink" title="动态字符串 SDS"></a>动态字符串 SDS</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* redis 定义了多种结构体来保存字符串，即 SDS */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>SDS 具有动态扩容能力，如果新字符串小于 1M 则扩展原来的 2 倍加 1，大于 1M，则扩容为原来的 + 1M +1，1 为 结束标识 <code>/0</code></p>
+<p>优点：支持动态扩容、二进制安全、减少内存分配次数、获取长度时间复杂度为0</p>
+<h4 id="IntSet"><a href="#IntSet" class="headerlink" title="IntSet"></a>IntSet</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> encoding; </span><br><span class="line">    <span class="keyword">uint32_t</span> length;</span><br><span class="line">    <span class="keyword">int8_t</span> contents[];</span><br><span class="line">&#125; intset;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Redis-网络模型"><a href="#Redis-网络模型" class="headerlink" title="Redis 网络模型"></a>Redis 网络模型</h3><h4 id="内核空间和用户空间"><a href="#内核空间和用户空间" class="headerlink" title="内核空间和用户空间"></a>内核空间和用户空间</h4><blockquote>
+<p>为了防止冲突甚至内核崩溃，因此内核与用户应用应该分离</p>
+</blockquote>
+<p>进程的寻址空间分为两部分，内核空间与用户空间，高位为内核缓冲区，低位为用户缓冲区</p>
+<p>用户空间只能执行受限的命令（Ring3），不能直接调用系统资源，必须通过内核提供的接口访问</p>
+<p>内核空间可以调用一切系统资源（Ring0）</p>
+<p>Linux 为了提高 IO 效率，会在用户空间和内核空间提供缓冲区，写数据时需要把用户空间的数据拷贝到内核缓冲区，然后写入设备，读数据时先拷贝到内核缓存区再拷贝到用户缓冲区，频繁的内核态与用户态切换和数据拷贝影响性能</p>
+<h4 id="阻塞与非阻塞-IO"><a href="#阻塞与非阻塞-IO" class="headerlink" title="阻塞与非阻塞 IO"></a>阻塞与非阻塞 IO</h4><p>阻塞 IO 在数据准备阶段和拷贝阶段一直等待，非阻塞 IO 在准备数据阶段立即返回，在内核拷贝到用户空间阶段也是阻塞的，非阻塞   IO 在数据准备阶段一直空转因此性能也不高</p>
+<h4 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h4><p>文件描述符（FD），用来关联一个文件，包括 socket，IO 多路复用利用单个线程监听多个文件描述符，并在某个 FD 可读可写时得到通知，从而避免无效等待，充分利用 CPU 资源</p>
 ]]></content>
       <categories>
         <category>Redis</category>

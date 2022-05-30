@@ -1686,6 +1686,7 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <h4 id="阻塞与非阻塞-IO"><a href="#阻塞与非阻塞-IO" class="headerlink" title="阻塞与非阻塞 IO"></a>阻塞与非阻塞 IO</h4><p>阻塞 IO 在数据准备阶段和拷贝阶段一直等待，非阻塞 IO 在准备数据阶段立即返回，在内核拷贝到用户空间阶段也是阻塞的，非阻塞   IO 在数据准备阶段一直空转因此性能也不高</p>
 <h4 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h4><p>文件描述符（FD），用来关联一个文件，包括 socket，IO 多路复用利用单个线程监听多个文件描述符，并在某个 FD 可读可写时得到通知，从而避免无效等待，充分利用 CPU 资源</p>
 <p>select 和 poll 只会通知用户进程有 fd 就绪，而 epoll 则会在通知用户就绪的同时就把就绪的 fd 写入用户空间</p>
+<p><img src="/blog.github.io/2022/05/26/Redis-%E7%9B%B8%E5%85%B3/2.png" alt="epoll 过程"></p>
 ]]></content>
       <categories>
         <category>Redis</category>

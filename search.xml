@@ -1700,7 +1700,7 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 <li><p>数组 <code>*</code></p>
 </li>
 </ol>
-<p>测试<a href="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/#自定协议抓包测试">请看</a></p>
+<p>测试<a href="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/#RESP-协议抓包测试">请看</a></p>
 ]]></content>
       <categories>
         <category>Redis</category>

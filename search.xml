@@ -1701,7 +1701,18 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
 </li>
 </ol>
 <p>测试<a href="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/#RESP-协议抓包测试">请看</a></p>
-]]></content>
+<h3 id="Redis-内存回收"><a href="#Redis-内存回收" class="headerlink" title="Redis 内存回收"></a>Redis 内存回收</h3><p>由于 Redis 基于内存存储数据因此性能强劲，然而单节点 Redis 内存分配不宜过大，可通过 <code>maxmemory</code> 调整</p>
+<h4 id="过期策略"><a href="#过期策略" class="headerlink" title="过期策略"></a>过期策略</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span>&#123;</span></span><br><span class="line">    dict *dict;                 <span class="comment">/* The keyspace for this DB */</span></span><br><span class="line">    dict *expires;              <span class="comment">/* Timeout of keys with a timeout set */</span></span><br><span class="line">    dict *blocking_keys;    <span class="comment">/* Keys with clients waiting for data (BLPOP) */</span></span><br><span class="line">    dict *io_keys;              <span class="comment">/* Keys with clients waiting for VM I/O */</span></span><br><span class="line">    dict *watched_keys;         <span class="comment">/* WATCHED keys for MULTI/EXEC CAS */</span></span><br><span class="line">    <span class="keyword">int</span> id;</span><br><span class="line">&#125; redisDb;</span><br><span class="line"><span class="class"><span class="keyword">struct</span></span></span><br></pre></td></tr></table></figure>
+
+<p>redis 利用两个 Dict 分别记录 key-value 和 key-ttl 对</p>
+<p>ttl 过期时删除不是立即删除 key，而是</p>
+<ol>
+<li><p>惰性删除：访问时看是否过期然后才删除</p>
+</li>
+<li><p>周期删除: 定时任务周期性抽取部分过期的 key 然后删除</p>
+</li>
+</ol>
+<h4 id="淘汰策略"><a href="#淘汰策略" class="headerlink" title="淘汰策略"></a>淘汰策略</h4>]]></content>
       <categories>
         <category>Redis</category>
       </categories>

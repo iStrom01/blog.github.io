@@ -1253,73 +1253,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Spring 原理</title>
-    <url>/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h3 id="IOC-过程"><a href="#IOC-过程" class="headerlink" title="IOC 过程"></a>IOC 过程</h3><blockquote>
-<p>BeanFactory 为整个容器的根入口，也是容器的入口</p>
-</blockquote>
-<ol>
-<li><p>解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition</p>
-</li>
-<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息</p>
-</li>
-<li><p>实例化（半成品），属性都是默认值</p>
-</li>
-<li><p>初始化:填充属性</p>
-<ol>
-<li><p>自定义属性 populateBean</p>
-</li>
-<li><p>容器属性 invokeAwareMethods</p>
-</li>
-<li><p>使用 BeanPostProcessor 增强 bean 信息（比如 AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
-</li>
-</ol>
-</li>
-<li><p>使用</p>
-</li>
-</ol>
-<h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
-<ol>
-<li><p>ApplicationContext 与 BeanFactory 关系，和默认 BeanFactory</p>
-<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
-<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png"></p>
-</li>
-<li><p>BeanDefinition </p>
-<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png"></p>
-</li>
-<li><p>BeanFactoryPostProcessor 增强器，增强 BeanDefinition</p>
- <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Factory hook that allows for custom modification of an application context&#x27;s</span></span><br><span class="line"><span class="comment">* bean definitions, adapting the bean property values of the context&#x27;s underlying</span></span><br><span class="line"><span class="comment">* bean factory.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Modify the application context&#x27;s internal bean factory after its standard</span></span><br><span class="line"><span class="comment">    * initialization. All bean definitions will have been loaded, but no beans</span></span><br><span class="line"><span class="comment">    * will have been instantiated yet. This allows for overriding or adding</span></span><br><span class="line"><span class="comment">    * properties even to eager-initializing beans.</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> beanFactory the bean factory used by the application context</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> <font color=orange>说明</font></p>
-<p> PlaceholderConfigurerSupport 是其抽象子实现，可以替换 xml 配置文件中的占位符</p>
-</li>
-</ol>
-<ol start="4">
-<li><p>Aware</p>
- <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 标志 bean 的容器属性赋值，由 spring 调用，Bean 应实现其子接口，如 ApplicationContextAware</span></span><br><span class="line"><span class="comment">* A marker superinterface indicating that a bean is eligible to be notified by the</span></span><br><span class="line"><span class="comment">* Spring container of a particular framework object through a callback-style method.</span></span><br><span class="line"><span class="comment">* The actual method signature is determined by individual subinterfaces but should</span></span><br><span class="line"><span class="comment">* typically consist of just one void-returning method that accepts a single argument.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* &lt;p&gt;Note that merely implementing &#123;<span class="doctag">@link</span> Aware&#125; provides no default functionality.</span></span><br><span class="line"><span class="comment">* Rather, processing must be done explicitly, for example in a</span></span><br><span class="line"><span class="comment">* &#123;<span class="doctag">@link</span> org.springframework.beans.factory.config.BeanPostProcessor&#125;.</span></span><br><span class="line"><span class="comment">* Refer to &#123;<span class="doctag">@link</span> org.springframework.context.support.ApplicationContextAwareProcessor&#125;</span></span><br><span class="line"><span class="comment">* for an example of processing specific &#123;<span class="doctag">@code</span> *Aware&#125; interface callbacks.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Chris Beams</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Juergen Hoeller</span></span><br><span class="line"><span class="comment">* <span class="doctag">@since</span> 3.1</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Aware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>BeanPostProcessor 可以扩展 Bean，比如 AOP、注解（@AutoWired、@Value、@AfterContruct）</p>
- <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// @AutoWired、@Value 注解的功能的完成，先有 XML 配置方式后来扩展的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AutowiredAnnotationBeanPostProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Autowired.class);</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Value.class);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.autowiredAnnotationTypes.add((Class&lt;? extends Annotation&gt;)</span><br><span class="line">                ClassUtils.forName(<span class="string">&quot;javax.inject.Inject&quot;</span>, AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));</span><br><span class="line">        logger.trace(<span class="string">&quot;JSR-330 &#x27;javax.inject.Inject&#x27; annotation found and supported for autowiring&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">        <span class="comment">// JSR-330 API not available - simply skip.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
-</li>
-</ol>
-<h4 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h4><blockquote>
-<p>6 个方法：getBean doGetBean createBean doCreateBean createBeanInstance populateBean</p>
-</blockquote>
-<p>三级缓存</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** 一级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of singleton objects: bean name to bean instance. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 三级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of singleton factories: bean name to ObjectFactory. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 二级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of early singleton objects: bean name to bean instance. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">16</span>);</span><br></pre></td></tr></table></figure>
-
-<p><font color=orange>说明</font></p>
-<p>按照 123 的顺序来获取对象，前面的缓存有就把后面的除掉。如果只有一级缓存，成品和半成品对象放到一起会覆盖掉，因此需要两个缓存分别放对象和半成品对象。Spring 无法预知是否需要代理对象，因此需要一个类似回调的方法 getEarlyBeanReference 放三级缓存中，需要代理对象时就覆盖原始对象并对外暴露代理对象</p>
-<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3><p>cglib 往代理对象里聚合了一个原对象，当执行 AOP 逻辑时会调用原对象的对应方法，当调用事务是要分清调用方法的是代理对象还是原对象，原对象没有事务判断逻辑</p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Spring</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>archLinux 安装</title>
     <url>/blog.github.io/2021/12/28/archLinux-%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文采用efi分区，因为厌烦了grub故换systemd-boot，桌面为bspwm，硬件为Intel cpu和amd gpu</p>
@@ -1406,23 +1339,70 @@
       </tags>
   </entry>
   <entry>
-    <title>tcp/ip 相关</title>
-    <url>/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/</url>
-    <content><![CDATA[<h3 id="OSI-五层模型各层协议"><a href="#OSI-五层模型各层协议" class="headerlink" title="OSI 五层模型各层协议"></a>OSI 五层模型各层协议</h3><p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/1.png" alt="OSI 五层模型各层协议"></p>
-<h3 id="RESP-协议抓包测试"><a href="#RESP-协议抓包测试" class="headerlink" title="RESP 协议抓包测试"></a>RESP 协议抓包测试</h3><p>命令: SET name shaka</p>
-<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/3.png" alt="OSI 五层模型各层协议"></p>
-<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/4.png" alt="回送"></p>
-<h3 id="自定协议抓包测试"><a href="#自定协议抓包测试" class="headerlink" title="自定协议抓包测试"></a>自定协议抓包测试</h3><p>源码<a href="/blog.github.io/2022/05/04/Netty/#协议设计与解析">请看</a></p>
-<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/2.png" alt="Wireshark"></p>
-<h3 id="tcp-udp-连通性测试"><a href="#tcp-udp-连通性测试" class="headerlink" title="tcp/udp 连通性测试"></a>tcp/udp 连通性测试</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> tcp 连通测试</span></span><br><span class="line">❯ nc -vz 192.168.31.20 22</span><br><span class="line">Connection to 192.168.31.20 port 22 [tcp/ssh] succeeded!</span><br><span class="line">❯ nc -vz 192.168.31.20 6379</span><br><span class="line">nc: connectx to 192.168.31.20 port 6379 (tcp) failed: Connection refused</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> udp 服务端</span></span><br><span class="line">root@us01:~# nc -ulp 53276</span><br><span class="line">udp!hello</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> udp 客户端</span></span><br><span class="line">❯ nc -u ip 53276</span><br><span class="line">udp!hello</span><br><span class="line">^C</span><br></pre></td></tr></table></figure>
+    <title>Spring 原理</title>
+    <url>/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h3 id="IOC-过程"><a href="#IOC-过程" class="headerlink" title="IOC 过程"></a>IOC 过程</h3><blockquote>
+<p>BeanFactory 为整个容器的根入口，也是容器的入口</p>
+</blockquote>
+<ol>
+<li><p>解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition</p>
+</li>
+<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息</p>
+</li>
+<li><p>实例化（半成品），属性都是默认值</p>
+</li>
+<li><p>初始化:填充属性</p>
+<ol>
+<li><p>自定义属性 populateBean</p>
+</li>
+<li><p>容器属性 invokeAwareMethods</p>
+</li>
+<li><p>使用 BeanPostProcessor 增强 bean 信息（比如 AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
+</li>
+</ol>
+</li>
+<li><p>使用</p>
+</li>
+</ol>
+<h4 id="重要接口"><a href="#重要接口" class="headerlink" title="重要接口"></a>重要接口</h4><p>BeanFactory、BeanDefinitionReader、BeanDefinition、Aware、BeanFactoryPostProcessor、BeanPostProcessor、Environment、FactoryBean、BeanDefinitionRegistry</p>
+<ol>
+<li><p>ApplicationContext 与 BeanFactory 关系，和默认 BeanFactory</p>
+<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
+<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png"></p>
+</li>
+<li><p>BeanDefinition </p>
+<p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png"></p>
+</li>
+<li><p>BeanFactoryPostProcessor 增强器，增强 BeanDefinition</p>
+ <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Factory hook that allows for custom modification of an application context&#x27;s</span></span><br><span class="line"><span class="comment">* bean definitions, adapting the bean property values of the context&#x27;s underlying</span></span><br><span class="line"><span class="comment">* bean factory.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Modify the application context&#x27;s internal bean factory after its standard</span></span><br><span class="line"><span class="comment">    * initialization. All bean definitions will have been loaded, but no beans</span></span><br><span class="line"><span class="comment">    * will have been instantiated yet. This allows for overriding or adding</span></span><br><span class="line"><span class="comment">    * properties even to eager-initializing beans.</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> beanFactory the bean factory used by the application context</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="tls-加密自定义协议"><a href="#tls-加密自定义协议" class="headerlink" title="tls 加密自定义协议"></a>tls 加密自定义协议</h3><p>待续。。。</p>
+<p> <font color=orange>说明</font></p>
+<p> PlaceholderConfigurerSupport 是其抽象子实现，可以替换 xml 配置文件中的占位符</p>
+</li>
+</ol>
+<ol start="4">
+<li><p>Aware</p>
+ <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 标志 bean 的容器属性赋值，由 spring 调用，Bean 应实现其子接口，如 ApplicationContextAware</span></span><br><span class="line"><span class="comment">* A marker superinterface indicating that a bean is eligible to be notified by the</span></span><br><span class="line"><span class="comment">* Spring container of a particular framework object through a callback-style method.</span></span><br><span class="line"><span class="comment">* The actual method signature is determined by individual subinterfaces but should</span></span><br><span class="line"><span class="comment">* typically consist of just one void-returning method that accepts a single argument.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* &lt;p&gt;Note that merely implementing &#123;<span class="doctag">@link</span> Aware&#125; provides no default functionality.</span></span><br><span class="line"><span class="comment">* Rather, processing must be done explicitly, for example in a</span></span><br><span class="line"><span class="comment">* &#123;<span class="doctag">@link</span> org.springframework.beans.factory.config.BeanPostProcessor&#125;.</span></span><br><span class="line"><span class="comment">* Refer to &#123;<span class="doctag">@link</span> org.springframework.context.support.ApplicationContextAwareProcessor&#125;</span></span><br><span class="line"><span class="comment">* for an example of processing specific &#123;<span class="doctag">@code</span> *Aware&#125; interface callbacks.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Chris Beams</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Juergen Hoeller</span></span><br><span class="line"><span class="comment">* <span class="doctag">@since</span> 3.1</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Aware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>BeanPostProcessor 可以扩展 Bean，比如 AOP、注解（@AutoWired、@Value、@AfterContruct）</p>
+ <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// @AutoWired、@Value 注解的功能的完成，先有 XML 配置方式后来扩展的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AutowiredAnnotationBeanPostProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Autowired.class);</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Value.class);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.autowiredAnnotationTypes.add((Class&lt;? extends Annotation&gt;)</span><br><span class="line">                ClassUtils.forName(<span class="string">&quot;javax.inject.Inject&quot;</span>, AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));</span><br><span class="line">        logger.trace(<span class="string">&quot;JSR-330 &#x27;javax.inject.Inject&#x27; annotation found and supported for autowiring&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">        <span class="comment">// JSR-330 API not available - simply skip.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
+</li>
+</ol>
+<h4 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h4><blockquote>
+<p>6 个方法：getBean doGetBean createBean doCreateBean createBeanInstance populateBean</p>
+</blockquote>
+<p>三级缓存</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** 一级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of singleton objects: bean name to bean instance. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 三级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of singleton factories: bean name to ObjectFactory. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 二级缓存 */</span></span><br><span class="line"><span class="comment">/** Cache of early singleton objects: bean name to bean instance. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="number">16</span>);</span><br></pre></td></tr></table></figure>
+
+<p><font color=orange>说明</font></p>
+<p>按照 123 的顺序来获取对象，前面的缓存有就把后面的除掉。如果只有一级缓存，成品和半成品对象放到一起会覆盖掉，因此需要两个缓存分别放对象和半成品对象。Spring 无法预知是否需要代理对象，因此需要一个类似回调的方法 getEarlyBeanReference 放三级缓存中，需要代理对象时就覆盖原始对象并对外暴露代理对象</p>
+<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3><p>cglib 往代理对象里聚合了一个原对象，当执行 AOP 逻辑时会调用原对象的对应方法，当调用事务是要分清调用方法的是代理对象还是原对象，原对象没有事务判断逻辑</p>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>Java</category>
       </categories>
       <tags>
-        <tag>网络</tag>
+        <tag>Spring</tag>
       </tags>
   </entry>
   <entry>
@@ -1712,6 +1692,26 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
       </categories>
       <tags>
         <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>tcp/ip 相关</title>
+    <url>/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/</url>
+    <content><![CDATA[<h3 id="OSI-五层模型各层协议"><a href="#OSI-五层模型各层协议" class="headerlink" title="OSI 五层模型各层协议"></a>OSI 五层模型各层协议</h3><p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/1.png" alt="OSI 五层模型各层协议"></p>
+<h3 id="RESP-协议抓包测试"><a href="#RESP-协议抓包测试" class="headerlink" title="RESP 协议抓包测试"></a>RESP 协议抓包测试</h3><p>命令: SET name shaka</p>
+<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/3.png" alt="OSI 五层模型各层协议"></p>
+<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/4.png" alt="回送"></p>
+<h3 id="自定协议抓包测试"><a href="#自定协议抓包测试" class="headerlink" title="自定协议抓包测试"></a>自定协议抓包测试</h3><p>源码<a href="/blog.github.io/2022/05/04/Netty/#协议设计与解析">请看</a></p>
+<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/2.png" alt="Wireshark"></p>
+<h3 id="tcp-udp-连通性测试"><a href="#tcp-udp-连通性测试" class="headerlink" title="tcp/udp 连通性测试"></a>tcp/udp 连通性测试</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> tcp 连通测试</span></span><br><span class="line">❯ nc -vz 192.168.31.20 22</span><br><span class="line">Connection to 192.168.31.20 port 22 [tcp/ssh] succeeded!</span><br><span class="line">❯ nc -vz 192.168.31.20 6379</span><br><span class="line">nc: connectx to 192.168.31.20 port 6379 (tcp) failed: Connection refused</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> udp 服务端</span></span><br><span class="line">root@us01:~# nc -ulp 53276</span><br><span class="line">udp!hello</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> udp 客户端</span></span><br><span class="line">❯ nc -u ip 53276</span><br><span class="line">udp!hello</span><br><span class="line">^C</span><br></pre></td></tr></table></figure>
+
+<h3 id="tls-加密自定义协议"><a href="#tls-加密自定义协议" class="headerlink" title="tls 加密自定义协议"></a>tls 加密自定义协议</h3><p>待续。。。</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>网络</tag>
       </tags>
   </entry>
   <entry>

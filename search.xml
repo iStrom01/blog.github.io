@@ -1,210 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>JVM 字节码与类的加载</title>
-    <url>/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/</url>
-    <content><![CDATA[<h2 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h2><h3 id="构成"><a href="#构成" class="headerlink" title="构成"></a>构成</h3><p><code>魔数</code></p>
-<p>标识合法的 class 文件，4 个字节</p>
-<p><code>版本号</code></p>
-<p>4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行</p>
-<p><code>常量池</code></p>
-<p>构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 )</p>
-<p>常量池表构成：字面量和符号引用</p>
-<p><code>访问标识</code></p>
-<p><code>类索引</code></p>
-<p><code>父类索引</code></p>
-<p><code>接口索引集合</code></p>
-<p><code>字段表集合</code></p>
-<p>构成：字段计数器、字段表</p>
-<p><code>方法表集合</code></p>
-<p>构成：方法计数器、方法表</p>
-<p><code>属性集合</code></p>
-<p>构成：属性计数器、属性表</p>
-<h3 id="javac-与-javap"><a href="#javac-与-javap" class="headerlink" title="javac 与 javap"></a>javac 与 javap</h3><p>javac -g 与没有 -g 参数相比多了局部变量表等信息，idea 和 eclipse 默认有 -g 参数</p>
-<p>javap -v 反汇编，详细，加上 -p 显示私有</p>
-<h3 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h3><p>指令由操作码和操作数(很多没有)构成</p>
-<p>局部变量表、操作数栈以槽位为单位，byte short int boolean floot char 占4个字节，一个槽位，其中byte short char 存储时自动转为 int 以占满 4 个字节，double long 占 8 个字节，2 个槽位，引用类型也占一个槽位</p>
-<p><code>压栈指令</code></p>
-<p>从局部变量表压入操作数栈，load </p>
-<p><code>常量入栈指令</code></p>
-<p>const: int long double float 和引用类型使用</p>
-<p>push: byte short 使用</p>
-<p>dc: 万能型</p>
-<p><code>出栈装入局部变量表指令</code></p>
-<p>store</p>
-<p><code>算术指令</code></p>
-<p><img src="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/1.png"></p>
-<p><code>类型转换指令</code></p>
-<p>宽化类型转换/自动类型转换【简化: int ——&gt; long ——&gt; float ——&gt; double 会发生精度损失】</p>
-<ul>
-<li><p>int 到 其他: i2l i2f i2d</p>
-</li>
-<li><p>long 到其他: l2f l2d</p>
-</li>
-<li><p>float 到其他: f2d</p>
-</li>
-<li><p>byte short 转换为较大范围类型看作是 int</p>
-</li>
-</ul>
-<p>窄化类型转换【精度损失更大】</p>
-<ul>
-<li><p>int 到其他: i2s i2b i2c</p>
-</li>
-<li><p>long 到 int: l2i</p>
-</li>
-<li><p>float 到其他: f2i f2l</p>
-</li>
-<li><p>double 到其他: d2f d2l d2i</p>
-</li>
-</ul>
-<p><code>对象和数组的创建指令</code></p>
-<p>对象创建指令：new</p>
-<p>数组的创建指令：newarray（基本数据类型）anewarray（引用数据类型）multianewarray（多维数组）</p>
-<p><code>字段访问指令</code></p>
-<p>类字段：getstatic putstatic</p>
-<p>实例字段：gefield putfield</p>
-<p><code>数组操作指令</code></p>
-<p>aload（压栈） astore（赋值） arraylength（数组长度）</p>
-<p><code>类型检查指令</code></p>
-<p>instanceof checkcast</p>
-<p><code>方法调用指令</code></p>
-<p>invokevirtual：虚方法分派，支持多态</p>
-<p>invokeinterface：调用接口方法</p>
-<p>invokespecial：构造器、私有和父类方法</p>
-<p>invokestatic：类方法</p>
-<p><code>方法返回指令</code></p>
-<p>return</p>
-<p><code>操作数栈管理指令</code></p>
-<p>弹出：pop 复制：dup 交换数值：swap</p>
-<p><code>比较指令</code></p>
-<p>dcmpg dcmpl fcmpg fcmpl lcmp</p>
-<p>double float 有两套是因为 Nan 值处理方式不同，例如 fcmpg 压入 1，fcmpl 压入 -1</p>
-<p><code>条件跳转指令</code></p>
-<p>ifeq iflt ifle ifne ifgt ifge （用来比较 long float 和 double）</p>
-<p><code>比较条件跳转指令</code></p>
-<p>if_icmpeq if_icmpne if_icmplt if_icmpgt if_icmpge if_icmpeq if_acmpeq if_acmpne</p>
-<p><code>多条件跳转指令</code></p>
-<p>tablestitch（连续的值） lookupstitch（不连续但会进行排序）</p>
-<p><code>无条件跳转指令</code></p>
-<p>goto</p>
-<p><code>抛出异常指令</code></p>
-<p>athrow 手动抛出</p>
-<p><code>异常处理指令</code></p>
-<p>处理异常是由异常表实现的，并没有 try catch 体现</p>
-<p><code>同步指令</code></p>
-<p>方法级的同步和普通方法指令没区别，当通过访问标志判断某方法是同步方法会自动在方法调用前加锁</p>
-<p>同步代码块：monitorenter monitorexit，通过异常表维护释的放锁，如果监视器计数器为 0 则进入，为 1 则判断监视器线程是否为自己，为自己进入，否则等待</p>
-<h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p><code>过程一：加载阶段</code></p>
-<ul>
-<li><p>获取二进制流的方式</p>
-<ul>
-<li><p>通过文件系统读入</p>
-</li>
-<li><p>通过 jar 等数据包提取文件</p>
-</li>
-<li><p>通过网络加载</p>
-</li>
-<li><p>在运行时动态生成</p>
-</li>
-</ul>
-</li>
-<li><p>类模版和 Class 的位置</p>
-<p>  类模版在方法区，Class 实例在堆区</p>
-</li>
-<li><p>数组类的加载</p>
-<p>  数组类并非由类加载器负责创建，而是由 JVM 在运行时根据需要直接创建的</p>
-</li>
-</ul>
-<p><code>过程二：链接阶段</code></p>
-<ol>
-<li><p>验证</p>
-<ul>
-<li><p>格式检查（检查魔数、版本和长度，和加载同时进行）</p>
-</li>
-<li><p>语义检查</p>
-</li>
-<li><p>字节码验证</p>
-</li>
-<li><p>符号引用验证</p>
-</li>
-</ul>
-</li>
-<li><p>准备</p>
-</li>
-</ol>
-<p>为类中的静态变量分配内存并赋默认值，但并不包括常量，常量在编译时就已经分配，若以字符串字面量方式为常量赋值则也在此阶段显式赋值，在这个阶段并不会有代码的执行</p>
-<ol start="3">
-<li>解析</li>
-</ol>
-<p>将类、接口、字段、方法等符号引用转为直接引用，以方法为例，通过解析符号引用可以转为目标方法在方法表中的位置</p>
-<p><code>过程三：初始化阶段</code></p>
-<p>为静态变量赋予正确的值，到了此阶段才会真正执行代码（静态代码块），&lt;clinit&gt; 方法就是由静态变量的显示赋值和静态代码块构成，此方法由 JVM 自动调用，并且总是先调用父类的 &lt;clinit&gt;</p>
-<p>没有静态变量的显式赋值和静态代码块就没有 &lt;clinit&gt;，</p>
-<p>结论：使用 static final 修饰，且显式赋值中不涉及到方法和构造器调用的基本数据类型和 String 的显示赋值是在链接阶段的准备阶段进行</p>
-<p>&lt;clinit&gt; 是线程安全的</p>
-<h3 id="类的使用"><a href="#类的使用" class="headerlink" title="类的使用"></a>类的使用</h3><p>类的主动使用和被动使用区别在于 &lt;clinit&gt; 方法调用与否，主动使用会调用</p>
-<p>类的主动使用</p>
-<ol>
-<li><p>创建实例（序列化、new、反射）</p>
-</li>
-<li><p>调用类的静态方法</p>
-</li>
-<li><p>调用类/接口的静态字段（final 另算）</p>
-</li>
-<li><p>调用 java.lang.reflect 包中反射类的方法，比如 Class.forName()</p>
-</li>
-<li><p>调用子类的 &lt;clinit&gt; 先触发父类的 &lt;clinit&gt;，但不适用接口</p>
-</li>
-<li><p>如果一个接口有 default 方法，直接或间接实现该类的初始化会先初始化该接口</p>
-</li>
-<li><p>JVM 会先初始化主类</p>
-</li>
-<li><p>MethodHandle </p>
-</li>
-</ol>
-<p>类的被动使用</p>
-<ol>
-<li><p>通过子类引用调父类的静态字段不会造成子类初始化</p>
-</li>
-<li><p>通过数组定义类引用不会造成类的初始化</p>
-</li>
-<li><p>引用常量不会造成类的初始化（常量在链接阶段赋值）</p>
-</li>
-<li><p>ClassLoader 的 loadClass() 方法不是类的主动使用</p>
-</li>
-</ol>
-<h3 id="类的卸载"><a href="#类的卸载" class="headerlink" title="类的卸载"></a>类的卸载</h3><p>方法区的回收很苛刻，要满足下面三个条件</p>
-<ol>
-<li><p>类的所有实例被回收</p>
-</li>
-<li><p>类的加载器被回收（很难达成）</p>
-</li>
-<li><p>Class 对象的引用被回收</p>
-</li>
-</ol>
-<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>基本数据类型已预先定义，引用类型才需要类加载器</p>
-<p>类的唯一性和命名空间：</p>
-<p>比较两个类是否想等只有在同一个加载器下才有意义</p>
-<p>命名空间由该类及其所有父加载器所加载的类组成，在同一个命名空间中不会出现类的完整名字相同的俩类，不同命名空间可以</p>
-<h3 id="引导类加载器"><a href="#引导类加载器" class="headerlink" title="引导类加载器"></a>引导类加载器</h3><p>由 c 实现，其他三个加载器都算自定义加载器实现，另外三个都派生与 ClassLoader 抽象类，自定义加载其都应该有自己的「父」加载器，即下层加载器包含上层加载器</p>
-<p>引导类加载器用来加载 Java 的核心类库（JAVA_HOME/jre/lib/rt.jar）</p>
-<p>引导类加载器不继承 ClassLoader，没有父加载器</p>
-<p>出于安全考虑，引导类加载器只加载包名以 java javax sun 开头的类</p>
-<p>扩展类加载器和系统类加载器是由引导类加载器加载的</p>
-<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><p>用来加载 JAVA_HOME/jre/lib/ext 的类库</p>
-<h3 id="系统类加载器"><a href="#系统类加载器" class="headerlink" title="系统类加载器"></a>系统类加载器</h3><p>是默认的加载器</p>
-<h3 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h3><h3 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h3><p>本质为类的加载顺序：引导类 —&gt; 拓展类 —&gt; 系统类/自定义</p>
-<p>优点：避免类的重复加载和防止核心 API 篡改</p>
-<p>弊端：顶层的加载器无法加载下层加载器加载的类</p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>JUC 并发编程</title>
     <url>/blog.github.io/2022/04/06/JUC-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/</url>
     <content><![CDATA[<h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p><code>上下文切换原因</code></p>
@@ -425,6 +221,210 @@
       </tags>
   </entry>
   <entry>
+    <title>JVM 字节码与类的加载</title>
+    <url>/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/</url>
+    <content><![CDATA[<h2 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h2><h3 id="构成"><a href="#构成" class="headerlink" title="构成"></a>构成</h3><p><code>魔数</code></p>
+<p>标识合法的 class 文件，4 个字节</p>
+<p><code>版本号</code></p>
+<p>4 个字节，主版本和副版本，从 45 开始，每个版本加 1，高版本的虚拟机可以执行低版本编译生成的 class 文件，反之不行</p>
+<p><code>常量池</code></p>
+<p>构成：常量池计数器( 1 个字节 )和常量池表( N 个字节 )</p>
+<p>常量池表构成：字面量和符号引用</p>
+<p><code>访问标识</code></p>
+<p><code>类索引</code></p>
+<p><code>父类索引</code></p>
+<p><code>接口索引集合</code></p>
+<p><code>字段表集合</code></p>
+<p>构成：字段计数器、字段表</p>
+<p><code>方法表集合</code></p>
+<p>构成：方法计数器、方法表</p>
+<p><code>属性集合</code></p>
+<p>构成：属性计数器、属性表</p>
+<h3 id="javac-与-javap"><a href="#javac-与-javap" class="headerlink" title="javac 与 javap"></a>javac 与 javap</h3><p>javac -g 与没有 -g 参数相比多了局部变量表等信息，idea 和 eclipse 默认有 -g 参数</p>
+<p>javap -v 反汇编，详细，加上 -p 显示私有</p>
+<h3 id="字节码指令"><a href="#字节码指令" class="headerlink" title="字节码指令"></a>字节码指令</h3><p>指令由操作码和操作数(很多没有)构成</p>
+<p>局部变量表、操作数栈以槽位为单位，byte short int boolean floot char 占4个字节，一个槽位，其中byte short char 存储时自动转为 int 以占满 4 个字节，double long 占 8 个字节，2 个槽位，引用类型也占一个槽位</p>
+<p><code>压栈指令</code></p>
+<p>从局部变量表压入操作数栈，load </p>
+<p><code>常量入栈指令</code></p>
+<p>const: int long double float 和引用类型使用</p>
+<p>push: byte short 使用</p>
+<p>dc: 万能型</p>
+<p><code>出栈装入局部变量表指令</code></p>
+<p>store</p>
+<p><code>算术指令</code></p>
+<p><img src="/blog.github.io/2022/03/29/JVM-%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD/1.png"></p>
+<p><code>类型转换指令</code></p>
+<p>宽化类型转换/自动类型转换【简化: int ——&gt; long ——&gt; float ——&gt; double 会发生精度损失】</p>
+<ul>
+<li><p>int 到 其他: i2l i2f i2d</p>
+</li>
+<li><p>long 到其他: l2f l2d</p>
+</li>
+<li><p>float 到其他: f2d</p>
+</li>
+<li><p>byte short 转换为较大范围类型看作是 int</p>
+</li>
+</ul>
+<p>窄化类型转换【精度损失更大】</p>
+<ul>
+<li><p>int 到其他: i2s i2b i2c</p>
+</li>
+<li><p>long 到 int: l2i</p>
+</li>
+<li><p>float 到其他: f2i f2l</p>
+</li>
+<li><p>double 到其他: d2f d2l d2i</p>
+</li>
+</ul>
+<p><code>对象和数组的创建指令</code></p>
+<p>对象创建指令：new</p>
+<p>数组的创建指令：newarray（基本数据类型）anewarray（引用数据类型）multianewarray（多维数组）</p>
+<p><code>字段访问指令</code></p>
+<p>类字段：getstatic putstatic</p>
+<p>实例字段：gefield putfield</p>
+<p><code>数组操作指令</code></p>
+<p>aload（压栈） astore（赋值） arraylength（数组长度）</p>
+<p><code>类型检查指令</code></p>
+<p>instanceof checkcast</p>
+<p><code>方法调用指令</code></p>
+<p>invokevirtual：虚方法分派，支持多态</p>
+<p>invokeinterface：调用接口方法</p>
+<p>invokespecial：构造器、私有和父类方法</p>
+<p>invokestatic：类方法</p>
+<p><code>方法返回指令</code></p>
+<p>return</p>
+<p><code>操作数栈管理指令</code></p>
+<p>弹出：pop 复制：dup 交换数值：swap</p>
+<p><code>比较指令</code></p>
+<p>dcmpg dcmpl fcmpg fcmpl lcmp</p>
+<p>double float 有两套是因为 Nan 值处理方式不同，例如 fcmpg 压入 1，fcmpl 压入 -1</p>
+<p><code>条件跳转指令</code></p>
+<p>ifeq iflt ifle ifne ifgt ifge （用来比较 long float 和 double）</p>
+<p><code>比较条件跳转指令</code></p>
+<p>if_icmpeq if_icmpne if_icmplt if_icmpgt if_icmpge if_icmpeq if_acmpeq if_acmpne</p>
+<p><code>多条件跳转指令</code></p>
+<p>tablestitch（连续的值） lookupstitch（不连续但会进行排序）</p>
+<p><code>无条件跳转指令</code></p>
+<p>goto</p>
+<p><code>抛出异常指令</code></p>
+<p>athrow 手动抛出</p>
+<p><code>异常处理指令</code></p>
+<p>处理异常是由异常表实现的，并没有 try catch 体现</p>
+<p><code>同步指令</code></p>
+<p>方法级的同步和普通方法指令没区别，当通过访问标志判断某方法是同步方法会自动在方法调用前加锁</p>
+<p>同步代码块：monitorenter monitorexit，通过异常表维护释的放锁，如果监视器计数器为 0 则进入，为 1 则判断监视器线程是否为自己，为自己进入，否则等待</p>
+<h2 id="类的加载"><a href="#类的加载" class="headerlink" title="类的加载"></a>类的加载</h2><h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p><code>过程一：加载阶段</code></p>
+<ul>
+<li><p>获取二进制流的方式</p>
+<ul>
+<li><p>通过文件系统读入</p>
+</li>
+<li><p>通过 jar 等数据包提取文件</p>
+</li>
+<li><p>通过网络加载</p>
+</li>
+<li><p>在运行时动态生成</p>
+</li>
+</ul>
+</li>
+<li><p>类模版和 Class 的位置</p>
+<p>  类模版在方法区，Class 实例在堆区</p>
+</li>
+<li><p>数组类的加载</p>
+<p>  数组类并非由类加载器负责创建，而是由 JVM 在运行时根据需要直接创建的</p>
+</li>
+</ul>
+<p><code>过程二：链接阶段</code></p>
+<ol>
+<li><p>验证</p>
+<ul>
+<li><p>格式检查（检查魔数、版本和长度，和加载同时进行）</p>
+</li>
+<li><p>语义检查</p>
+</li>
+<li><p>字节码验证</p>
+</li>
+<li><p>符号引用验证</p>
+</li>
+</ul>
+</li>
+<li><p>准备</p>
+</li>
+</ol>
+<p>为类中的静态变量分配内存并赋默认值，但并不包括常量，常量在编译时就已经分配，若以字符串字面量方式为常量赋值则也在此阶段显式赋值，在这个阶段并不会有代码的执行</p>
+<ol start="3">
+<li>解析</li>
+</ol>
+<p>将类、接口、字段、方法等符号引用转为直接引用，以方法为例，通过解析符号引用可以转为目标方法在方法表中的位置</p>
+<p><code>过程三：初始化阶段</code></p>
+<p>为静态变量赋予正确的值，到了此阶段才会真正执行代码（静态代码块），&lt;clinit&gt; 方法就是由静态变量的显示赋值和静态代码块构成，此方法由 JVM 自动调用，并且总是先调用父类的 &lt;clinit&gt;</p>
+<p>没有静态变量的显式赋值和静态代码块就没有 &lt;clinit&gt;，</p>
+<p>结论：使用 static final 修饰，且显式赋值中不涉及到方法和构造器调用的基本数据类型和 String 的显示赋值是在链接阶段的准备阶段进行</p>
+<p>&lt;clinit&gt; 是线程安全的</p>
+<h3 id="类的使用"><a href="#类的使用" class="headerlink" title="类的使用"></a>类的使用</h3><p>类的主动使用和被动使用区别在于 &lt;clinit&gt; 方法调用与否，主动使用会调用</p>
+<p>类的主动使用</p>
+<ol>
+<li><p>创建实例（序列化、new、反射）</p>
+</li>
+<li><p>调用类的静态方法</p>
+</li>
+<li><p>调用类/接口的静态字段（final 另算）</p>
+</li>
+<li><p>调用 java.lang.reflect 包中反射类的方法，比如 Class.forName()</p>
+</li>
+<li><p>调用子类的 &lt;clinit&gt; 先触发父类的 &lt;clinit&gt;，但不适用接口</p>
+</li>
+<li><p>如果一个接口有 default 方法，直接或间接实现该类的初始化会先初始化该接口</p>
+</li>
+<li><p>JVM 会先初始化主类</p>
+</li>
+<li><p>MethodHandle </p>
+</li>
+</ol>
+<p>类的被动使用</p>
+<ol>
+<li><p>通过子类引用调父类的静态字段不会造成子类初始化</p>
+</li>
+<li><p>通过数组定义类引用不会造成类的初始化</p>
+</li>
+<li><p>引用常量不会造成类的初始化（常量在链接阶段赋值）</p>
+</li>
+<li><p>ClassLoader 的 loadClass() 方法不是类的主动使用</p>
+</li>
+</ol>
+<h3 id="类的卸载"><a href="#类的卸载" class="headerlink" title="类的卸载"></a>类的卸载</h3><p>方法区的回收很苛刻，要满足下面三个条件</p>
+<ol>
+<li><p>类的所有实例被回收</p>
+</li>
+<li><p>类的加载器被回收（很难达成）</p>
+</li>
+<li><p>Class 对象的引用被回收</p>
+</li>
+</ol>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>基本数据类型已预先定义，引用类型才需要类加载器</p>
+<p>类的唯一性和命名空间：</p>
+<p>比较两个类是否想等只有在同一个加载器下才有意义</p>
+<p>命名空间由该类及其所有父加载器所加载的类组成，在同一个命名空间中不会出现类的完整名字相同的俩类，不同命名空间可以</p>
+<h3 id="引导类加载器"><a href="#引导类加载器" class="headerlink" title="引导类加载器"></a>引导类加载器</h3><p>由 c 实现，其他三个加载器都算自定义加载器实现，另外三个都派生与 ClassLoader 抽象类，自定义加载其都应该有自己的「父」加载器，即下层加载器包含上层加载器</p>
+<p>引导类加载器用来加载 Java 的核心类库（JAVA_HOME/jre/lib/rt.jar）</p>
+<p>引导类加载器不继承 ClassLoader，没有父加载器</p>
+<p>出于安全考虑，引导类加载器只加载包名以 java javax sun 开头的类</p>
+<p>扩展类加载器和系统类加载器是由引导类加载器加载的</p>
+<h3 id="扩展类加载器"><a href="#扩展类加载器" class="headerlink" title="扩展类加载器"></a>扩展类加载器</h3><p>用来加载 JAVA_HOME/jre/lib/ext 的类库</p>
+<h3 id="系统类加载器"><a href="#系统类加载器" class="headerlink" title="系统类加载器"></a>系统类加载器</h3><p>是默认的加载器</p>
+<h3 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h3><h3 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h3><p>本质为类的加载顺序：引导类 —&gt; 拓展类 —&gt; 系统类/自定义</p>
+<p>优点：避免类的重复加载和防止核心 API 篡改</p>
+<p>弊端：顶层的加载器无法加载下层加载器加载的类</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JVM 性能监控与调优</title>
     <url>/blog.github.io/2022/04/02/JVM-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%B0%83%E4%BC%98/</url>
     <content><![CDATA[<h2 id="监控之命令行工具"><a href="#监控之命令行工具" class="headerlink" title="监控之命令行工具"></a>监控之命令行工具</h2><ol>
@@ -549,51 +549,6 @@
       </categories>
       <tags>
         <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java 集合</title>
-    <url>/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/</url>
-    <content><![CDATA[<blockquote>
-<p>Java 集合个人查漏补缺</p>
-</blockquote>
-<h3 id="简略结构"><a href="#简略结构" class="headerlink" title="简略结构"></a>简略结构</h3><p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Collection.png" alt="Collection"></p>
-<p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Map.png" alt="Map"></p>
-<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Iterator 仅用于遍历集合，并不存放对象</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    list.add(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">    list.add(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">    list.add(<span class="string">&quot;c&quot;</span>);</span><br><span class="line">    Iterator&lt;String&gt; iterator = list.iterator();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">        <span class="comment">// 指针向下移并返回元素，next() 之前必须 hasNext()，否则报错</span></span><br><span class="line">        <span class="comment">// 增强 for 即是简化版的迭代器</span></span><br><span class="line">        String s = iterator.next();</span><br><span class="line">        log.debug(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><blockquote>
-<p>有序（添加顺序和取出顺序一致）可重复，支持索引</p>
-</blockquote>
-<h4 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h4><p>ArrayList 内部维护了一个 Object 的数组，如果使用的是无参构造器则初始化容量为 0，第一次添加扩容为 10，再次扩容为 1.5 倍，若使用指定大小的构造器，则初始化容量为指定大小，再次扩容为 1.5 倍</p>
-<h4 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h4><p>Vector 的底层也是 Object 数组并且线程安全（synchorized，效率不高）</p>
-<p>Vector 的扩容机制类似 ArrayList，不过是按 2 倍扩容</p>
-<h4 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a>LinkedList</h4><p>底层实现了双向链表和双端队列的特点，添加和删除的效率比较高，ArrayList 的改查效率高</p>
-<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><blockquote>
-<p>无序不可重复，没有索引</p>
-</blockquote>
-<h4 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h4><p>实际上是 HashMap，底层为（数组 + 链表 + 红黑树），可以有 null 但只能有一个</p>
-<p>add 步骤</p>
-<ol>
-<li><p>得到 hash 值(不是 hashCode 值)，转为索引</p>
-</li>
-<li><p>找到存储数据表 table(数组),如果索引位置无元素则直接放入，有元素则调用 equals 比较，相同放弃添加，不同添加到链表最后</p>
-</li>
-<li><p>第一次添加时 table 数组扩容到 16，临界值 16 * 0.75 = 12，当 table 数组达到临界则扩容为 32，临界 32 * 0.75 = 24，以此类推</p>
-</li>
-<li><p>java8 中如果一条链表的元素个数超过 TREEIFY_THRESHOLD(默认 8)，并且 table 大小超过 MIN_TREEIFY_CAPACITY(默认 64) 则树化</p>
-</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="params"><span class="function">                <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="comment">// 如果当前 table 为null 或者大小为 0</span></span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        <span class="comment">// table 是 HashMap 的一个 Node 类型数组，初始扩容大小为 16，临界 12</span></span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="comment">// 根据 key 得到 hash 值，并计算 key 应该存放的索引位置，并把 p 指向该位置对象</span></span><br><span class="line">    <span class="comment">// 如 p 为 null 则新建 Node 节点   </span></span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="comment">// 如果新加入的元素 hash 值和当前位置的hash 值一样，并且为同一个对象或者内容相同，则不添加</span></span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="comment">// 判断是否是红黑树    </span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果和链表的每一个元素比较后都不相同就放到链表最后，有相同的则 break</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="comment">// 判断是否需要树化</span></span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="comment">// 看是否临界</span></span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h4 id="LinkedHashSet"><a href="#LinkedHashSet" class="headerlink" title="LinkedHashSet"></a>LinkedHashSet</h4><p>底层为 LinkedHashMap，维护了一个数组和双向链表，可以保证插入顺序和取出顺序一致</p>
-<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3><p>HashTable 的 key value 都不能为 null, 线程安全（synchronized），底层数组默认大小 11，加载因子 0.75，TreeMap 和 TreeSet 可以排序，TreeSet 底层为 TreeMap</p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>集合</tag>
       </tags>
   </entry>
   <entry>
@@ -812,6 +767,51 @@
       </categories>
       <tags>
         <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java 集合</title>
+    <url>/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/</url>
+    <content><![CDATA[<blockquote>
+<p>Java 集合个人查漏补缺</p>
+</blockquote>
+<h3 id="简略结构"><a href="#简略结构" class="headerlink" title="简略结构"></a>简略结构</h3><p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Collection.png" alt="Collection"></p>
+<p><img src="/blog.github.io/2022/05/16/Java-%E9%9B%86%E5%90%88/Map.png" alt="Map"></p>
+<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Iterator 仅用于遍历集合，并不存放对象</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    list.add(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">    list.add(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">    list.add(<span class="string">&quot;c&quot;</span>);</span><br><span class="line">    Iterator&lt;String&gt; iterator = list.iterator();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">        <span class="comment">// 指针向下移并返回元素，next() 之前必须 hasNext()，否则报错</span></span><br><span class="line">        <span class="comment">// 增强 for 即是简化版的迭代器</span></span><br><span class="line">        String s = iterator.next();</span><br><span class="line">        log.debug(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><blockquote>
+<p>有序（添加顺序和取出顺序一致）可重复，支持索引</p>
+</blockquote>
+<h4 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h4><p>ArrayList 内部维护了一个 Object 的数组，如果使用的是无参构造器则初始化容量为 0，第一次添加扩容为 10，再次扩容为 1.5 倍，若使用指定大小的构造器，则初始化容量为指定大小，再次扩容为 1.5 倍</p>
+<h4 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h4><p>Vector 的底层也是 Object 数组并且线程安全（synchorized，效率不高）</p>
+<p>Vector 的扩容机制类似 ArrayList，不过是按 2 倍扩容</p>
+<h4 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a>LinkedList</h4><p>底层实现了双向链表和双端队列的特点，添加和删除的效率比较高，ArrayList 的改查效率高</p>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><blockquote>
+<p>无序不可重复，没有索引</p>
+</blockquote>
+<h4 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h4><p>实际上是 HashMap，底层为（数组 + 链表 + 红黑树），可以有 null 但只能有一个</p>
+<p>add 步骤</p>
+<ol>
+<li><p>得到 hash 值(不是 hashCode 值)，转为索引</p>
+</li>
+<li><p>找到存储数据表 table(数组),如果索引位置无元素则直接放入，有元素则调用 equals 比较，相同放弃添加，不同添加到链表最后</p>
+</li>
+<li><p>第一次添加时 table 数组扩容到 16，临界值 16 * 0.75 = 12，当 table 数组达到临界则扩容为 32，临界 32 * 0.75 = 24，以此类推</p>
+</li>
+<li><p>java8 中如果一条链表的元素个数超过 TREEIFY_THRESHOLD(默认 8)，并且 table 大小超过 MIN_TREEIFY_CAPACITY(默认 64) 则树化</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="params"><span class="function">                <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="comment">// 如果当前 table 为null 或者大小为 0</span></span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        <span class="comment">// table 是 HashMap 的一个 Node 类型数组，初始扩容大小为 16，临界 12</span></span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="comment">// 根据 key 得到 hash 值，并计算 key 应该存放的索引位置，并把 p 指向该位置对象</span></span><br><span class="line">    <span class="comment">// 如 p 为 null 则新建 Node 节点   </span></span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="comment">// 如果新加入的元素 hash 值和当前位置的hash 值一样，并且为同一个对象或者内容相同，则不添加</span></span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="comment">// 判断是否是红黑树    </span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果和链表的每一个元素比较后都不相同就放到链表最后，有相同的则 break</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="comment">// 判断是否需要树化</span></span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="comment">// 看是否临界</span></span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="LinkedHashSet"><a href="#LinkedHashSet" class="headerlink" title="LinkedHashSet"></a>LinkedHashSet</h4><p>底层为 LinkedHashMap，维护了一个数组和双向链表，可以保证插入顺序和取出顺序一致</p>
+<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3><p>HashTable 的 key value 都不能为 null, 线程安全（synchronized），底层数组默认大小 11，加载因子 0.75，TreeMap 和 TreeSet 可以排序，TreeSet 底层为 TreeMap</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>集合</tag>
       </tags>
   </entry>
   <entry>

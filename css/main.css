@@ -1217,7 +1217,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #fff;
+  background: #e4ffff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -1732,12 +1732,12 @@ pre .javascript .function {
 }
 @media (min-width: 992px) {
   .post-body {
-    text-align: justify;
+    text-align: left;
   }
 }
 @media (max-width: 991px) {
   .post-body {
-    text-align: justify;
+    text-align: left;
   }
 }
 .post-body h1,

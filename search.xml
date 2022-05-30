@@ -1695,4 +1695,20 @@ intern() 判断常量池中是否存在，存在返回地址，否则加载一�
         <tag>Redis</tag>
       </tags>
   </entry>
+  <entry>
+    <title>tcp/ip 相关</title>
+    <url>/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/</url>
+    <content><![CDATA[<h3 id="OSI-五层模型各层协议"><a href="#OSI-五层模型各层协议" class="headerlink" title="OSI 五层模型各层协议"></a>OSI 五层模型各层协议</h3><p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/1.png" alt="OSI 五层模型各层协议"></p>
+<h3 id="基于-自定义协议的-的-Wireshark-抓包测试"><a href="#基于-自定义协议的-的-Wireshark-抓包测试" class="headerlink" title="基于 自定义协议的 的 Wireshark 抓包测试"></a>基于 自定义协议的 的 Wireshark 抓包测试</h3><p>源码<a href="/blog.github.io/2022/05/04/Netty/#协议设计与解析">请看</a></p>
+<p><img src="/blog.github.io/2022/05/30/tcp-ip-%E7%9B%B8%E5%85%B3/2.png" alt="Wireshark"></p>
+<h3 id="tcp-udp-连通性测试"><a href="#tcp-udp-连通性测试" class="headerlink" title="tcp/udp 连通性测试"></a>tcp/udp 连通性测试</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> tcp 连通测试</span></span><br><span class="line">❯ nc -vz 192.168.31.20 22</span><br><span class="line">Connection to 192.168.31.20 port 22 [tcp/ssh] succeeded!</span><br><span class="line">❯ nc -vz 192.168.31.20 6379</span><br><span class="line">nc: connectx to 192.168.31.20 port 6379 (tcp) failed: Connection refused</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> udp 服务端</span></span><br><span class="line">root@us01:~# nc -ulp 53276</span><br><span class="line">udp!hello</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> udp 客户端</span></span><br><span class="line">❯ nc -u ip 53276</span><br><span class="line">udp!hello</span><br><span class="line">^C</span><br></pre></td></tr></table></figure>
+
+<h3 id="tls-加密协议"><a href="#tls-加密协议" class="headerlink" title="tls 加密协议"></a>tls 加密协议</h3>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>网络</tag>
+      </tags>
+  </entry>
 </search>

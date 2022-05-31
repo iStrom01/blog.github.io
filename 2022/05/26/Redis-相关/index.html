@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/05/26/Redis-%E7%9B%B8%E5%85%B3/1.png">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/05/26/Redis-%E7%9B%B8%E5%85%B3/2.png">
 <meta property="article:published_time" content="2022-05-26T12:15:33.000Z">
-<meta property="article:modified_time" content="2022-05-30T08:01:15.471Z">
+<meta property="article:modified_time" content="2022-05-31T03:27:19.961Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -223,7 +223,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-30 16:01:15" itemprop="dateModified" datetime="2022-05-30T16:01:15+08:00">2022-05-30</time>
+                <time title="修改时间：2022-05-31 11:27:19" itemprop="dateModified" datetime="2022-05-31T11:27:19+08:00">2022-05-31</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -275,7 +275,7 @@
 
 <h4 id="OpenResty（nginx）"><a href="#OpenResty（nginx）" class="headerlink" title="OpenResty（nginx）"></a>OpenResty（nginx）</h4><p><a target="_blank" rel="noopener" href="https://openresty.org/cn/">https://openresty.org/cn/</a></p>
 <p>OpenResty 为 nginx 提供了 shared dict 的功能，可以在多个 worker 之间共享数据，实现 nginx 本地缓存功能</p>
-<h4 id="缓存预热"><a href="#缓存预热" class="headerlink" title="缓存预热"></a>缓存预热</h4><p>InitializingBean</p>
+<h4 id="缓存预热"><a href="#缓存预热" class="headerlink" title="缓存预热"></a>缓存预热</h4><p>InitializingBean 接口实现</p>
 <h4 id="缓存同步"><a href="#缓存同步" class="headerlink" title="缓存同步"></a>缓存同步</h4><p>cancel，主要利用 mysql 的基于 binlog 日志的主从同步机制实现</p>
 <h3 id="Redis-数据结构"><a href="#Redis-数据结构" class="headerlink" title="Redis 数据结构"></a>Redis 数据结构</h3><h4 id="动态字符串-SDS"><a href="#动态字符串-SDS" class="headerlink" title="动态字符串 SDS"></a>动态字符串 SDS</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* redis 定义了多种结构体来保存字符串，即 SDS */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -319,7 +319,27 @@
 <li><p>周期删除: 定时任务周期性抽取部分过期的 key 然后删除</p>
 </li>
 </ol>
-<h4 id="淘汰策略"><a href="#淘汰策略" class="headerlink" title="淘汰策略"></a>淘汰策略</h4>
+<h4 id="淘汰策略"><a href="#淘汰策略" class="headerlink" title="淘汰策略"></a>淘汰策略</h4><p>当内存使用达到设置的阈值，主动挑选部分 key 释放更多内存</p>
+<p>8 种淘汰策略（maxmemory-policy）</p>
+<ol>
+<li><p>noeviction 默认，不淘汰，占满不允许添加</p>
+</li>
+<li><p>volatile ttl 越小越先淘汰</p>
+</li>
+<li><p>allkeys-random 所有 key 随机淘汰</p>
+</li>
+<li><p>volatile-random 所有设置 ttl 的 key 随机淘汰</p>
+</li>
+<li><p>allkeys-lru 全体 key lru 算法淘汰(最少最近使用)</p>
+</li>
+<li><p>volatile-lru 设置 ttl 的 key lru 算法淘汰</p>
+</li>
+<li><p>allkeys-lfu 全体 key lfu 算法淘汰（最少频率使用）</p>
+</li>
+<li><p>volatile-lfu 设置 ttl 的 key lfu 算法淘汰</p>
+</li>
+</ol>
+
     </div>
 
     

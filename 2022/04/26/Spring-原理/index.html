@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png">
 <meta property="article:published_time" content="2022-04-26T08:16:09.000Z">
-<meta property="article:modified_time" content="2022-05-29T13:55:48.290Z">
+<meta property="article:modified_time" content="2022-08-02T07:34:34.186Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -224,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-29 21:55:48" itemprop="dateModified" datetime="2022-05-29T21:55:48+08:00">2022-05-29</time>
+                <time title="修改时间：2022-08-02 15:34:34" itemprop="dateModified" datetime="2022-08-02T15:34:34+08:00">2022-08-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -261,7 +261,7 @@
 <ol>
 <li><p>解析配置文件，定义解析文件的规范 BeanDefinitionReader 接口方便扩展，解析为 BeanDefinition</p>
 </li>
-<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息</p>
+<li><p>使用 BeanFactoryPostProcessor 增强 BeanDefinition 信息（配置类的 @Bean 注解等）</p>
 </li>
 <li><p>实例化（半成品），属性都是默认值</p>
 </li>
@@ -271,7 +271,7 @@
 </li>
 <li><p>容器属性 invokeAwareMethods</p>
 </li>
-<li><p>使用 BeanPostProcessor 增强 bean 信息（比如 AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
+<li><p>使用 BeanPostProcessor 增强 bean 信息（比如@AutoWired @Resource 注解， AOP，AbstractAutoProxyCreator 动态代理），两个方法间中间执行初始化方法(init-method)</p>
 </li>
 </ol>
 </li>
@@ -283,6 +283,17 @@
 <li><p>ApplicationContext 与 BeanFactory 关系，和默认 BeanFactory</p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/ApplicationContext.png"></p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png"></p>
+<p> BeanFactory</p>
+<ul>
+<li><p>不会主动调用 BFPP</p>
+</li>
+<li><p>不会主动添加 BPP</p>
+</li>
+<li><p>不会主动初始化单例</p>
+</li>
+<li><p>不会解析占位符 el 表达式</p>
+</li>
+</ul>
 </li>
 <li><p>BeanDefinition </p>
 <p> <img src="/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png"></p>
@@ -298,7 +309,11 @@
 <li><p>Aware</p>
  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 标志 bean 的容器属性赋值，由 spring 调用，Bean 应实现其子接口，如 ApplicationContextAware</span></span><br><span class="line"><span class="comment">* A marker superinterface indicating that a bean is eligible to be notified by the</span></span><br><span class="line"><span class="comment">* Spring container of a particular framework object through a callback-style method.</span></span><br><span class="line"><span class="comment">* The actual method signature is determined by individual subinterfaces but should</span></span><br><span class="line"><span class="comment">* typically consist of just one void-returning method that accepts a single argument.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* &lt;p&gt;Note that merely implementing &#123;<span class="doctag">@link</span> Aware&#125; provides no default functionality.</span></span><br><span class="line"><span class="comment">* Rather, processing must be done explicitly, for example in a</span></span><br><span class="line"><span class="comment">* &#123;<span class="doctag">@link</span> org.springframework.beans.factory.config.BeanPostProcessor&#125;.</span></span><br><span class="line"><span class="comment">* Refer to &#123;<span class="doctag">@link</span> org.springframework.context.support.ApplicationContextAwareProcessor&#125;</span></span><br><span class="line"><span class="comment">* for an example of processing specific &#123;<span class="doctag">@code</span> *Aware&#125; interface callbacks.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Chris Beams</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> Juergen Hoeller</span></span><br><span class="line"><span class="comment">* <span class="doctag">@since</span> 3.1</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Aware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li><p>BeanPostProcessor 可以扩展 Bean，比如 AOP、注解（@AutoWired、@Value、@AfterContruct）</p>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @AutoWired、@Value 注解的功能的完成，先有 XML 配置方式后来扩展的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AutowiredAnnotationBeanPostProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Autowired.class);</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Value.class);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.autowiredAnnotationTypes.add((Class&lt;? extends Annotation&gt;)</span><br><span class="line">                ClassUtils.forName(<span class="string">&quot;javax.inject.Inject&quot;</span>, AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));</span><br><span class="line">        logger.trace(<span class="string">&quot;JSR-330 &#x27;javax.inject.Inject&#x27; annotation found and supported for autowiring&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">        <span class="comment">// JSR-330 API not available - simply skip.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @AutoWired、@Value 注解的功能的完成，先有 XML 配置方式后来扩展的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AutowiredAnnotationBeanPostProcessor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Autowired.class);</span><br><span class="line">    <span class="keyword">this</span>.autowiredAnnotationTypes.add(Value.class);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.autowiredAnnotationTypes.add((Class&lt;? extends Annotation&gt;)</span><br><span class="line">                ClassUtils.forName(<span class="string">&quot;javax.inject.Inject&quot;</span>, AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));</span><br><span class="line">        logger.trace(<span class="string">&quot;JSR-330 &#x27;javax.inject.Inject&#x27; annotation found and supported for autowiring&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">        <span class="comment">// JSR-330 API not available - simply skip.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> AutowiredAnnotationBeanPostProcessor: 解析 @Autowired @Value</p>
+<p> CommonAnnotationBeanPostProcessor: 解析 @Resource @PostConstruct @PreDestory </p>
+<p> ConfigurationBeanBindingPostProcessor: 解析 @ConfigurationProperties</p>
+</li>
 <li><p>BeanFactory 和 FactoryBean 都是用来创建对象的，BeanFactory 必须遵循完整的创建过程，这个过程是由 Spring 来管理控制的，而 FactoryBean 只需要调用 getObject 就可以返回具体的对象，整个对象的创建过程是由客户自己控制的，更加灵活</p>
 </li>
 </ol>
@@ -311,7 +326,7 @@
 <p><font color=orange>说明</font></p>
 <p>按照 123 的顺序来获取对象，前面的缓存有就把后面的除掉。如果只有一级缓存，成品和半成品对象放到一起会覆盖掉，因此需要两个缓存分别放对象和半成品对象。Spring 无法预知是否需要代理对象，因此需要一个类似回调的方法 getEarlyBeanReference 放三级缓存中，需要代理对象时就覆盖原始对象并对外暴露代理对象</p>
 <h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3><p>cglib 往代理对象里聚合了一个原对象，当执行 AOP 逻辑时会调用原对象的对应方法，当调用事务是要分清调用方法的是代理对象还是原对象，原对象没有事务判断逻辑</p>
-
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h3>
     </div>
 
     
@@ -394,7 +409,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.</span> <span class="nav-text">循环依赖</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP-%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">AOP 过程</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.</span> <span class="nav-text">循环依赖</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP-%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">AOP 过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ApplicationContext"><span class="nav-number">4.</span> <span class="nav-text">ApplicationContext</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

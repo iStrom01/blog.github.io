@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png">
 <meta property="article:published_time" content="2022-04-26T08:16:09.000Z">
-<meta property="article:modified_time" content="2022-08-03T13:38:36.747Z">
+<meta property="article:modified_time" content="2022-08-05T08:28:25.924Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -224,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-03 21:38:36" itemprop="dateModified" datetime="2022-08-03T21:38:36+08:00">2022-08-03</time>
+                <time title="修改时间：2022-08-05 16:28:25" itemprop="dateModified" datetime="2022-08-05T16:28:25+08:00">2022-08-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -352,6 +352,35 @@
 <li><p>以上三种初销毁手段执行顺序由上到下</p>
 </li>
 </ul>
+<h3 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a>Spring MVC</h3><ol>
+<li><p>DispatcherServlet 由 spring 容器创建由内嵌 tomcat 初始化，默认第一次调用时初始化，可由 mvc.servlet.load-on-startup 指定随 tomcat 启动而初始化</p>
+</li>
+<li><p>初始化操作</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initStrategies</span><span class="params">(ApplicationContext context)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 文件上传解析器</span></span><br><span class="line">    <span class="keyword">this</span>.initMultipartResolver(context);</span><br><span class="line">    <span class="comment">// 本地化解析器</span></span><br><span class="line">    <span class="keyword">this</span>.initLocaleResolver(context);</span><br><span class="line">    <span class="keyword">this</span>.initThemeResolver(context);</span><br><span class="line">    <span class="comment">// 路径映射器</span></span><br><span class="line">    <span class="keyword">this</span>.initHandlerMappings(context);</span><br><span class="line">    <span class="comment">// 控制适配器</span></span><br><span class="line">    <span class="keyword">this</span>.initHandlerAdapters(context);</span><br><span class="line">    <span class="comment">// 异常解析器</span></span><br><span class="line">    <span class="keyword">this</span>.initHandlerExceptionResolvers(context);</span><br><span class="line">    <span class="keyword">this</span>.initRequestToViewNameTranslator(context);</span><br><span class="line">    <span class="keyword">this</span>.initViewResolvers(context);</span><br><span class="line">    <span class="keyword">this</span>.initFlashMapManager(context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>父子容器特点：</p>
+<ol>
+<li><p>父容器和子容器是相互隔离的，他们内部可以存在名称相同的bean</p>
+</li>
+<li><p>子容器可以访问父容器中的bean，而父容器不能访问子容器中的bean</p>
+</li>
+<li><p>调用子容器的getBean方法获取bean的时候，会沿着当前容器开始向上面的容器进行查找，直到找到对应的bean为止</p>
+</li>
+<li><p>子容器中可以通过任何注入方式注入父容器中的bean，而父容器中是无法注入子容器中的bean，原因是第2点</p>
+</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>Spring MVC 为什么使用父子容器：</p>
+<p>通常我们使用springmvc的时候，采用3层结构，controller层，service层，dao层；父容器中会包含dao层和service层，而子容器中包含的只有controller层；这2个容器组成了父子容器的关系，controller层通常会注入service层的bean。</p>
+<p>采用父子容器可以避免有些人在service层去注入controller层的bean，导致整个依赖层次是比较混乱的。</p>
+<p>父容器和子容器的需求也是不一样的，比如父容器中需要有事务的支持，会注入一些支持事务的扩展组件，而子容器中controller完全用不到这些，对这些并不关心，子容器中需要注入一下springmvc相关的bean，而这些bean父容器中同样是不会用到的，也是不关心一些东西，将这些相互不关心的东西隔开，可以有效的避免一些不必要的错误，而父子容器加载的速度也会快一些</p>
+</blockquote>
+<h3 id="RequestMappingHandlerMapping"><a href="#RequestMappingHandlerMapping" class="headerlink" title="RequestMappingHandlerMapping"></a>RequestMappingHandlerMapping</h3><p> 解析 @RequestMapping 以及其派生注解，生成路径与控制器方法的映射关系，在初始化时就生成,通过 getHandlerMethods 方法把结果放入一个 map，通过 getHandler 方法生成每个路径的执行链 HandlerExecutionChain（包括拦截器）</p>
+<h3 id="RequestMappingHandlerAdapter"><a href="#RequestMappingHandlerAdapter" class="headerlink" title="RequestMappingHandlerAdapter"></a>RequestMappingHandlerAdapter</h3><p> 调用控制器方法，getArgumentResolvers 方法获得参数解析器，getReturnValueHandlers 方法获得 返回值处理器</p>
+</li>
+</ol>
 
     </div>
 
@@ -435,7 +464,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.</span> <span class="nav-text">循环依赖</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP-%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">AOP 过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E9%94%80%E6%AF%81%E6%89%8B%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">初始化及销毁手段</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC-%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">IOC 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">重要接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.</span> <span class="nav-text">循环依赖</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP-%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">AOP 过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E9%94%80%E6%AF%81%E6%89%8B%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">初始化及销毁手段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-MVC"><span class="nav-number">4.</span> <span class="nav-text">Spring MVC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestMappingHandlerMapping"><span class="nav-number">5.</span> <span class="nav-text">RequestMappingHandlerMapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestMappingHandlerAdapter"><span class="nav-number">6.</span> <span class="nav-text">RequestMappingHandlerAdapter</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

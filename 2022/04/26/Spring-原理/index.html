@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/DefaultListableBeanFactory.png">
 <meta property="og:image" content="https://istrom01.github.io/blog.github.io/2022/04/26/Spring-%E5%8E%9F%E7%90%86/RootBeanDefinition.png">
 <meta property="article:published_time" content="2022-04-26T08:16:09.000Z">
-<meta property="article:modified_time" content="2022-08-11T12:13:59.683Z">
+<meta property="article:modified_time" content="2022-09-09T11:37:00.667Z">
 <meta property="article:author" content="istorm">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -224,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-11 20:13:59" itemprop="dateModified" datetime="2022-08-11T20:13:59+08:00">2022-08-11</time>
+                <time title="修改时间：2022-09-09 19:37:00" itemprop="dateModified" datetime="2022-09-09T19:37:00+08:00">2022-09-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -332,7 +332,8 @@
 
 <p><font color=orange>说明</font></p>
 <p>按照 123 的顺序来获取对象，前面的缓存有就把后面的除掉。如果只有一级缓存，成品和半成品对象放到一起会覆盖掉，因此需要两个缓存分别放对象和半成品对象。Spring 无法预知是否需要代理对象，因此需要一个类似回调的方法 getEarlyBeanReference 放三级缓存中，需要代理对象时就覆盖原始对象并对外暴露代理对象</p>
-<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3><p>代理的创建时机：初始化之后（无循环依赖时），实例创建后，依赖注入前（有循环依赖时），并暂存于二级缓存</p>
+<h3 id="AOP-过程"><a href="#AOP-过程" class="headerlink" title="AOP 过程"></a>AOP 过程</h3><p>将 @Aspectj 注解高级切面和 Advisor 低级切面注册到容器，由 AspectJAwareAdvisorAutoProxyCreator 创建代理对象，其中 findEligibleAdvisors 方法把高级切面转为低级切面返回需要的低级切面对象，wrapIfNecessary 方法查看是否需要创建代理，由 ProxyFactory 对象的 getInterceptorsAndDynamicInterceptionAdvice 把其他通知转换为 InterceptMethod 环绕通知，由 MethodInvocation 的 proceed 方法调用执行链</p>
+<p>代理的创建时机：初始化之后（无循环依赖时），实例创建后，依赖注入前（有循环依赖时），并暂存于二级缓存</p>
 <p>cglib 往代理对象里聚合了一个原对象，当执行 AOP 逻辑时会调用原对象的对应方法，当调用事务是要分清调用方法的是代理对象还是原对象，原对象没有事务判断逻辑</p>
 <h3 id="初始化及销毁手段"><a href="#初始化及销毁手段" class="headerlink" title="初始化及销毁手段"></a>初始化及销毁手段</h3><ul>
 <li><p>@PostConstruct</p>
@@ -379,7 +380,7 @@
 </blockquote>
 </li>
 </ol>
-<h4 id="HandlerMapping"><a href="#HandlerMapping" class="headerlink" title="HandlerMapping"></a>HandlerMapping</h4><p>HandlerMapping 负费建立消求与控洲器之问的映射关系</p>
+<h4 id="HandlerMapping"><a href="#HandlerMapping" class="headerlink" title="HandlerMapping"></a>HandlerMapping</h4><p>HandlerMapping 负费建立消求与控制器之问的映射关系</p>
 <p>SimpleUrLHandlerMapping〔静态资源通配符 /** /img/**)</p>
 <p>RequestMappingHandlerMapping (与 @RequestNapping 匹配）</p>
 <p>WelcomePageHandlerMapping（/，欢迎页）</p>
